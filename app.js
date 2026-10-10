@@ -1,0 +1,144 @@
+const app = document.getElementById('app');
+const RATIO = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1 };
+const COLORS = ['#f0997b', '#85b7eb', '#97c459', '#ed93b1', '#afa9ec', '#5dcaa5', '#ef9f27', '#f5c4b3', '#b5d4f4'];
+const colorOf = p => COLORS[PROJECTS.indexOf(p) % COLORS.length];
+const bySlug = s => PROJECTS.find(p => p.slug === s);
+const byCat = c => PROJECTS.filter(p => p.cat === c);
+const isVideo = s => /\.(mp4|webm)$/i.test(s);
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html != null) e.innerHTML = html;
+  return e;
+}
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function tile(p) {
+  const a = el('a', 'tile');
+  a.href = '#/p/' + p.slug;
+  a.style.background = colorOf(p);
+  if (p.cover && isVideo(p.cover)) {
+    a.innerHTML = '<video src="' + p.cover + '" muted loop autoplay playsinline></video>';
+  } else if (p.cover) {
+    a.innerHTML = '<img src="' + p.cover + '" alt="" loading="lazy">';
+  } else {
+    a.innerHTML = '<span class="ph">' + p.r + '</span>';
+  }
+  a.insertAdjacentHTML('beforeend', '<span class="cap">' + esc(p.title) + '</span>');
+  a.setAttribute('aria-label', p.title);
+  return { node: a, r: RATIO[p.r] };
+}
+
+function stackTile() {
+  const n = byCat('reddit').length;
+  const a = el('a', 'stack');
+  a.href = '#/work/reddit';
+  a.innerHTML = '<span class="lay l1"></span><span class="lay l2"></span><span class="top3">Reddit<small>' + n + ' projects</small></span>';
+  return { node: a, r: 1 };
+}
+
+// Justified rows: every tile keeps its true ratio, each row fills the width.
+function mosaic(items) {
+  const wrap = el('div');
+  const W = app.clientWidth;
+  const target = W > 1000 ? 4.6 : W > 640 ? 3.6 : 2.3;
+  let row = [], sum = 0;
+  const flush = last => {
+    if (!row.length) return;
+    const r = el('div', 'row');
+    const partial = last && sum < target * 0.7;
+    row.forEach(it => {
+      it.node.style.aspectRatio = it.r;
+      it.node.style.flex = partial ? it.r / target + ' 0 0' : it.r + ' 1 0';
+      r.appendChild(it.node);
+    });
+    wrap.appendChild(r);
+    row = []; sum = 0;
+  };
+  items.forEach(it => {
+    row.push(it); sum += it.r;
+    if (sum >= target) flush(false);
+  });
+  flush(true);
+  return wrap;
+}
+
+function crumbs(parts) {
+  return '<p class="crumb">' + parts.map((x, i) => i === parts.length - 1 ? '<b>' + x[0] + '</b>' : '<a href="' + x[1] + '">' + x[0] + '</a>').join(' / ') + '</p>';
+}
+
+function home() {
+  const items = PROJECTS.filter(p => p.feat).map(tile);
+  items.splice(3, 0, stackTile());
+  return mosaic(items);
+}
+
+function work() {
+  const items = byCat('work').map(tile);
+  items.splice(2, 0, stackTile());
+  const w = el('div', null, crumbs([['Work']]));
+  w.appendChild(mosaic(items));
+  return w;
+}
+
+function reddit() {
+  const w = el('div', null, crumbs([['Work', '#/work'], ['Reddit']]));
+  w.appendChild(mosaic(byCat('reddit').map(tile)));
+  return w;
+}
+
+function play() {
+  const w = el('div', null, crumbs([['Play']]));
+  w.appendChild(mosaic(byCat('play').map(tile)));
+  return w;
+}
+
+function about() {
+  const links = SITE.links.map(l => '<a href="' + l.href + '">' + l.label + '</a>').join('');
+  return el('div', 'about', '<p>' + SITE.name + ' is a ' + SITE.tagline + '.</p><p>' + links + '</p>');
+}
+
+function project(slug) {
+  const p = bySlug(slug);
+  if (!p) return el('p', 'empty', 'That project doesn\u2019t exist. <a href="#/">Back to home</a>');
+  const trail = p.cat === 'reddit' ? [['Work', '#/work'], ['Reddit', '#/work/reddit'], [esc(p.title)]]
+    : p.cat === 'work' ? [['Work', '#/work'], [esc(p.title)]]
+    : [['Play', '#/play'], [esc(p.title)]];
+  const d = el('div', 'proj', crumbs(trail) + '<h1>' + esc(p.title) + '</h1>' + (p.blurb ? '<p class="blurb">' + esc(p.blurb) + '</p>' : ''));
+  if (!p.media.length) {
+    for (let i = 0; i < 3; i++) d.appendChild(el('div', 'm', '')).style.cssText = 'aspect-ratio:16/9;background:' + COLORS[(PROJECTS.indexOf(p) + i * 3) % COLORS.length];
+    return d;
+  }
+  p.media.forEach(m => {
+    let n;
+    if (m.t === 'video') n = el('video', 'm', ''), n.src = m.src, n.muted = n.loop = n.autoplay = n.playsInline = true;
+    else if (m.t === 'embed') n = el('iframe', 'm', ''), n.src = m.src, n.allowFullscreen = true, n.loading = 'lazy';
+    else n = el('img', 'm', ''), n.src = m.src, n.alt = '', n.loading = 'lazy';
+    d.appendChild(n);
+  });
+  return d;
+}
+
+function render() {
+  const h = (location.hash || '#/').replace(/^#\/?/, '');
+  const [a, b] = h.split('/');
+  let v, key = a;
+  if (a === 'work' && b === 'reddit') v = reddit();
+  else if (a === 'work') v = work();
+  else if (a === 'play') v = play();
+  else if (a === 'about') v = about();
+  else if (a === 'p') { v = project(b); key = ''; }
+  else { v = home(); key = ''; }
+  app.replaceChildren(v);
+  document.querySelectorAll('#nav a').forEach(x => x.classList.toggle('on', x.dataset.k === key));
+  window.scrollTo(0, 0);
+}
+
+let lastW = app.clientWidth, t;
+window.addEventListener('hashchange', render);
+window.addEventListener('resize', () => {
+  clearTimeout(t);
+  t = setTimeout(() => { if (Math.abs(app.clientWidth - lastW) > 40) { lastW = app.clientWidth; const y = scrollY; render(); scrollTo(0, y); } }, 150);
+});
+render();
