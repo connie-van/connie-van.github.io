@@ -3,7 +3,7 @@ const RATIO = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1 };
 const COLORS = ['#f0997b', '#85b7eb', '#97c459', '#ed93b1', '#afa9ec', '#5dcaa5', '#ef9f27', '#f5c4b3', '#b5d4f4'];
 const colorOf = p => COLORS[PROJECTS.indexOf(p) % COLORS.length];
 const bySlug = s => PROJECTS.find(p => p.slug === s);
-const byCat = c => PROJECTS.filter(p => p.cat === c);
+const byCat = c => PROJECTS.filter(p => p.cat === c && !p.hidden);
 const isVideo = s => /\.(mp4|webm)$/i.test(s);
 
 function el(tag, cls, html) {
@@ -69,7 +69,7 @@ function crumbs(parts) {
 }
 
 function home() {
-  const items = PROJECTS.filter(p => p.feat).map(tile);
+  const items = PROJECTS.filter(p => p.feat && !p.hidden).map(tile);
   items.splice(3, 0, stackTile());
   return mosaic(items);
 }
@@ -120,25 +120,86 @@ function project(slug) {
   return d;
 }
 
-function render() {
+const SECTIONS = { work, 'work/reddit': reddit, play };
+const sectionOf = p => (p.cat === 'reddit' ? 'work/reddit' : p.cat);
+let shown = null, box = null;
+
+function closeBox() {
+  if (!box) return;
+  box.remove();
+  box = null;
+  document.body.style.overflow = '';
+}
+
+function mediaNode(m) {
+  let n;
+  if (m.t === 'video') { n = el('video'); n.src = m.src; n.muted = n.loop = n.autoplay = n.playsInline = true; }
+  else if (m.t === 'embed') { n = el('iframe'); n.src = m.src; n.allowFullscreen = true; }
+  else { n = el('img'); n.src = m.src; n.alt = ''; }
+  n.className = 'lbm';
+  return n;
+}
+
+// Single-image projects open as a floating lightbox over their section.
+// The URL still changes to #/p/<slug>, so the project has its own link.
+function openBox(p) {
+  closeBox();
+  const back = '#/' + sectionOf(p);
+  box = el('div', 'lb');
+  box.dataset.back = back;
+  box.setAttribute('role', 'dialog');
+  box.setAttribute('aria-modal', 'true');
+  box.setAttribute('aria-label', p.title);
+  const list = p.media.length ? p.media : (p.cover ? [{ t: isVideo(p.cover) ? 'video' : 'img', src: p.cover }] : []);
+  const inner = el('div', 'lbin');
+  if (list.length) list.forEach(m => inner.appendChild(mediaNode(m)));
+  else {
+    const ph = el('div', 'lbm');
+    ph.style.cssText = 'aspect-ratio:' + RATIO[p.r] + ';background:' + colorOf(p);
+    inner.appendChild(ph);
+  }
+  inner.appendChild(el('p', 'lbcap', esc(p.title)));
+  const x = el('button', 'lbx', '\u00d7');
+  x.setAttribute('aria-label', 'Close');
+  x.onclick = () => { location.hash = back; };
+  box.onclick = e => { if (e.target === box || e.target === inner) location.hash = back; };
+  box.append(inner, x);
+  document.body.appendChild(box);
+  document.body.style.overflow = 'hidden';
+  x.focus();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && box) location.hash = box.dataset.back;
+});
+
+function render(force) {
   const h = (location.hash || '#/').replace(/^#\/?/, '');
   const [a, b] = h.split('/');
+  const p = a === 'p' ? bySlug(b) : null;
+  const boxSec = p && p.single ? sectionOf(p) : null;
+  const target = boxSec || (SECTIONS[h] ? h : null);
+  if (!force && target && target === shown) {
+    if (boxSec) openBox(p); else closeBox();
+    return;
+  }
+  closeBox();
   let v, key = a;
-  if (a === 'work' && b === 'reddit') v = reddit();
-  else if (a === 'work') v = work();
-  else if (a === 'play') v = play();
+  if (target) { v = SECTIONS[target](); if (boxSec) key = boxSec.split('/')[0]; }
   else if (a === 'about') v = about();
   else if (a === 'p') { v = project(b); key = ''; }
   else { v = home(); key = ''; }
+  shown = target;
   app.replaceChildren(v);
   document.querySelectorAll('#nav a').forEach(x => x.classList.toggle('on', x.dataset.k === key));
   window.scrollTo(0, 0);
+  if (boxSec) openBox(p);
 }
 
 let lastW = app.clientWidth, t;
-window.addEventListener('hashchange', render);
+window.addEventListener('hashchange', () => render());
 window.addEventListener('resize', () => {
   clearTimeout(t);
-  t = setTimeout(() => { if (Math.abs(app.clientWidth - lastW) > 40) { lastW = app.clientWidth; const y = scrollY; render(); scrollTo(0, y); } }, 150);
+  t = setTimeout(() => { if (Math.abs(app.clientWidth - lastW) > 40) { lastW = app.clientWidth; const y = scrollY; render(true); scrollTo(0, y); } }, 150);
 });
 render();

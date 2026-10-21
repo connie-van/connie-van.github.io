@@ -42,3 +42,10 @@ nav a:hover,nav a.on{color:var(--ink)}
 .about p{font-size:20px;margin:0 0 20px}
 .about a{margin-right:16px}
 @media (prefers-reduced-motion:reduce){.stack .lay,.tile .cap{transition:none}}
+
+.lb{position:fixed;inset:0;z-index:50;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;overflow:auto;padding:56px 16px 24px}
+.lbin{max-width:min(92vw,1100px);max-height:100%;margin:auto;display:flex;flex-direction:column;gap:8px}
+.lbm{display:block;max-width:100%;max-height:78vh;width:auto;height:auto;margin:0 auto;border-radius:8px;object-fit:contain}
+iframe.lbm{width:min(92vw,1000px);aspect-ratio:16/9;border:0;max-height:none}
+.lbcap{margin:4px 0 0;text-align:center;color:var(--mute);font-size:15px}
+.lbx{position:absolute;top:12px;right:16px;width:40px;height:40px;border:0;border-radius:50%;background:var(--ink);color:#fff;font:inherit;font-size:24px;line-height:1;cursor:pointer}
