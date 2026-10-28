@@ -1,6 +1,6 @@
 const app = document.getElementById('app');
 const RATIO = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1 };
-const COLORS = ['#f0997b', '#85b7eb', '#97c459', '#ed93b1', '#afa9ec', '#5dcaa5', '#ef9f27', '#f5c4b3', '#b5d4f4'];
+const COLORS = ['#FF6B4A', '#FFD84D', '#7FE0B0', '#7CC4FF', '#C3A6FF', '#FF9EC4', '#C8F169', '#FFA43A', '#FFF1D6', '#8E9BFF'];
 const colorOf = p => COLORS[PROJECTS.indexOf(p) % COLORS.length];
 const bySlug = s => PROJECTS.find(p => p.slug === s);
 const byCat = c => PROJECTS.filter(p => p.cat === c && !p.hidden);
@@ -23,7 +23,7 @@ function tile(p) {
   } else if (p.cover) {
     a.innerHTML = '<img src="' + p.cover + '" alt="" loading="lazy">';
   } else {
-    a.innerHTML = '<span class="ph">' + p.r + '</span>';
+    a.classList.add('noimg');
   }
   a.insertAdjacentHTML('beforeend', '<span class="cap">' + esc(p.title) + '</span>');
   a.setAttribute('aria-label', p.title);
@@ -99,24 +99,55 @@ function about() {
   return el('div', 'about', '<p>' + SITE.name + ' is a ' + SITE.tagline + '.</p><p>' + links + '</p>');
 }
 
+function mediaBlock(m, cls) {
+  if (m.t === 'grid' || m.t === 'row') {
+    const w = el('div', m.t === 'grid' ? 'gbox' : 'prow');
+    w.style.setProperty('--cols', m.cols || (m.t === 'grid' ? 5 : m.items.length));
+    if (m.bg) w.style.background = m.bg;
+    m.items.forEach(i => w.appendChild(mediaBlock(i, m.t === 'grid' ? 'gi' : 'm')));
+    return w;
+  }
+  let n;
+  if (m.t === 'video') { n = el('video', cls || 'm'); n.src = m.src; n.muted = n.loop = n.autoplay = n.playsInline = true; }
+  else if (m.t === 'embed') { n = el('iframe', cls || 'm'); n.src = m.src; n.allowFullscreen = true; n.loading = 'lazy'; }
+  else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; }
+  return n;
+}
+
+function prevNext(p) {
+  const list = byCat(p.cat), n = list.length, i = list.indexOf(p);
+  if (n < 2 || i < 0) return document.createDocumentFragment();
+  const mk = (q, cls, label) => {
+    const a = el('a', cls, '<small>' + label + '</small><span class="t">' + esc(q.title) + '</span>');
+    a.href = '#/p/' + q.slug;
+    a.style.background = colorOf(q);
+    return a;
+  };
+  const w = el('div', 'pn');
+  w.append(mk(list[(i + n - 1) % n], 'pv', 'Previous'), mk(list[(i + 1) % n], 'nx', 'Next'));
+  return w;
+}
+
 function project(slug) {
   const p = bySlug(slug);
   if (!p) return el('p', 'empty', 'That project doesn\u2019t exist. <a href="#/">Back to home</a>');
-  const trail = p.cat === 'reddit' ? [['Work', '#/work'], ['Reddit', '#/work/reddit'], [esc(p.title)]]
-    : p.cat === 'work' ? [['Work', '#/work'], [esc(p.title)]]
-    : [['Play', '#/play'], [esc(p.title)]];
-  const d = el('div', 'proj', crumbs(trail) + '<h1>' + esc(p.title) + '</h1>' + (p.blurb ? '<p class="blurb">' + esc(p.blurb) + '</p>' : ''));
+  const back = p.cat === 'reddit' ? ['Reddit', '#/work/reddit'] : p.cat === 'work' ? ['Work', '#/work'] : ['Play', '#/play'];
+  const d = el('div', 'proj', '<p class="crumb"><a href="' + back[1] + '">Back to ' + back[0] + '</a></p>');
+  const intro = el('div', 'intro', '<h1>' + esc(p.title) + '</h1>');
+  const hasCredits = p.credits && p.credits.length;
+  if (p.blurb || hasCredits) {
+    const side = el('div', 'side');
+    if (p.blurb) side.appendChild(el('p', 'blurb', esc(p.blurb)));
+    if (hasCredits) side.appendChild(el('dl', 'credits', p.credits.map(c => '<div><dt>' + esc(c.role) + '</dt><dd>' + esc(c.name) + '</dd></div>').join('')));
+    intro.appendChild(side);
+  }
+  d.appendChild(intro);
   if (!p.media.length) {
     for (let i = 0; i < 3; i++) d.appendChild(el('div', 'm', '')).style.cssText = 'aspect-ratio:16/9;background:' + COLORS[(PROJECTS.indexOf(p) + i * 3) % COLORS.length];
-    return d;
+  } else {
+    p.media.forEach(m => d.appendChild(mediaBlock(m)));
   }
-  p.media.forEach(m => {
-    let n;
-    if (m.t === 'video') n = el('video', 'm', ''), n.src = m.src, n.muted = n.loop = n.autoplay = n.playsInline = true;
-    else if (m.t === 'embed') n = el('iframe', 'm', ''), n.src = m.src, n.allowFullscreen = true, n.loading = 'lazy';
-    else n = el('img', 'm', ''), n.src = m.src, n.alt = '', n.loading = 'lazy';
-    d.appendChild(n);
-  });
+  d.appendChild(prevNext(p));
   return d;
 }
 
