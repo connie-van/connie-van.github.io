@@ -108,7 +108,14 @@ function mediaBlock(m, cls) {
     return w;
   }
   let n;
-  if (m.t === 'video') { n = el('video', cls || 'm'); n.src = m.src; n.muted = n.loop = n.autoplay = n.playsInline = true; }
+  if (m.t === 'video') {
+    n = el('video', cls || 'm');
+    n.src = m.src;
+    n.muted = n.loop = n.autoplay = n.playsInline = true;
+    // attributes too, so iOS Safari will autoplay it silently like a gif
+    ['muted', 'loop', 'autoplay', 'playsinline', 'disablepictureinpicture'].forEach(k => n.setAttribute(k, ''));
+    if (m.alt) n.setAttribute('aria-label', m.alt);
+  }
   else if (m.t === 'embed') { n = el('iframe', cls || 'm'); n.src = m.src; n.allowFullscreen = true; n.loading = 'lazy'; }
   else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; }
   return n;
