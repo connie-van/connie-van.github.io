@@ -51,6 +51,7 @@ h1,.brand,.pn .t,.stack .top3{font-family:'Instrument Serif',Georgia,'Times New 
 .m{display:block;width:100%;border-radius:var(--r);margin:0 0 var(--gap);background:#EDE8E0}
 .proj iframe.m{aspect-ratio:16/9;border:0}
 .gbox{display:grid;grid-template-columns:repeat(var(--cols,5),1fr);gap:var(--gap);padding:clamp(16px,3vw,40px);border-radius:var(--r);margin:0 0 var(--gap)}
+.gbox.plain{padding:0}
 .gi{display:block;width:100%;aspect-ratio:1;object-fit:contain}
 .prow{display:grid;grid-template-columns:repeat(var(--cols,2),1fr);gap:var(--gap);margin:0 0 var(--gap)}
 .prow .m{margin:0}
@@ -78,3 +79,7 @@ h1,.brand,.pn .t,.stack .top3{font-family:'Instrument Serif',Georgia,'Times New 
 iframe.lbm{width:min(92vw,1000px);aspect-ratio:16/9;border:0;max-height:none}
 .lbcap{margin:4px 0 0;text-align:center;color:var(--mute);font-size:15px}
 .lbx{position:absolute;top:12px;right:16px;width:40px;height:40px;border:0;border-radius:50%;background:var(--ink);color:#fff;font:inherit;font-size:24px;line-height:1;cursor:pointer}
+
+/* videos act like gifs: never show a play/pause button or any controls, and ignore clicks */
+video{pointer-events:none}
+video::-webkit-media-controls,video::-webkit-media-controls-enclosure,video::-webkit-media-controls-panel,video::-webkit-media-controls-overlay-play-button,video::-webkit-media-controls-start-playback-button,video::-webkit-media-controls-play-button{display:none!important;opacity:0!important;-webkit-appearance:none}

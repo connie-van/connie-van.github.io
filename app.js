@@ -14,12 +14,50 @@ function el(tag, cls, html) {
 }
 const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+// Videos behave like gifs: silent, looping, never any controls. They play while on screen
+// and pause when scrolled away. If a browser blocks autoplay (e.g. iPhone Low Power Mode),
+// they start on the first touch, click or scroll instead.
+let autoplayBlocked = false;
+const gifVideos = new Set();
+const onScreen = new WeakSet();
+function tryPlay(v) {
+  const p = v.play();
+  if (p && p.catch) p.catch(() => { autoplayBlocked = true; });
+}
+const vidObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => entries.forEach(e => {
+  if (e.isIntersecting) { onScreen.add(e.target); tryPlay(e.target); }
+  else { onScreen.delete(e.target); e.target.pause(); }
+}), { rootMargin: '200px' }) : null;
+function gifVideo(src, cls) {
+  const v = document.createElement('video');
+  if (cls) v.className = cls;
+  v.muted = v.defaultMuted = v.loop = v.autoplay = v.playsInline = true;
+  v.controls = false;
+  ['muted', 'loop', 'autoplay', 'playsinline', 'disablepictureinpicture', 'disableremoteplayback'].forEach(k => v.setAttribute(k, ''));
+  v.setAttribute('controlslist', 'nodownload nofullscreen noremoteplayback');
+  v.tabIndex = -1;
+  v.preload = 'auto';
+  v.src = src;
+  gifVideos.add(v);
+  if (vidObserver) vidObserver.observe(v); else tryPlay(v);
+  return v;
+}
+function wakeVideos() {
+  if (!autoplayBlocked) return;
+  autoplayBlocked = false;
+  gifVideos.forEach(v => {
+    if (!v.isConnected) { gifVideos.delete(v); return; }
+    if (v.paused && (onScreen.has(v) || !vidObserver)) tryPlay(v);
+  });
+}
+['touchstart', 'pointerdown', 'keydown', 'scroll'].forEach(ev => window.addEventListener(ev, wakeVideos, { passive: true }));
+
 function tile(p) {
   const a = el('a', 'tile');
   a.href = '#/p/' + p.slug;
   a.style.background = colorOf(p);
   if (p.cover && isVideo(p.cover)) {
-    a.innerHTML = '<video src="' + p.cover + '" muted loop autoplay playsinline></video>';
+    a.appendChild(gifVideo(p.cover));
   } else if (p.cover) {
     a.innerHTML = '<img src="' + p.cover + '" alt="" loading="lazy">';
   } else {
@@ -103,17 +141,13 @@ function mediaBlock(m, cls) {
   if (m.t === 'grid' || m.t === 'row') {
     const w = el('div', m.t === 'grid' ? 'gbox' : 'prow');
     w.style.setProperty('--cols', m.cols || (m.t === 'grid' ? 5 : m.items.length));
-    if (m.bg) w.style.background = m.bg;
+    if (m.bg) w.style.background = m.bg; else w.classList.add('plain');
     m.items.forEach(i => w.appendChild(mediaBlock(i, m.t === 'grid' ? 'gi' : 'm')));
     return w;
   }
   let n;
   if (m.t === 'video') {
-    n = el('video', cls || 'm');
-    n.src = m.src;
-    n.muted = n.loop = n.autoplay = n.playsInline = true;
-    // attributes too, so iOS Safari will autoplay it silently like a gif
-    ['muted', 'loop', 'autoplay', 'playsinline', 'disablepictureinpicture'].forEach(k => n.setAttribute(k, ''));
+    n = gifVideo(m.src, cls || 'm');
     if (m.alt) n.setAttribute('aria-label', m.alt);
   }
   else if (m.t === 'embed') { n = el('iframe', cls || 'm'); n.src = m.src; n.allowFullscreen = true; n.loading = 'lazy'; }
@@ -171,7 +205,7 @@ function closeBox() {
 
 function mediaNode(m) {
   let n;
-  if (m.t === 'video') { n = el('video'); n.src = m.src; n.muted = n.loop = n.autoplay = n.playsInline = true; }
+  if (m.t === 'video') { n = gifVideo(m.src); }
   else if (m.t === 'embed') { n = el('iframe'); n.src = m.src; n.allowFullscreen = true; }
   else { n = el('img'); n.src = m.src; n.alt = ''; }
   n.className = 'lbm';

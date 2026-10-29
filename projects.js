@@ -13,7 +13,7 @@
 //   { t:'video', src:'media/demon-friends/loop.mp4', alt:'short description' }   (plays like a gif: autoplay, loop, muted, no controls)
 //   { t:'embed', src:'https://player.vimeo.com/video/123456' }
 //   Layout blocks that hold several items:
-//   { t:'grid', cols:5, bg:'#000', items:[ ...img/video items ] }   one colored box, items in a grid (2 per row on phones)
+//   { t:'grid', cols:5, items:[ ...img/video items ] }   one colored box, items in a grid (2 per row on phones)
 //   { t:'row', items:[ ...img/video/embed items ] }                   items side by side (stacked on phones)
 
 const PROJECTS = [
@@ -29,7 +29,7 @@ const PROJECTS = [
   { slug:'garbage-nonsense', title:'Garbage Nonsense', cat:'work', r:'16:9', cover:'', blurb:'', media:[] },
   { slug:'high-tales', title:'High Tales', cat:'work', r:'9:16', cover:'', blurb:'', media:[] },
   { slug:'gvc', title:'Good Vibes Club', cat:'work', r:'1:1', feat:true,
-    cover:'media/gvc/GVC_Stickerpack_Teaser_01_a01_goyzk7.mp4',
+    cover:'media/gvc/GVC_Stickerpack_Teaser_01_a01_goyzk7.gif',
     blurb:"My work with Good Vibes Club centered on bringing their 3D universe into 2D by shaping a distinct illustration style rooted in the brand’s characters and personality. I helped expand GVC’s creative identity through expressive Telegram sticker illustrations designed with animation in mind, visual storytelling through storyboarding, and merch design. A key part of this work also involved developing the brand’s badge system, transforming distinctive 3D character traits into a versatile icon set that became a core part of its evolving identity.",
     credits:[
       { role:'Creative Direction', name:'Chris Guyot' },
@@ -38,17 +38,17 @@ const PROJECTS = [
       { role:'Animation', name:'Mac Wozjcik' }
     ],
     media:[
-      { t:'grid', cols:5, bg:'#000', items:[
-      { t:'video', src:'media/gvc/Cool.mp4', alt:'Cool sticker' },
-      { t:'video', src:'media/gvc/SobLaughing.mp4', alt:'Sob laughing sticker' },
-      { t:'video', src:'media/gvc/Pwease.mp4', alt:'Pwease sticker' },
-      { t:'video', src:'media/gvc/HeartEyes.mp4', alt:'Heart eyes sticker' },
-      { t:'video', src:'media/gvc/WaveHello.mp4', alt:'Wave hello sticker' },
-      { t:'video', src:'media/gvc/Hype.mp4', alt:'Hype sticker' },
-      { t:'video', src:'media/gvc/Snickering.mp4', alt:'Snickering sticker' },
-      { t:'video', src:'media/gvc/Stoked.mp4', alt:'Stoked sticker' },
-      { t:'video', src:'media/gvc/Think.mp4', alt:'Think sticker' },
-      { t:'video', src:'media/gvc/Mindblown.mp4', alt:'Mindblown sticker' }
+      { t:'grid', cols:5, items:[
+      { t:'img', src:'media/gvc/Cool.webp', alt:'Cool sticker' },
+      { t:'img', src:'media/gvc/SobLaughing.webp', alt:'Sob laughing sticker' },
+      { t:'img', src:'media/gvc/Pwease.webp', alt:'Pwease sticker' },
+      { t:'img', src:'media/gvc/HeartEyes.webp', alt:'Heart eyes sticker' },
+      { t:'img', src:'media/gvc/WaveHello.webp', alt:'Wave hello sticker' },
+      { t:'img', src:'media/gvc/Hype.webp', alt:'Hype sticker' },
+      { t:'img', src:'media/gvc/Snickering.webp', alt:'Snickering sticker' },
+      { t:'img', src:'media/gvc/Stoked.webp', alt:'Stoked sticker' },
+      { t:'img', src:'media/gvc/Think.webp', alt:'Think sticker' },
+      { t:'img', src:'media/gvc/Mindblown.webp', alt:'Mindblown sticker' }
       ] },
       { t:'row', items:[
         { t:'img', src:'media/gvc/GVC-Telegram-Evergreen-Stickers-v02.png', alt:'Finished Telegram sticker set' },
