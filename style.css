@@ -1,17 +1,17 @@
 /* Fonts are embedded in the repo (fonts/ folder), so they load the same on every computer.
-   Instrument Serif = headings, Public Sans = body. Both are open-source (SIL OFL). */
-@font-face{font-family:'Instrument Serif';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/instrument-serif-latin-400-normal.woff2') format('woff2')}
-@font-face{font-family:'Public Sans';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/public-sans-latin-400-normal.woff2') format('woff2')}
-@font-face{font-family:'Public Sans';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/public-sans-latin-500-normal.woff2') format('woff2')}
+   Syne Mono = headings, Syne = body. Both are open-source (SIL OFL). */
+@font-face{font-family:'Syne Mono';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/syne-mono-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Syne';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/syne-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Syne';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/syne-latin-500-normal.woff2') format('woff2')}
 :root{--ink:#14110F;--mute:#6B645C;--paper:#FBF7F0;--gap:16px;--r:20px}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:'Public Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;line-height:1.5}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Syne',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;line-height:1.5}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-h1,.brand,.pn .t,.stack .top3{font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:-.01em}
+h1,.brand,.pn .t,.stack .top3{font-family:'Syne Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-weight:400;letter-spacing:-.02em}
 .top{display:flex;justify-content:space-between;align-items:center;padding:24px clamp(20px,3vw,32px)}
-.brand{font-size:36px;line-height:1;text-decoration:none}
+.brand{font-size:24px;line-height:1;text-decoration:none}
 #nav{display:flex;gap:32px}
 #nav a{text-decoration:none;font-weight:500;font-size:17px}
 #nav a:hover,#nav a.on{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:6px}
@@ -35,13 +35,13 @@ h1,.brand,.pn .t,.stack .top3{font-family:'Instrument Serif',Georgia,'Times New 
 .stack .l2{transform:translate(3px,-2px) rotate(2deg);background:#FF9EC4}
 .stack:hover .l1,.stack:focus-visible .l1{transform:translate(-14px,-8px) rotate(-8deg)}
 .stack:hover .l2,.stack:focus-visible .l2{transform:translate(14px,-6px) rotate(7deg)}
-.stack .top3{position:absolute;inset:0;border-radius:var(--r);background:#FF6B4A;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;color:var(--ink);font-size:26px;line-height:1.05}
-.stack .top3 small{font-family:'Public Sans',system-ui,sans-serif;font-weight:500;letter-spacing:0;font-size:13px}
+.stack .top3{position:absolute;inset:0;border-radius:var(--r);background:#FF6B4A;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;color:var(--ink);font-size:18px;line-height:1.15}
+.stack .top3 small{font-family:'Syne',system-ui,sans-serif;font-weight:500;letter-spacing:0;font-size:13px}
 
 /* project page */
 .proj{max-width:none}
 .intro{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:24px 48px;padding:24px 8px 56px}
-.intro h1{flex:1 1 480px;max-width:740px;font-size:clamp(56px,9vw,132px);line-height:.95;margin:0;letter-spacing:-.02em}
+.intro h1{flex:1 1 480px;max-width:740px;font-size:clamp(34px,5.6vw,84px);line-height:1.05;margin:0}
 .side{flex:1 1 340px;max-width:580px;min-width:0}
 .blurb{font-size:18px;margin:0 0 32px}
 .credits{display:flex;flex-wrap:wrap;gap:16px 32px;margin:0}
@@ -59,7 +59,7 @@ h1,.brand,.pn .t,.stack .top3{font-family:'Instrument Serif',Georgia,'Times New 
 .pn a{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;min-height:220px;padding:28px;border-radius:var(--r);text-decoration:none}
 .pn a.nx{align-items:flex-end;text-align:right}
 .pn small{font-size:14px;font-weight:500}
-.pn .t{font-size:clamp(30px,4vw,56px);line-height:1}
+.pn .t{font-size:clamp(20px,2.6vw,36px);line-height:1.1}
 @media (max-width:700px){
   .gbox{grid-template-columns:repeat(2,1fr)}
   .prow{grid-template-columns:1fr}
