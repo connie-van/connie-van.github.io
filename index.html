@@ -5,13 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Connie Van</title>
 <meta name="description" content="Designer, illustrator, and sometimes animator.">
+<link rel="preload" href="fonts/cossette-titre-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/instrument-serif-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/geist-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="round" x="-5%" y="-60%" width="110%" height="220%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceGraphic" stdDeviation=".75"/>
+    <feComponentTransfer><feFuncA type="linear" slope="16" intercept="-7.5"/></feComponentTransfer>
+  </filter>
+</svg>
 <header class="top">
-  <a class="brand" href="#/">Connie Van</a>
+  <a class="brand" href="#/"><span class="sq"><span>connie <span class="star" aria-hidden="true">✶</span> van</span></span></a>
   <nav id="nav" aria-label="Main">
     <a href="#/work" data-k="work">Work</a>
     <a href="#/play" data-k="play">Play</a>
