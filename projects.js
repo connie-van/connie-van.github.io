@@ -12,6 +12,7 @@
 //   { t:'img', src:'media/demon-friends/01.jpg', alt:'short description' }
 //   { t:'video', src:'media/demon-friends/loop.mp4', alt:'short description' }   (plays like a gif: autoplay, loop, muted, no controls)
 //   { t:'embed', src:'https://player.vimeo.com/video/123456' }
+//   { t:'embed', src:'avatar-builder/index.html', height:'clamp(700px, 58vw, 880px)', alt:'...' }   a page of your own; height is optional (default 16:9)
 //   Layout blocks that hold several items:
 //   { t:'grid', cols:5, items:[ ...img/video items ] }   one colored box, items in a grid (2 per row on phones)
 //   { t:'row', items:[ ...img/video/embed items ] }                   items side by side (stacked on phones)
@@ -59,6 +60,9 @@ const PROJECTS = [
   { slug:'keke-palmer', title:'Keke Palmer', cat:'work', r:'9:16', cover:'', blurb:'', media:[] },
 
   // WORK (these seven used to live in a Reddit sub-page; they are regular Work projects now)
+  { slug:'reddit-avatars', title:'Reddit: Avatars', cat:'work', r:'1:1', cover:'', blurb:'', media:[
+    { t:'embed', src:'avatar-builder/index.html', height:'clamp(700px, 58vw, 880px)', alt:'Interactive avatar builder' }
+  ] },
   { slug:'reddit-avatars-gen-1', title:'Reddit Avatars Gen 1: The Genesis Series', cat:'work', r:'1:1', cover:'', blurb:'', media:[] },
   { slug:'reddit-avatars-gen-2', title:'Reddit Avatars Gen 2: Spooky Szn', cat:'work', r:'9:16', cover:'', blurb:'', media:[] },
   { slug:'reddit-avatars-gen-3-archived', title:'Reddit Avatars Gen 3: Archived Avatars', cat:'work', r:'16:9', cover:'', blurb:'', media:[] },

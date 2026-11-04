@@ -134,7 +134,11 @@ function mediaBlock(m, cls) {
     n = gifVideo(m.src, cls || 'm');
     if (m.alt) n.setAttribute('aria-label', m.alt);
   }
-  else if (m.t === 'embed') { n = el('iframe', cls || 'm'); n.src = m.src; n.allowFullscreen = true; n.loading = 'lazy'; }
+  else if (m.t === 'embed') {
+    n = el('iframe', cls || 'm'); n.src = m.src; n.allowFullscreen = true; n.loading = 'lazy';
+    if (m.height) { n.style.aspectRatio = 'auto'; n.style.height = m.height; }
+    if (m.alt) n.title = m.alt;
+  }
   else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; }
   return n;
 }
