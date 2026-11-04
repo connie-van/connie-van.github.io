@@ -1,43 +1,89 @@
-// Avatar builder: draws the avatar from stacked layers and runs the tabs, tiles and Colors tab.
-// All the content (traits, colors, defaults) lives in traits.js.
+// Avatar builder: draws the avatar from stacked layers and runs the panels, tiles and color picker.
+// All the content (traits, colors, defaults) lives in avatar-traits.js.
 (function () {
   'use strict';
   const $ = s => document.querySelector(s);
   const root = document.documentElement;
   const CATS = TABS.map(t => t[0]).filter(k => k !== 'colors');
-  const TAB_LIST = HIDE_EMPTY_TABS ? TABS.filter(t => t[0] === 'colors' || t[0] === 'outfits' || TRAITS[t[0]].length) : TABS;
   const LABEL = {}; TABS.forEach(t => { LABEL[t[0]] = t[1]; });
-  const PALETTE = ['#FF9EC4', '#FFD84D', '#7FE0B0', '#7CC4FF', '#C3A6FF', '#C8F169', '#FFA43A', '#FFF1D6', '#8E9BFF', '#FF6B4A'];
-  const PENCIL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-5L16.5 3.5a2.1 2.1 0 013 3L8 18l-4 2z" fill="#fff" stroke="#14110F" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+  const tabsOf = s => TABS.filter(t => t[2] === s && (!HIDE_EMPTY_TABS || t[0] === 'colors' || t[0] === 'outfits' || TRAITS[t[0]].length));
+  const isRequired = cat => REQUIRED.indexOf(cat) >= 0;
+  const SAVE_KEY = 'avatarBuilder.savedColors';
 
-  const state = { tab: TAB_LIST[0][0], sel: Object.assign({}, DEFAULT_SEL), colors: {} };
-  const card = $('#card'), tabs = $('#tabs'), panel = $('#panel'), titleEl = $('#title'), countEl = $('#count');
+  const state = {
+    tab: { left: 'outfits', right: 'hats' },
+    sel: Object.assign({}, DEFAULT_SEL),
+    colors: {},                                   // skin / eyes / hair
+    bg: Object.assign({ stop: 0 }, DEFAULT_BG),   // background color (used when no background image is on)
+    target: 'body',                               // what the color picker is editing: body | eyes | hair | bg
+    hsv: { h: 0, s: 0, v: 0 },
+    saved: []
+  };
+  const card = $('#card');
 
   const find = (cat, id) => (id ? TRAITS[cat].find(i => i.id === id) || null : null);
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const pad2 = n => (n < 10 ? '0' : '') + n;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  // ---------- color math ----------
+  function normHex(s) {
+    s = String(s).trim().replace(/^#/, '');
+    if (/^[0-9a-f]{3}$/i.test(s)) s = s.replace(/./g, c => c + c);
+    return /^[0-9a-f]{6}$/i.test(s) ? '#' + s.toUpperCase() : null;
+  }
+  const hexToRgb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    let h = 0;
+    if (d) { if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h /= 6; if (h < 0) h += 1; }
+    return { h: h, s: mx ? d / mx : 0, v: mx };
+  }
+  function hsvToRgb(h, s, v) {
+    const i = Math.floor(h * 6) % 6, f = h * 6 - Math.floor(h * 6), p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+    const c = [[v, t, p], [q, v, p], [p, v, t], [p, q, v], [t, p, v], [v, p, q]][i];
+    return [Math.round(c[0] * 255), Math.round(c[1] * 255), Math.round(c[2] * 255)];
+  }
+  const rgbToHex = c => '#' + c.map(n => (n < 16 ? '0' : '') + n.toString(16)).join('').toUpperCase();
+  const hsvToHex = o => rgbToHex(hsvToRgb(o.h, o.s, o.v));
+  function hsvFromHex(hex, keepHue) {
+    const c = hexToRgb(hex), n = rgbToHsv(c[0], c[1], c[2]);
+    return { h: (n.s === 0 || n.v === 0) ? keepHue : n.h, s: n.s, v: n.v };    // keep the hue when there is none to read (grays, black)
+  }
+
+  // ---------- saved colors (kept in the visitor's browser) ----------
+  function loadSaved() {
+    try {
+      const a = JSON.parse(localStorage.getItem(SAVE_KEY) || '[]');
+      return (Array.isArray(a) ? a : []).map(normHex).filter(Boolean).slice(0, SAVED_SLOTS);
+    } catch (e) { return []; }
+  }
+  function persistSaved() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state.saved)); } catch (e) { /* private mode: it just won't be remembered */ } }
 
   // ---------- selection rules ----------
-  // An outfit is a preset: it fills several slots at once. Every other category holds one item (or none).
+  // An outfit is a preset: it fills several slots at once. Every other category holds one item (or none, if it's optional).
   const outfitOn = (sel, it) => Object.keys(it.sets).every(c => sel[c] === it.sets[c]);
-  function withSel(sel, cat, id) {
-    const s = Object.assign({}, sel);
-    if (cat === 'outfits') {
-      const it = find('outfits', id);
-      if (it) Object.keys(it.sets).forEach(c => { s[c] = it.sets[c]; });
-    } else s[cat] = id;
-    return s;
+  const outfitLook = it => Object.assign({}, it.sets);
+  function applyOutfit(sel, it) { const s = Object.assign({}, sel); Object.keys(it.sets).forEach(c => { s[c] = it.sets[c]; }); return s; }
+  // the background: a background image wins; otherwise the solid/gradient/none color mode
+  const bgMode = () => (state.sel.backgrounds ? 'art' : state.bg.mode);
+  function bgCss() {
+    if (state.sel.backgrounds) return '';
+    if (state.bg.mode === 'solid') return state.bg.c1;
+    if (state.bg.mode === 'gradient') return 'linear-gradient(to bottom,' + state.bg.c1 + ',' + state.bg.c2 + ')';
+    return '';
   }
-  function clearOutfit(sel, it) {                  // tapping a worn outfit takes its clothes off (the background stays)
-    const s = Object.assign({}, sel);
-    Object.keys(it.sets).forEach(c => { if (c !== 'backgrounds') s[c] = null; });
-    return s;
-  }
-  // the clothes part of an outfit (everything except its background), as a selection
-  function outfitLook(it) {
-    const s = {};
-    Object.keys(it.sets).forEach(c => { if (c !== 'backgrounds') s[c] = it.sets[c]; });
-    return s;
+  const applyBg = () => { card.style.background = bgCss(); };
+
+  function pick(cat, id) {
+    if (cat === 'outfits') { state.sel = applyOutfit(state.sel, find('outfits', id)); return; }
+    if (cat === 'backgrounds') {
+      if (id) state.sel.backgrounds = id;
+      else { state.sel.backgrounds = null; state.bg.mode = 'none'; }          // None = transparent
+      return;
+    }
+    if (!id) { if (!isRequired(cat)) state.sel[cat] = null; return; }
+    state.sel[cat] = (state.sel[cat] === id && !isRequired(cat)) ? null : id;   // tap a selected optional trait again to take it off
   }
 
   // ---------- drawing ----------
@@ -49,7 +95,6 @@
     if (l.tint) return '<div class="' + cls + ' tint" style="' + st + ';--m:url(' + esc(l.src) + ');background:var(--' + l.tint + ')"></div>';
     return '<img class="' + cls + '" src="' + esc(l.src) + '" alt="" draggable="false" style="' + st + '">';
   }
-  // all the layers of a look, as html (no wrapper)
   function layersInner(sel, opt) {
     opt = opt || {};
     const out = [];
@@ -65,7 +110,6 @@
     return out.join('');
   }
   const avatarHtml = (sel, opt) => '<div class="avatar">' + layersInner(sel, opt) + '</div>';
-  // a single trait on its own
   const itemInner = (cat, it) => it.layers.map(l => layerHtml(l, CATEGORY_Z[cat])).join('');
 
   // shows only the `crop` part of the canvas (crop = fractions of the canvas), scaled to fit the tile
@@ -76,7 +120,6 @@
     return '<div class="view" style="' + (R >= 1 ? 'width:100%' : 'height:100%') + ';aspect-ratio:' + R.toFixed(4) + '">' +
       '<div class="avatar" style="inset:auto;width:' + (100 / cw).toFixed(3) + '%;height:' + (100 / ch).toFixed(3) + '%;left:' + (-c.x0 / cw * 100).toFixed(3) + '%;top:' + (-c.y0 / ch * 100).toFixed(3) + '%">' + inner + '</div></div>';
   }
-
   // which color groups actually change something in the current look
   function usedGroups(sel) {
     const used = {};
@@ -96,7 +139,7 @@
   // Each trait's tile zooms in on that trait. The crop is worked out from the artwork itself (the box around what is drawn).
   // On Tops and Bottoms only the biggest connected piece counts, so a floating detail (like the pillow in the bottoms file)
   // doesn't stretch the crop. It still shows on the live character. Set `crop:[left, top, right, bottom]` (in CANVAS units) on an
-  // item in traits.js to choose the crop by hand.
+  // item in avatar-traits.js to choose the crop by hand.
   const RW = 190, RH = 300;                        // the artwork is looked at in this small size
   function cropFromAlpha(a, w, h, mainOnly) {
     const on = new Uint8Array(w * h);
@@ -165,151 +208,278 @@
     });
     return Promise.all(jobs).then(() => {
       TRAITS.outfits.forEach(o => {                // an outfit's crop is the box around all of its parts
-        const parts = Object.keys(o.sets).filter(c => c !== 'backgrounds').map(c => { const it = find(c, o.sets[c]); return it && it.cropF; }).filter(Boolean);
+        const parts = Object.keys(o.sets).map(c => { const it = find(c, o.sets[c]); return it && it.cropF; }).filter(Boolean);
         o.cropF = unionCrop(parts);
       });
     });
   }
 
-  // ---------- tabs and heading ----------
-  function renderTabs() {
-    tabs.innerHTML = TAB_LIST.map(t => '<button class="tab" role="tab" id="tab-' + t[0] + '" data-tab="' + t[0] + '" aria-selected="' + (state.tab === t[0]) + '" tabindex="' + (state.tab === t[0] ? 0 : -1) + '">' + t[1] + '</button>').join('');
+  // ---------- panels: tabs and trait tiles ----------
+  function renderTabs(s) {
+    $('#tabs-' + s).innerHTML = tabsOf(s).map(t =>
+      '<button class="tab" role="tab" data-side="' + s + '" data-tab="' + t[0] + '" aria-selected="' + (state.tab[s] === t[0]) + '" tabindex="' + (state.tab[s] === t[0] ? 0 : -1) + '">' + t[1] + '</button>').join('');
   }
-  function renderHead() {
-    const k = state.tab;
-    titleEl.textContent = LABEL[k];
-    if (k === 'colors') countEl.textContent = 'Pick any color';
-    else if (!TRAITS[k].length) countEl.textContent = 'Coming soon';
-    else countEl.textContent = pad2(TRAITS[k].length) + (TRAITS[k].length === 1 ? ' item' : ' items');
-  }
-  function setTab(k) {
-    state.tab = k;
-    renderTabs();
-    renderHead();
-    renderPanel();
-    panel.scrollTop = 0;
-    panel.setAttribute('aria-labelledby', 'tab-' + k);
-  }
-  tabs.addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) setTab(b.dataset.tab); });
-  tabs.addEventListener('keydown', e => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    const keys = TAB_LIST.map(t => t[0]);
-    const i = keys.indexOf(state.tab);
-    setTab(keys[(i + (e.key === 'ArrowRight' ? 1 : keys.length - 1)) % keys.length]);
-    tabs.querySelector('[aria-selected="true"]').focus();
-  });
-
-  // ---------- trait tiles ----------
-  //  Outfits:      the whole fit, no background, cropped around the figure
-  //  Backgrounds:  the background filling the tile
-  //  Everything else: only that trait, cropped in on it
   function tile(cat, it, idx) {
     const id = it ? it.id : null;
-    const on = cat === 'outfits' ? !!(it && outfitOn(state.sel, it)) : state.sel[cat] === id;
+    let on;
+    if (cat === 'outfits') on = !!(it && outfitOn(state.sel, it));
+    else if (cat === 'backgrounds') on = it ? state.sel.backgrounds === id : bgMode() === 'none';
+    else on = state.sel[cat] === id;
     const name = it ? it.name : 'None';
     let thumb = '', cls = 'tile';
     if (!it) cls += ' none';
-    else if (cat === 'backgrounds') { thumb = '<div class="thumb"><div class="avatar">' + layersInner(withSel(state.sel, cat, id), { bgOnly: true }) + '</div></div>'; cls += ' bgtile'; }
-    else if (cat === 'outfits') thumb = '<div class="thumb iso">' + viewHtml(layersInner(outfitLook(it), { noBg: true }), it.cropF) + '</div>';
-    else thumb = '<div class="thumb iso">' + viewHtml(itemInner(cat, it), it.cropF) + '</div>';
-    const color = it ? PALETTE[idx % PALETTE.length] : 'transparent';
-    return '<button class="' + cls + (on ? ' on' : '') + '" style="--tc:' + color + '" data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
+    if (cat === 'backgrounds') {
+      cls += ' bg';
+      if (it) thumb = '<div class="thumb"><div class="avatar">' + layersInner({ backgrounds: id }, { bgOnly: true }) + '</div></div>';
+    } else if (it) {
+      thumb = '<div class="thumb iso">' + viewHtml(cat === 'outfits' ? layersInner(outfitLook(it), { noBg: true }) : itemInner(cat, it), it.cropF) + '</div>';
+    }
+    return '<button class="' + cls + (on ? ' on' : '') + '" data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
-  function renderGrid() {
-    const cat = state.tab;
-    if (!TRAITS[cat].length) { panel.innerHTML = '<p class="empty"><span class="star" aria-hidden="true">\u2736</span> Nothing in ' + esc(LABEL[cat]) + ' yet</p>'; return; }
+  function renderGrid(body, cat) {
+    if (!TRAITS[cat].length) { body.innerHTML = '<p class="empty"><span class="star" aria-hidden="true">\u2736</span>Nothing in ' + esc(LABEL[cat]) + ' yet</p>'; return; }
     let html = '<div class="grid">';
-    if (cat !== 'backgrounds' && cat !== 'outfits') html += tile(cat, null, 0);
+    if (cat !== 'outfits' && !isRequired(cat)) html += tile(cat, null, 0);      // optional traits get a None tile
     TRAITS[cat].forEach((it, i) => { html += tile(cat, it, i); });
-    panel.innerHTML = html + '</div>';
+    body.innerHTML = html + '</div>';
   }
-  panel.addEventListener('click', e => {
-    const b = e.target.closest('.tile');
-    if (b) {
-      const cat = state.tab;
-      const id = b.dataset.id || null;
-      if (cat === 'outfits') {
-        const it = find('outfits', id);
-        state.sel = outfitOn(state.sel, it) ? clearOutfit(state.sel, it) : withSel(state.sel, cat, id);
-      } else {
-        let pick = id;
-        if (pick && state.sel[cat] === pick && cat !== 'backgrounds') pick = null;   // tap the selected tile again to take it off
-        state.sel = withSel(state.sel, cat, pick);
-      }
-      render();
-      return;
-    }
-    const sw = e.target.closest('.sw[data-c]');
-    if (sw) { setColor(sw.closest('.cg').dataset.key, sw.dataset.c); return; }
-    const rs = e.target.closest('[data-reset]');
-    if (rs) { const k = rs.closest('.cg').dataset.key; setColor(k, COLOR_GROUPS.find(g => g.key === k).def); }
+  function renderSide(s) {
+    const list = tabsOf(s);
+    if (!list.some(t => t[0] === state.tab[s])) state.tab[s] = list[0][0];
+    renderTabs(s);
+    const body = $('#body-' + s), k = state.tab[s], keep = body.dataset.tab === k ? body.scrollTop : 0;
+    body.classList.toggle('colors', k === 'colors');
+    if (k === 'colors') renderColors(body); else renderGrid(body, k);
+    body.dataset.tab = k;
+    body.scrollTop = keep;                         // picking a tile shouldn't make the panel jump
+  }
+  function setTab(s, k) { state.tab[s] = k; renderSide(s); $('#body-' + s).scrollTop = 0; }
+  ['left', 'right'].forEach(s => {
+    const el = $('#tabs-' + s);
+    el.addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) setTab(s, b.dataset.tab); });
+    el.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const keys = tabsOf(s).map(t => t[0]), i = keys.indexOf(state.tab[s]);
+      setTab(s, keys[(i + (e.key === 'ArrowRight' ? 1 : keys.length - 1)) % keys.length]);
+      el.querySelector('[aria-selected="true"]').focus();
+    });
+    $('#body-' + s).addEventListener('click', onBodyClick);
   });
 
-  // ---------- colors tab ----------
-  function renderColors() {
-    const used = usedGroups(state.sel);
-    panel.innerHTML = COLOR_GROUPS.map(g =>
-      '<section class="cg' + (used[g.key] ? '' : ' idle') + '" data-key="' + g.key + '"><div class="cgh"><h3 class="sqw"><span>' + g.label + '</span></h3>' +
-      (used[g.key] ? '' : '<span class="note">Nothing to color in this look</span>') + '</div><div class="sw-row">' +
-      '<label class="sw custom" title="Pick any color"><input type="color" value="' + state.colors[g.key].toLowerCase() + '" aria-label="Custom ' + g.label + ' color">' + PENCIL + '</label>' +
-      g.presets.map(c => '<button class="sw" data-c="' + c + '" style="background:' + c + '" aria-label="' + g.label + ' ' + c + '"></button>').join('') +
-      '<button class="reset" data-reset>Reset</button></div></section>').join('');
-    updateRings();
+  function onBodyClick(e) {
+    const t = e.target.closest('.tile');
+    if (t) { const cat = t.closest('.body').dataset.tab; pick(cat, t.dataset.id || null); renderAll(); return; }
+    const tg = e.target.closest('[data-target]');
+    if (tg) { state.target = tg.dataset.target; renderSide('right'); return; }
+    const md = e.target.closest('[data-mode]');
+    if (md) { state.sel.backgrounds = null; state.bg.mode = md.dataset.mode; if (md.dataset.mode !== 'gradient') state.bg.stop = 0; renderAll(); return; }
+    const st = e.target.closest('[data-stop]');
+    if (st) { state.bg.stop = +st.dataset.stop; renderSide('right'); return; }
+    const del = e.target.closest('[data-del]');
+    if (del) { state.saved.splice(+del.dataset.del, 1); persistSaved(); renderPalette(); return; }
+    const use = e.target.closest('.pal .use');
+    if (use) {
+      if (use.dataset.c) setColor(use.dataset.c);
+      else if (use.dataset.save) saveCurrent();
+    }
   }
-  function setColor(key, val) {
-    state.colors[key] = val;
-    root.style.setProperty('--' + key, val);
-    updateRings();
+
+  // ---------- colors ----------
+  function curHex() {
+    if (state.target === 'bg') return state.bg.stop === 1 ? state.bg.c2 : state.bg.c1;
+    return state.colors[state.target];
   }
-  function updateRings() {
-    panel.querySelectorAll('.cg').forEach(sec => {
-      const cur = state.colors[sec.dataset.key].toLowerCase();
-      let hit = false;
-      sec.querySelectorAll('.sw[data-c]').forEach(b => { const m = b.dataset.c.toLowerCase() === cur; if (m) hit = true; b.classList.toggle('on', m); });
-      const custom = sec.querySelector('.custom');
-      custom.classList.toggle('on', !hit);
-      const inp = custom.querySelector('input');
-      if (inp.value !== cur) inp.value = cur;
+  function bgChip() {
+    const a = state.sel.backgrounds && find('backgrounds', state.sel.backgrounds);
+    if (a) return 'background-image:url(' + esc(a.layers[0].src) + ')';
+    if (state.bg.mode === 'solid') return 'background:' + state.bg.c1;
+    if (state.bg.mode === 'gradient') return 'background:linear-gradient(to bottom,' + state.bg.c1 + ',' + state.bg.c2 + ')';
+    return 'background:transparent';
+  }
+  function renderColors(body) {
+    const used = usedGroups(state.sel), mode = bgMode(), off = state.target === 'bg' && (mode === 'none' || mode === 'art');
+    // keep the wheel in step with the color being edited (switching target, etc.)
+    if (hsvToHex(state.hsv) !== curHex()) state.hsv = hsvFromHex(curHex(), state.hsv.h);
+    const tgs = COLOR_GROUPS.map(g => '<button class="tg' + (state.target === g.key ? ' on' : '') + (used[g.key] ? '' : ' idle') + '" data-target="' + g.key + '"><i class="chip" style="background:var(--' + g.key + ')"></i>' + g.label + '</button>').join('') +
+      '<button class="tg' + (state.target === 'bg' ? ' on' : '') + '" data-target="bg"><i class="chip" id="bgchip" style="' + bgChip() + '"></i>Background</button>';
+    let side = '';
+    if (state.target === 'bg') {
+      side += '<div class="modes">' + [['none', 'None'], ['solid', 'Solid'], ['gradient', 'Gradient']].map(m => '<button class="mode' + (mode === m[0] ? ' on' : '') + '" data-mode="' + m[0] + '">' + m[1] + '</button>').join('') + '</div>';
+      if (mode === 'gradient') side += '<div class="stops">' + [state.bg.c1, state.bg.c2].map((c, i) => '<button class="stop' + (state.bg.stop === i ? ' on' : '') + '" data-stop="' + i + '" id="stop' + i + '" style="background:' + c + '" aria-label="Gradient color ' + (i + 1) + '"></button>').join('') + '</div>';
+    }
+    if (!off) side += '<div class="hex" id="hexbox"><span class="hash">#</span><input id="hex" type="text" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Hex color" value="' + curHex().slice(1) + '"><i class="cur" id="hexcur"></i></div>';
+    body.innerHTML = '<div class="targets">' + tgs + '</div>' +
+      '<div class="picker"><div class="wheelbox' + (off ? ' dim' : '') + '"><div class="wheel" id="wheel"><canvas id="wheelCv" width="400" height="400"></canvas><i class="handle" id="handle"></i></div>' +
+      '<div class="bright" id="bright"><i class="knob" id="knob"></i></div></div><div class="side">' + side + '</div></div>' +
+      '<div class="palette" id="palette"></div>';
+    renderPalette();
+    drawWheel(state.hsv.v);
+    bindPicker();
+    syncPicker();
+  }
+  function renderPalette() {
+    const p = $('#palette'); if (!p) return;
+    const cur = curHex().toUpperCase();
+    let html = PALETTE_PRESETS.map(c => '<div class="pal' + (c.toUpperCase() === cur ? ' on' : '') + '"><button class="use" data-c="' + c + '" style="background:' + c + '" aria-label="Use ' + c + '"></button></div>').join('');
+    const firstEmpty = state.saved.length;
+    for (let i = 0; i < SAVED_SLOTS; i++) {
+      if (i < state.saved.length) {
+        const c = state.saved[i];
+        html += '<div class="pal saved' + (c.toUpperCase() === cur ? ' on' : '') + '"><button class="use" data-c="' + c + '" style="background:' + c + '" aria-label="Use saved ' + c + '"></button><button class="x" data-del="' + i + '" aria-label="Remove ' + c + '">x</button></div>';
+      } else {
+        const full = false;
+        html += '<div class="pal slot"><button class="use" data-save="1" aria-label="Save the current color here">' + (i === firstEmpty ? '+' : '') + '</button></div>';
+      }
+    }
+    p.innerHTML = html;
+  }
+  function saveCurrent() {
+    const hex = curHex().toUpperCase();
+    if (state.target === 'bg' && (bgMode() === 'none' || bgMode() === 'art')) return;
+    if (state.saved.indexOf(hex) >= 0 || state.saved.length >= SAVED_SLOTS) return;
+    state.saved.push(hex); persistSaved(); renderPalette();
+  }
+
+  // the wheel: hue around, saturation outward; brightness comes from the slider
+  let wheelGeo = null;
+  function drawWheel(v) {
+    const cv = $('#wheelCv'); if (!cv || !cv.getContext) return;
+    const ctx = cv.getContext('2d'); if (!ctx) return;
+    const D = cv.width;
+    if (!wheelGeo || wheelGeo.D !== D) {
+      const hue = new Float32Array(D * D), rad = new Float32Array(D * D), c = (D - 1) / 2;
+      for (let y = 0; y < D; y++) for (let x = 0; x < D; x++) {
+        const dx = x - c, dy = y - c; let h = Math.atan2(dx, -dy) / (2 * Math.PI); if (h < 0) h += 1;
+        hue[y * D + x] = h; rad[y * D + x] = Math.sqrt(dx * dx + dy * dy) / (D / 2);
+      }
+      wheelGeo = { D: D, hue: hue, rad: rad };
+    }
+    const img = ctx.createImageData(D, D), data = img.data, V = Math.max(v, 0.3);   // never let the wheel go fully dark
+    for (let i = 0; i < D * D; i++) {
+      const r = wheelGeo.rad[i], o = i * 4;
+      if (r > 1) continue;
+      const c = hsvToRgb(wheelGeo.hue[i], r, V);
+      data[o] = c[0]; data[o + 1] = c[1]; data[o + 2] = c[2]; data[o + 3] = Math.round(clamp((1 - r) * (D / 2), 0, 1) * 255);
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  // refresh everything that shows the current color, without rebuilding the panel (so dragging stays smooth)
+  function syncPicker() {
+    const hex = curHex(), h = state.hsv, handle = $('#handle');
+    if (handle) {
+      const R = 100, a = h.h * 2 * Math.PI;
+      handle.style.left = (R + h.s * R * Math.sin(a)) + 'px'; handle.style.top = (R - h.s * R * Math.cos(a)) + 'px'; handle.style.setProperty('--hc', hex);
+    }
+    const bright = $('#bright'), knob = $('#knob');
+    if (bright && knob) {
+      bright.style.background = 'linear-gradient(to right,#000,' + rgbToHex(hsvToRgb(h.h, h.s, 1)) + ')';
+      knob.style.left = (h.v * 100) + '%';
+    }
+    const hexEl = $('#hex');
+    if (hexEl) { if (document.activeElement !== hexEl) hexEl.value = hex.slice(1); $('#hexbox').classList.remove('bad'); $('#hexcur').style.setProperty('--cur', hex); }
+    const bc = $('#bgchip'); if (bc) bc.setAttribute('style', bgChip());
+    ['stop0', 'stop1'].forEach((id, i) => { const s = $('#' + id); if (s) s.style.background = i ? state.bg.c2 : state.bg.c1; });
+    document.querySelectorAll('#palette .pal').forEach(p => { const u = p.querySelector('.use'); if (u && u.dataset.c) p.classList.toggle('on', u.dataset.c.toUpperCase() === hex.toUpperCase()); });
+  }
+  function setColor(hex, fromHsv) {
+    hex = hex.toUpperCase();
+    if (!fromHsv) state.hsv = hsvFromHex(hex, state.hsv.h);
+    if (state.target === 'bg') {
+      const wasOff = bgMode() === 'none' || bgMode() === 'art';
+      if (wasOff) { state.sel.backgrounds = null; state.bg.mode = 'solid'; state.bg.stop = 0; }   // picking a color switches the background to a solid color
+      state.bg[state.bg.stop === 1 ? 'c2' : 'c1'] = hex;
+      applyBg();
+      if (wasOff) { renderAll(); return; }
+    } else {
+      state.colors[state.target] = hex;
+      root.style.setProperty('--' + state.target, hex);
+    }
+    syncPicker();
+  }
+  function bindPicker() {
+    const wheel = $('#wheel'), bright = $('#bright'); if (!wheel || !bright) return;
+    const drag = (el, fn) => el.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      try { el.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
+      fn(e);
+      const mv = ev => fn(ev), up = () => { el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); };
+      el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
     });
+    drag(wheel, e => {
+      const r = wheel.getBoundingClientRect(), R = r.width / 2, x = e.clientX - r.left - R, y = e.clientY - r.top - R;
+      let h = Math.atan2(x, -y) / (2 * Math.PI); if (h < 0) h += 1;
+      state.hsv.h = h; state.hsv.s = Math.min(1, Math.sqrt(x * x + y * y) / R);
+      setColor(hsvToHex(state.hsv), true);
+    });
+    let raf = 0;
+    drag(bright, e => {
+      const r = bright.getBoundingClientRect();
+      state.hsv.v = clamp((e.clientX - r.left) / r.width, 0, 1);
+      setColor(hsvToHex(state.hsv), true);
+      if (!raf) raf = requestAnimationFrame(() => { raf = 0; drawWheel(state.hsv.v); });
+    });
+    const hex = $('#hex');
+    if (hex) {
+      const raw = () => hex.value.replace(/^#/, '');
+      const applyTyped = () => { const n = normHex(hex.value); if (n && n !== curHex().toUpperCase()) { setColor(n); drawWheel(state.hsv.v); } };
+      // a full 6-digit code applies as you type; a 3-digit shorthand applies when you press Enter or leave the field
+      hex.addEventListener('input', () => {
+        const ok6 = /^[0-9a-f]{6}$/i.test(raw()), ok3 = /^[0-9a-f]{3}$/i.test(raw());
+        $('#hexbox').classList.toggle('bad', !(ok6 || ok3));
+        if (ok6) applyTyped();
+      });
+      let fresh = false;                         // clicking into the field selects what's there, so typing replaces it
+      hex.addEventListener('focus', () => { fresh = true; hex.select(); });
+      hex.addEventListener('mouseup', e => { if (fresh) { e.preventDefault(); fresh = false; } });
+      hex.addEventListener('blur', () => { fresh = false; applyTyped(); hex.value = curHex().slice(1); $('#hexbox').classList.remove('bad'); });
+      hex.addEventListener('keydown', e => { if (e.key === 'Enter') hex.blur(); });
+    }
   }
-  panel.addEventListener('input', e => {
-    if (e.target.type === 'color') setColor(e.target.closest('.cg').dataset.key, e.target.value);
-  });
 
   // ---------- put it together ----------
-  function renderPanel() { if (state.tab === 'colors') renderColors(); else renderGrid(); }
-  function render() {
+  function renderAll() {
     card.innerHTML = avatarHtml(state.sel);
-    renderPanel();
+    applyBg();
+    renderSide('left');
+    renderSide('right');
   }
-  function applyColors() { COLOR_GROUPS.forEach(g => root.style.setProperty('--' + g.key, state.colors[g.key])); }
-
+  function applyColors() {
+    COLOR_GROUPS.forEach(g => root.style.setProperty('--' + g.key, state.colors[g.key]));
+  }
   function resetAll() {
     state.sel = Object.assign({}, DEFAULT_SEL);
+    state.bg = Object.assign({ stop: 0 }, DEFAULT_BG);
     COLOR_GROUPS.forEach(g => { state.colors[g.key] = g.def; });
+    state.target = 'body';
     applyColors();
-    render();
+    renderAll();
   }
   function shuffle() {
-    const pick = a => a[Math.floor(Math.random() * a.length)];
+    const rnd = a => a[Math.floor(Math.random() * a.length)];
     const s = {};
     CATS.forEach(cat => {
-      if (cat === 'outfits') return;
+      if (cat === 'outfits' || cat === 'backgrounds') return;
       const items = TRAITS[cat];
-      s[cat] = !items.length ? null : (cat === 'backgrounds' || Math.random() > 0.25) ? pick(items).id : null;
+      s[cat] = !items.length ? null : (isRequired(cat) || Math.random() > 0.25) ? rnd(items).id : null;
     });
+    // background: a picture, a solid color, a gradient, or nothing
+    const art = TRAITS.backgrounds, r = Math.random();
+    s.backgrounds = null; state.bg.mode = 'none'; state.bg.stop = 0;
+    if (art.length && r < 0.4) s.backgrounds = rnd(art).id;
+    else if (r < 0.6) { state.bg.mode = 'solid'; state.bg.c1 = rnd(PALETTE_PRESETS); }
+    else if (r < 0.8) { state.bg.mode = 'gradient'; state.bg.c1 = rnd(PALETTE_PRESETS); state.bg.c2 = rnd(PALETTE_PRESETS); }
     state.sel = s;
-    COLOR_GROUPS.forEach(g => { state.colors[g.key] = pick(g.presets); });
+    COLOR_GROUPS.forEach(g => { state.colors[g.key] = rnd(PALETTE_PRESETS); });
     applyColors();
-    render();
+    renderAll();
   }
   $('#shuffle').addEventListener('click', shuffle);
   $('#resetAll').addEventListener('click', resetAll);
 
   // ---------- reading combined SVG exports ----------
   // A combined SVG is a flat color shape (painted in a marker color) plus the art image on top. The marker colors
-  // become the Body / Eyes / Hair colors; the art image is drawn above them.
+  // become the Skin / Eyes / Hair colors; the art image is drawn above them.
   const MARKERS = { lime: 'body', '#0f0': 'body', '#00ff00': 'body', yellow: 'eyes', '#ff0': 'eyes', '#ffff00': 'eyes', blue: 'hair', '#00f': 'hair', '#0000ff': 'hair' };
   function dataUriToUrl(uri) {
     try {
@@ -371,20 +541,30 @@
     });
   }
 
+  // ---------- narrow screens: the panels stack, so the frame needs to be taller ----------
+  function fitFrame() {
+    const f = window.frameElement; if (!f) return;
+    try {
+      if (f.dataset.h0 === undefined) f.dataset.h0 = f.style.height || '';
+      f.style.height = window.innerWidth <= 860 ? '1140px' : f.dataset.h0;
+    } catch (e) { /* embedded somewhere we can't resize: that's fine */ }
+  }
+  window.addEventListener('resize', fitFrame);
+
   // ---------- start ----------
   function start() {
     // load every image once up front so picking a trait doesn't flash while it loads
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => (it.layers || []).forEach(l => { if (l.src) new Image().src = l.src; })));
     COLOR_GROUPS.forEach(g => { state.colors[g.key] = g.def; });
+    state.saved = loadSaved();
     applyColors();
-    renderTabs();
-    renderHead();
-    render();
+    renderAll();
   }
-  card.innerHTML = '<p class="empty">Loading\u2026</p>';
-  renderTabs();
+  fitFrame();
+  card.innerHTML = '<p class="empty" style="padding:16px">Loading\u2026</p>';
+  renderTabs('left'); renderTabs('right');
   loadArt().then(computeCrops).then(start).catch(err => {
     console.error(err);
-    card.innerHTML = '<p class="empty">Couldn\u2019t load the artwork. Open this page from the website, not as a file on your computer.</p>';
+    card.innerHTML = '<p class="empty" style="padding:16px">Couldn\u2019t load the artwork. Open this page from the website, not as a file on your computer.</p>';
   });
 })();
