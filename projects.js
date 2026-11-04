@@ -1,5 +1,5 @@
 // Add a project = add one entry below, then upload its media to /media/<slug>/
-// cat:    'work' | 'reddit' | 'play'   (reddit projects only appear inside Work > Reddit)
+// cat:    'work' | 'play'
 // r:      tile shape on the grid: '16:9' | '9:16' | '1:1'  (placeholders: match each to its cover)
 // cover:  image, gif, mp4 or webm shown on the grid tile, e.g. 'media/demon-friends/cover.mp4'
 // feat:   true = also shown on the home page
@@ -58,14 +58,14 @@ const PROJECTS = [
   { slug:'opensea', title:'OpenSea', cat:'work', r:'16:9', feat:true, cover:'', blurb:'', media:[] },
   { slug:'keke-palmer', title:'Keke Palmer', cat:'work', r:'9:16', cover:'', blurb:'', media:[] },
 
-  // WORK / REDDIT (only shown inside the Reddit page, plus one stack tile on Work)
-  { slug:'reddit-avatars-gen-1', title:'Reddit Avatars Gen 1: The Genesis Series', cat:'reddit', r:'1:1', cover:'', blurb:'', media:[] },
-  { slug:'reddit-avatars-gen-2', title:'Reddit Avatars Gen 2: Spooky Szn', cat:'reddit', r:'9:16', cover:'', blurb:'', media:[] },
-  { slug:'reddit-avatars-gen-3-archived', title:'Reddit Avatars Gen 3: Archived Avatars', cat:'reddit', r:'16:9', cover:'', blurb:'', media:[] },
-  { slug:'reddit-avatars-gen-3-vermin', title:'Reddit Avatars Gen 3: Release the Vermin', cat:'reddit', r:'1:1', cover:'', blurb:'', media:[] },
-  { slug:'reddit-avatars-gen-4', title:'Reddit Avatars Gen 4: Retro Reimagined', cat:'reddit', r:'9:16', cover:'', blurb:'', media:[] },
-  { slug:'pengu-sitter', title:'Pengu Sitter', cat:'reddit', r:'1:1', cover:'', blurb:'', media:[] },
-  { slug:'stoned-to-the-bone-broth', title:'Stoned To The Bone Broth', cat:'reddit', r:'9:16', cover:'', blurb:'', media:[] },
+  // WORK (these seven used to live in a Reddit sub-page; they are regular Work projects now)
+  { slug:'reddit-avatars-gen-1', title:'Reddit Avatars Gen 1: The Genesis Series', cat:'work', r:'1:1', cover:'', blurb:'', media:[] },
+  { slug:'reddit-avatars-gen-2', title:'Reddit Avatars Gen 2: Spooky Szn', cat:'work', r:'9:16', cover:'', blurb:'', media:[] },
+  { slug:'reddit-avatars-gen-3-archived', title:'Reddit Avatars Gen 3: Archived Avatars', cat:'work', r:'16:9', cover:'', blurb:'', media:[] },
+  { slug:'reddit-avatars-gen-3-vermin', title:'Reddit Avatars Gen 3: Release the Vermin', cat:'work', r:'1:1', cover:'', blurb:'', media:[] },
+  { slug:'reddit-avatars-gen-4', title:'Reddit Avatars Gen 4: Retro Reimagined', cat:'work', r:'9:16', cover:'', blurb:'', media:[] },
+  { slug:'pengu-sitter', title:'Pengu Sitter', cat:'work', r:'1:1', cover:'', blurb:'', media:[] },
+  { slug:'stoned-to-the-bone-broth', title:'Stoned To The Bone Broth', cat:'work', r:'9:16', cover:'', blurb:'', media:[] },
 
   // PLAY
   { slug:'demon-friends', title:'Demon Friends', cat:'play', r:'9:16', feat:true, cover:'', blurb:'', media:[] },

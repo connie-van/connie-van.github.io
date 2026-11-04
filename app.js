@@ -68,14 +68,6 @@ function tile(p) {
   return { node: a, r: RATIO[p.r] };
 }
 
-function stackTile() {
-  const n = byCat('reddit').length;
-  const a = el('a', 'stack');
-  a.href = '#/work/reddit';
-  a.innerHTML = '<span class="lay l1"></span><span class="lay l2"></span><span class="top3"><span class="sqw"><span>Reddit</span></span><small>' + n + ' projects</small></span>';
-  return { node: a, r: 1 };
-}
-
 // Justified rows: every tile keeps its true ratio, each row fills the width.
 function mosaic(items) {
   const wrap = el('div');
@@ -108,21 +100,13 @@ function crumbs(parts) {
 
 function home() {
   const items = PROJECTS.filter(p => p.feat && !p.hidden).map(tile);
-  items.splice(3, 0, stackTile());
   return mosaic(items);
 }
 
 function work() {
   const items = byCat('work').map(tile);
-  items.splice(2, 0, stackTile());
   const w = el('div', null, crumbs([['Work']]));
   w.appendChild(mosaic(items));
-  return w;
-}
-
-function reddit() {
-  const w = el('div', null, crumbs([['Work', '#/work'], ['Reddit']]));
-  w.appendChild(mosaic(byCat('reddit').map(tile)));
   return w;
 }
 
@@ -190,8 +174,8 @@ function project(slug) {
   return d;
 }
 
-const SECTIONS = { work, 'work/reddit': reddit, play };
-const sectionOf = p => (p.cat === 'reddit' ? 'work/reddit' : p.cat);
+const SECTIONS = { work, play };
+const sectionOf = p => p.cat;
 let shown = null, box = null;
 
 function closeBox() {
@@ -243,24 +227,27 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && box) location.hash = box.dataset.back;
 });
 
-// Corner menu. On the landing page all three links run down the sides. On a section (or a project in it),
-// that section's link turns the corner and runs along the top edge, and the other two stay on the side.
+// Corner menu. On the landing page all three links run along the top (and, rotated, the bottom). On a section
+// (or a project in it) that section's link stays on the top edge and the other two run down the sides.
 const MENU = { work: 'Work', play: 'Play', about: 'About' };
 function menuHtml(key, dup) {
   const t = dup ? ' tabindex="-1"' : '';
-  const side = Object.keys(MENU).filter(k => k !== key).map(k => '<a href="#/' + k + '" data-k="' + k + '"' + t + '>' + MENU[k] + '</a>').join('');
-  const wrap = key ? '<a class="wrap" href="#/' + key + '" data-k="' + key + '"' + t + ' aria-current="page">' + MENU[key] + '</a>' : '';
-  return '<div class="mtop">' + wrap + '<span class="cstar" aria-hidden="true">\u2736</span></div><div class="mside">' + side + '</div>';
+  const keys = Object.keys(MENU);
+  const link = (k, cur) => '<a href="#/' + k + '" data-k="' + k + '"' + t + (cur ? ' aria-current="page"' : '') + '>' + MENU[k] + '</a>';
+  const top = (key ? [key] : keys).map(k => link(k, k === key)).join('');
+  const side = key ? keys.filter(k => k !== key).map(k => link(k, false)).join('') : '';
+  return '<div class="mtop"><div class="mwrap">' + top + '</div><span class="cstar" aria-hidden="true">\u2736</span></div>' + (side ? '<div class="mside">' + side + '</div>' : '');
 }
 function setMenu(key) {
   const tr = document.getElementById('menu-tr'), bl = document.getElementById('menu-bl');
-  if (tr) tr.innerHTML = menuHtml(key, false);
-  if (bl) bl.innerHTML = menuHtml(key, true);
+  if (tr) { tr.innerHTML = menuHtml(key, false); tr.className = 'menu menu-tr' + (key ? '' : ' is-home'); }
+  if (bl) { bl.innerHTML = menuHtml(key, true); bl.className = 'menu menu-bl' + (key ? '' : ' is-home'); }
 }
 
 function render(force) {
   const h = (location.hash || '#/').replace(/^#\/?/, '');
   const [a, b] = h.split('/');
+  if (h === 'work/reddit') { location.replace('#/work'); return; }   // old link to the retired sub-page
   const p = a === 'p' ? bySlug(b) : null;
   const boxSec = p && p.single ? sectionOf(p) : null;
   const target = boxSec || (SECTIONS[h] ? h : null);
