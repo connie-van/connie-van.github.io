@@ -72,7 +72,7 @@ function stackTile() {
   const n = byCat('reddit').length;
   const a = el('a', 'stack');
   a.href = '#/work/reddit';
-  a.innerHTML = '<span class="lay l1"></span><span class="lay l2"></span><span class="top3">Reddit<small>' + n + ' projects</small></span>';
+  a.innerHTML = '<span class="lay l1"></span><span class="lay l2"></span><span class="top3"><span class="sqw"><span>Reddit</span></span><small>' + n + ' projects</small></span>';
   return { node: a, r: 1 };
 }
 
@@ -159,7 +159,7 @@ function prevNext(p) {
   const list = byCat(p.cat), n = list.length, i = list.indexOf(p);
   if (n < 2 || i < 0) return document.createDocumentFragment();
   const mk = (q, cls, label) => {
-    const a = el('a', cls, '<small>' + label + '</small><span class="t">' + esc(q.title) + '</span>');
+    const a = el('a', cls, '<small>' + label + '</small><span class="t sqw"><span>' + esc(q.title) + '</span></span>');
     a.href = '#/p/' + q.slug;
     a.style.background = colorOf(q);
     return a;
@@ -172,9 +172,8 @@ function prevNext(p) {
 function project(slug) {
   const p = bySlug(slug);
   if (!p) return el('p', 'empty', 'That project doesn\u2019t exist. <a href="#/">Back to home</a>');
-  const back = p.cat === 'reddit' ? ['Reddit', '#/work/reddit'] : p.cat === 'work' ? ['Work', '#/work'] : ['Play', '#/play'];
-  const d = el('div', 'proj', '<p class="crumb"><a href="' + back[1] + '">Back to ' + back[0] + '</a></p>');
-  const intro = el('div', 'intro', '<h1>' + esc(p.title) + '</h1>');
+  const d = el('div', 'proj');
+  const intro = el('div', 'intro', '<h1 class="sqw"><span>' + esc(p.title) + '</span></h1>');
   const hasCredits = p.credits && p.credits.length;
   if (p.blurb || hasCredits) {
     const side = el('div', 'side');
@@ -188,7 +187,6 @@ function project(slug) {
   } else {
     p.media.forEach(m => d.appendChild(mediaBlock(m)));
   }
-  d.appendChild(prevNext(p));
   return d;
 }
 
@@ -245,6 +243,21 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && box) location.hash = box.dataset.back;
 });
 
+// Corner menu. On the landing page all three links run down the sides. On a section (or a project in it),
+// that section's link turns the corner and runs along the top edge, and the other two stay on the side.
+const MENU = { work: 'Work', play: 'Play', about: 'About' };
+function menuHtml(key, dup) {
+  const t = dup ? ' tabindex="-1"' : '';
+  const side = Object.keys(MENU).filter(k => k !== key).map(k => '<a href="#/' + k + '" data-k="' + k + '"' + t + '>' + MENU[k] + '</a>').join('');
+  const wrap = key ? '<a class="wrap" href="#/' + key + '" data-k="' + key + '"' + t + ' aria-current="page">' + MENU[key] + '</a>' : '';
+  return '<div class="mtop">' + wrap + '<span class="cstar" aria-hidden="true">\u2736</span></div><div class="mside">' + side + '</div>';
+}
+function setMenu(key) {
+  const tr = document.getElementById('menu-tr'), bl = document.getElementById('menu-bl');
+  if (tr) tr.innerHTML = menuHtml(key, false);
+  if (bl) bl.innerHTML = menuHtml(key, true);
+}
+
 function render(force) {
   const h = (location.hash || '#/').replace(/^#\/?/, '');
   const [a, b] = h.split('/');
@@ -259,11 +272,11 @@ function render(force) {
   let v, key = a;
   if (target) { v = SECTIONS[target](); if (boxSec) key = boxSec.split('/')[0]; }
   else if (a === 'about') v = about();
-  else if (a === 'p') { v = project(b); key = ''; }
+  else if (a === 'p') { v = project(b); key = p ? sectionOf(p).split('/')[0] : ''; }
   else { v = home(); key = ''; }
   shown = target;
   app.replaceChildren(v);
-  document.querySelectorAll('#nav a').forEach(x => x.classList.toggle('on', x.dataset.k === key));
+  setMenu(key);
   window.scrollTo(0, 0);
   if (boxSec) openBox(p);
 }
@@ -275,3 +288,29 @@ window.addEventListener('resize', () => {
   t = setTimeout(() => { if (Math.abs(app.clientWidth - lastW) > 40) { lastW = app.clientWidth; const y = scrollY; render(true); scrollTo(0, y); } }, 150);
 });
 render();
+
+// The name hides while you scroll down and comes back when you scroll up.
+(function () {
+  const nb = document.getElementById('namebar'), svg = document.getElementById('nameSvg'), tx = document.getElementById('nameText');
+  const SQ = 0.68, H = 256, LSB = 5.4, RSB = 9.9;
+  function fit() {
+    try {
+      const w = tx.getBBox().width * SQ;
+      if (!(w > 100)) return;
+      const ink = w - (LSB + RSB) * SQ;
+      svg.setAttribute('viewBox', (LSB * SQ).toFixed(1) + ' 0 ' + ink.toFixed(1) + ' ' + H);
+    } catch (e) {}
+  }
+  if (document.fonts && document.fonts.load) document.fonts.load('700 100px "Cossette Titre"').then(fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  fit();
+  let lastY = scrollY, ticking = false;
+  function onScroll() {
+    const y = Math.max(0, scrollY), dy = y - lastY;
+    if (y < 8) nb.classList.remove('hide');
+    else if (dy > 6) nb.classList.add('hide');
+    else if (dy < -6) nb.classList.remove('hide');
+    lastY = y; ticking = false;
+  }
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+})();
