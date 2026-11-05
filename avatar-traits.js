@@ -60,10 +60,9 @@ const HIDE_EMPTY_TABS = false;
 //                the outfit puts them on the avatar. Leave a color out if the set doesn't have one: that color is left as it is.
 //   background:  the id of the set's paired background image. Picking the outfit switches to it. Leave it out if the set has none.
 const SETS = {
-  'bodegacatceo': { name: 'bodegacatceo', short: 'Bodega', number: '003', colors: { body: '#9E9C91', eyes: '#161616' }, background: 'bodega' },
-  'lil-bliss':    { name: "Lil' Bliss", number: '004', colors: { body: '#FFF800', eyes: '#161616' }, background: 'angel' },
-  // set 005's original eyes color is assumed to be black
-  'lil-blaze':    { name: "Lil' Blaze", number: '005', colors: { body: '#FF0C00', eyes: '#161616' }, background: 'devil' },
+  'bodegacatceo': { name: 'bodegacatceo', short: 'Bodega', number: '003', colors: { body: '#9E9C91', eyes: '#000000' }, background: 'bodega' },
+  'lil-bliss':    { name: "Lil' Bliss", number: '004', colors: { body: '#FFF800', eyes: '#000000' }, background: 'angel' },
+  'lil-blaze':    { name: "Lil' Blaze", number: '005', colors: { body: '#FF0C00', eyes: '#000000' }, background: 'devil' },
   // lil-marco is drawn in full color (PNG files, no recolorable shapes), so it has no `colors` to list and nothing in it can be recolored
   'lil-marco':    { name: "Lil' Marco", number: '006', background: 'possum' },
   // big-g is full-color PNG art too (nothing recolorable), so no `colors`; its original look has no hat
@@ -160,14 +159,14 @@ const TRAITS = {
 // `def` is the color each one starts with (and what Reset all goes back to).
 const COLOR_GROUPS = [
   { key: 'body', label: 'Skin', def: '#9E9C91' },
-  { key: 'eyes', label: 'Eyes', def: '#161616' },
+  { key: 'eyes', label: 'Eyes', def: '#000000' },
   { key: 'hair', label: 'Hair', def: '#BB9250' }
 ];
 // the colors used when the background is a solid color or gradient
 const DEFAULT_BG = { mode: 'none', c1: '#FFD91A', c2: '#FF9EC4' };
 // The preset palette: one row of 12. The row under it is the visitor's own saved colors (SAVED_SLOTS slots, empty at first).
 // Six natural tones and six brights, taken from the colors in the artwork. Keep it at 12 so it fills the row.
-const PALETTE_PRESETS = ['#FFFFFF', '#F6DDBF', '#BB9250', '#8B5A2B', '#9E9C91', '#161616', '#FF7A1A', '#FFD91A', '#12E6BE', '#2F80FF', '#9040FF', '#FF3D88'];
+const PALETTE_PRESETS = ['#FFFFFF', '#F6DDBF', '#BB9250', '#8B5A2B', '#9E9C91', '#000000', '#FF7A1A', '#FFD91A', '#12E6BE', '#2F80FF', '#9040FF', '#FF3D88'];
 const SAVED_SLOTS = 12;
 // how None / Solid / Gradient show which one is chosen: 'underline' (plain words, the chosen one underlined) or 'square' (a small square, hollow = off, filled = on)
 const MODE_STYLE = 'underline';
