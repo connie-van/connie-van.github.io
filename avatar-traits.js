@@ -65,28 +65,30 @@ const HIDE_EMPTY_TABS = false;
 //   colors:      the set's ORIGINAL colors (body = skin, eyes, hair). The Outfits tab always shows the set in these, and picking
 //                the outfit puts them on the avatar. Leave a color out if the set doesn't have one: that color is left as it is.
 //   background:  the id of the set's paired background image. Picking the outfit switches to it. Leave it out if the set has none.
+// COLLECTIBLE: a set with  collectible: true  is part of the collectible line. Its Outfits tile gets the holographic hover (HOLO below);
+// a set without it (anything added later that isn't collectible) shows a plain tile. Its traits belong to the set, so they share the flag.
 const SETS = {
-  'bodegacatceo': { name: 'bodegacatceo', short: 'Bodega', number: '003', colors: { body: '#9E9C91', eyes: '#000000' }, background: 'bodega' },
-  'lil-bliss':    { name: "Lil' Bliss", number: '004', colors: { body: '#FFF800', eyes: '#000000' }, background: 'angel' },
-  'lil-blaze':    { name: "Lil' Blaze", number: '005', colors: { body: '#FF0C00', eyes: '#000000' }, background: 'devil' },
+  'bodegacatceo': { name: 'bodegacatceo', short: 'Bodega', number: '003', colors: { body: '#9E9C91', eyes: '#000000' }, background: 'bodega', collectible: true },
+  'lil-bliss':    { name: "Lil' Bliss", number: '004', colors: { body: '#FFF800', eyes: '#000000' }, background: 'angel', collectible: true },
+  'lil-blaze':    { name: "Lil' Blaze", number: '005', colors: { body: '#FF0C00', eyes: '#000000' }, background: 'devil', collectible: true },
   // lil-marco is drawn in full color (PNG files, no recolorable shapes), so it has no `colors` to list and nothing in it can be recolored
-  'lil-marco':    { name: "Lil' Marco", number: '006', background: 'possum' },
+  'lil-marco':    { name: "Lil' Marco", number: '006', background: 'possum', collectible: true },
   // big-g is full-color PNG art too (nothing recolorable), so no `colors`; its original look has no hat
-  'big-g':        { name: 'Big G', number: '007', background: 'raccoon' },
+  'big-g':        { name: 'Big G', number: '007', background: 'raccoon', collectible: true },
   // mr-bossman is full-color PNG art too (nothing recolorable), so no `colors`
-  'mr-bossman':   { name: 'Mr. Bossman', number: '001', background: 'rat' },
+  'mr-bossman':   { name: 'Mr. Bossman', number: '001', background: 'rat', collectible: true },
   // full-color PNGs, nothing recolorable; the head has its own eyes, so the set has no Eyes trait and wearing it takes eyes off
-  'guardian-of-the-realms': { name: 'Guardian of the Realms', background: 'realms' },
+  'guardian-of-the-realms': { name: 'Guardian of the Realms', background: 'realms', collectible: true },
   // full-color PNGs, nothing recolorable, no hat
-  'eye-of-the-beholder': { name: 'Eye of the Beholder', background: 'beholder' },
+  'eye-of-the-beholder': { name: 'Eye of the Beholder', background: 'beholder', collectible: true },
   // full-color PNGs, nothing recolorable, no hat
-  'snitches-get-stitches': { name: 'Snitches Get Stitches', background: 'stitches' },
+  'snitches-get-stitches': { name: 'Snitches Get Stitches', background: 'stitches', collectible: true },
   // full-color PNGs, nothing recolorable; no back accessory
-  'deadass': { name: 'Deadass', background: 'deadass' },
+  'deadass': { name: 'Deadass', background: 'deadass', collectible: true },
   // plain full-color SVGs (used as images, nothing recolorable); no accessories
-  'pickle-guy': { name: 'Pickle Guy', background: 'pickle' },
+  'pickle-guy': { name: 'Pickle Guy', background: 'pickle', collectible: true },
   // full-color PNGs, nothing recolorable; no hat, no accessories
-  'gummy': { name: 'Gummy', background: 'gummy' }
+  'gummy': { name: 'Gummy', background: 'gummy', collectible: true }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -263,6 +265,9 @@ const MODE_STYLE = 'underline';
 const AVATAR_CORNER = 0.05;
 // the ground shadow under every character: always on, just in front of the background and behind every trait.
 // An ellipse in canvas units (the 380 x 600 canvas), measured from the Deadass composite. Set SHADOW = null to turn it off.
+// the holographic hover on collectible Outfits tiles: rainbow stripes and silver bands that slide with the cursor, a soft glare, a slight tilt.
+// intensity 0 to 1 (how strong the foil is), tilt = degrees at the tile's edge (0 for none). Off on touch screens and with reduced motion's tilt.
+const HOLO = { intensity: 0.85, tilt: 7 };
 const SHADOW = { cx: 190.5, cy: 547.5, rx: 81, ry: 41.5, color: '#000000', opacity: 0.30 };
 // where the character sits on the main display. The display is always 3:4 (the shape of the background art), the background fills it,
 // and the character (every trait, all sets) is drawn smaller inside it. Fractions of the display: left and top = where the character's

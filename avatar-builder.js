@@ -257,8 +257,9 @@
       // the whole look, as on the main display: the set's background with the character placed on it (3:4, like the B.G. tiles)
       const set = SETS[it.set], look = Object.assign(outfitLook(it), { backgrounds: set && set.background ? set.background : null });
       const sbg = set && set.background && find('backgrounds', set.background);
-      cls += ' bg fit' + (sbg && sbg.starLight ? ' lt' : '');
-      thumb = '<div class="thumb"><div class="avatar">' + layersInner(look) + '</div></div>';
+      const collect = !!(set && set.collectible);
+      cls += ' bg fit' + (sbg && sbg.starLight ? ' lt' : '') + (collect ? ' collect' : '');
+      thumb = '<div class="thumb"><div class="avatar">' + layersInner(look) + '</div></div>' + (collect ? '<span class="holo" aria-hidden="true"></span><span class="glare" aria-hidden="true"></span>' : '');
     } else if (it) {
       thumb = '<div class="thumb iso">' + viewHtml(cat === 'outfits' ? layersInner(outfitLook(it), { noBg: true }) : itemInner(cat, it), it.cropF) + '</div>';
     }
@@ -628,6 +629,35 @@
   window.addEventListener('resize', fitFrame);
 
   // ---------- start ----------
+  // ---------- holographic hover on collectible Outfits tiles ----------
+  // The pointer's spot on the tile drives a few CSS variables; the foil itself is all CSS (.holo / .glare in avatar-builder.html).
+  // Only the tile under the cursor does any work. Mouse/trackpad only: touch screens have no hover.
+  function holoInit() {
+    if (typeof HOLO === 'undefined' || !window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    root.style.setProperty('--holo-i', HOLO.intensity);
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
+    let cur = null, frame = 0, last = null;
+    const off = t => { t.classList.remove('hov'); t.style.removeProperty('transform'); };
+    const paint = () => {
+      frame = 0; if (!cur || !last) return;
+      const r = cur.getBoundingClientRect();
+      const x = Math.min(1, Math.max(0, (last.clientX - r.left) / r.width)), y = Math.min(1, Math.max(0, (last.clientY - r.top) / r.height));
+      const st = cur.style;
+      st.setProperty('--mx', (x * 100).toFixed(1) + '%'); st.setProperty('--my', (y * 100).toFixed(1) + '%');
+      st.setProperty('--bx', (35 + x * 30).toFixed(1) + '%'); st.setProperty('--by', (35 + y * 30).toFixed(1) + '%');
+      st.setProperty('--hyp', Math.min(1, Math.hypot(x - 0.5, y - 0.5) * 2).toFixed(3));
+      const t = still.matches ? 0 : HOLO.tilt;
+      st.transform = t ? 'perspective(700px) rotateX(' + ((0.5 - y) * 2 * t).toFixed(2) + 'deg) rotateY(' + ((x - 0.5) * 2 * t).toFixed(2) + 'deg) scale(1.03)' : '';
+    };
+    const body = document.getElementById('body-left');
+    body.addEventListener('pointermove', e => {
+      const t = e.target.closest && e.target.closest('.tile.collect');
+      if (t !== cur) { if (cur) off(cur); cur = t; if (cur) cur.classList.add('hov'); }
+      last = e; if (cur && !frame) frame = requestAnimationFrame(paint);
+    });
+    body.addEventListener('pointerleave', () => { if (cur) off(cur); cur = null; });
+  }
+
   function start() {
     // load every image once up front so picking a trait doesn't flash while it loads
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => (it.layers || []).forEach(l => { if (l.src) new Image().src = l.src; })));
@@ -638,6 +668,7 @@
     state.saved = loadSaved();
     applyColors();
     renderAll();
+    holoInit();
   }
   fitFrame();
   card.innerHTML = '<p class="empty" style="padding:16px">Loading\u2026</p>';
