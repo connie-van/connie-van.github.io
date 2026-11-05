@@ -77,8 +77,8 @@ html:not(.c-hair) .tile.og-hair{--hair:var(--og-hair)}
 .avatar{position:absolute;inset:0}
 .layer{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-select:none;user-select:none}
 .layer.cover{object-fit:cover}
-/* main display: the character's layers sit in a smaller box on the background (FIGURE in avatar-traits.js); the background stays full size */
-#card .layer:not(.cover){inset:auto;left:var(--fig-l,0);top:var(--fig-t,0);width:var(--fig-w,100%);height:var(--fig-h,100%)}
+/* main display and Outfits tiles: the character's layers sit in a smaller box on the background (FIGURE in avatar-traits.js); the background stays full size */
+#card .layer:not(.cover),.tile.fit .layer:not(.cover){inset:auto;left:var(--fig-l,0);top:var(--fig-t,0);width:var(--fig-w,100%);height:var(--fig-h,100%)}
 .layer.tint{-webkit-mask-image:var(--m);mask-image:var(--m);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-position:center;mask-position:center;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .layer.tint.cover{-webkit-mask-size:cover;mask-size:cover}
 .actions{position:absolute;left:0;right:0;bottom:0;height:25px;display:flex;align-items:center;justify-content:center;gap:12px;font:500 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase}

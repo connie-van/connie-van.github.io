@@ -251,6 +251,11 @@
     if (cat === 'backgrounds') {
       cls += ' bg';
       if (it) thumb = '<div class="thumb"><div class="avatar">' + layersInner({ backgrounds: id }, { bgOnly: true }) + '</div></div>';
+    } else if (cat === 'outfits' && it) {
+      // the whole look, as on the main display: the set's background with the character placed on it (3:4, like the B.G. tiles)
+      const set = SETS[it.set], look = Object.assign(outfitLook(it), { backgrounds: set && set.background ? set.background : null });
+      cls += ' bg fit';
+      thumb = '<div class="thumb"><div class="avatar">' + layersInner(look) + '</div></div>';
     } else if (it) {
       thumb = '<div class="thumb iso">' + viewHtml(cat === 'outfits' ? layersInner(outfitLook(it), { noBg: true }) : itemInner(cat, it), it.cropF) + '</div>';
     }
