@@ -65,7 +65,9 @@ const SETS = {
   // set 005's original eyes color is assumed to be black
   'lil-blaze':    { name: "Lil' Blaze", number: '005', colors: { body: '#FF0C00', eyes: '#161616' }, background: 'devil' },
   // lil-marco is drawn in full color (PNG files, no recolorable shapes), so it has no `colors` to list and nothing in it can be recolored
-  'lil-marco':    { name: "Lil' Marco", number: '006', background: 'possum' }
+  'lil-marco':    { name: "Lil' Marco", number: '006', background: 'possum' },
+  // big-g is full-color PNG art too (nothing recolorable), so no `colors`; its original look has no hat
+  'big-g':        { name: 'Big G', number: '007', background: 'raccoon' }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -77,6 +79,7 @@ const bodega = inSet('bodegacatceo');      // set 003
 const bliss = inSet('lil-bliss');          // set 004
 const blaze = inSet('lil-blaze');         // set 005
 const marco = inSet('lil-marco');         // set 006
+const biggy = inSet('big-g');             // set 007
 
 const TRAITS = {
   outfits: [
@@ -85,7 +88,9 @@ const TRAITS = {
     { id: 'set-004', set: 'lil-bliss', name: 'Set 004', sets: { tops: 'set-004', bottoms: 'set-004', face: 'set-004', eyes: 'set-004', hats: 'halo', leftHand: 'wings', rightHand: 'set-004' } },
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', sets: { tops: 'set-005', bottoms: 'set-005', face: 'set-005', eyes: 'set-005', hats: 'imp', leftHand: 'bat-wings', rightHand: 'set-005' } },
     // set 006 has no hat: its original look is no hat, so wearing it takes off any hat (a hat can still be added afterwards)
-    { id: 'set-006', set: 'lil-marco', name: 'Set 006', sets: { tops: 'set-006', bottoms: 'set-006', face: 'set-006', eyes: 'set-006', leftHand: 'lid', rightHand: 'set-006' } }
+    { id: 'set-006', set: 'lil-marco', name: 'Set 006', sets: { tops: 'set-006', bottoms: 'set-006', face: 'set-006', eyes: 'set-006', leftHand: 'lid', rightHand: 'set-006' } },
+    // no hat in this set either, so wearing it takes any hat off
+    { id: 'set-007', set: 'big-g', name: 'Set 007', sets: { tops: 'set-007', bottoms: 'set-007', face: 'set-007', eyes: 'set-007', leftHand: 'set-007', rightHand: 'set-007' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -94,27 +99,32 @@ const TRAITS = {
     // the little angel on top touches the body, so its tile is cropped by hand to leave it out (it still shows on the avatar)
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-body_005.svg')], crop: [97, 342, 305, 510] },
     // lil-marco is plain full-color art (PNG files): no recolorable shapes, so it is shown exactly as drawn
-    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('body_003_2x.png')] }
+    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('body_003_2x.png')] },
+    // the skull floats above the jacket (it sits behind the head), so this tile is cropped by hand to the jacket; the skull still shows on the avatar
+    { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('body_002_2x.png')], crop: [113, 346, 295, 501] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
     // the heart above the legs is part of this piece, so its tile shows all of it (fullTile)
     { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-body_bottom_004.svg')], fullTile: true },
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-body_bottom_005.svg')] },
-    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('body_bottom_003_2x.png')] }
+    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('body_bottom_003_2x.png')] },
+    { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('body_bottom_002_2x.png')] }
   ],
   hair: [],
   face: [                                                                                                     // lower face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_lower_003.svg')] },
     { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-face_lower_004.svg')] },
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-face_lower_005.svg')] },
-    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('face_lower_003_2x.png')] }
+    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('face_lower_003_2x.png')] },
+    { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('face_lower_002_2x.png')] }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
     { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('face_upper_004.svg')] },
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('face_upper_005.svg')] },
-    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('face_upper_003_2x.png')] }
+    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('face_upper_003_2x.png')] },
+    { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('face_upper_002_2x.png')] }
   ],
   hats: [                                                                                                     // head accessory
     { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },
@@ -125,20 +135,23 @@ const TRAITS = {
     { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
     { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-accessory_004.svg')] },
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-accessory_005.svg')] },
-    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('accessory_003_2x.png')] }
+    { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('accessory_003_2x.png')] },
+    { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_002_2x.png')] }
   ],
   leftHand: [                                                                                                 // acc back (the furthest back, just in front of the background)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
     { id: 'wings', set: 'lil-bliss', name: 'Wings', layers: [bliss.layer('accessory_back_004_3x.png')] },
     { id: 'bat-wings', set: 'lil-blaze', name: 'Bat wings', layers: [blaze.svg('combined-accessory_back_005.svg')] },
-    { id: 'lid', set: 'lil-marco', name: 'Trash lid', layers: [marco.layer('accessory_back_003_2x.png')] }
+    { id: 'lid', set: 'lil-marco', name: 'Trash lid', layers: [marco.layer('accessory_back_003_2x.png')] },
+    { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_back_002_2x.png')] }
   ],
   backgrounds: [
     // background images show at their full size in the B.G. tab
     { id: 'bodega', set: 'bodegacatceo', name: 'Bodega', layers: [bodega.layer('bg-bodega.png', { fit: 'cover' })] },
     { id: 'angel', set: 'lil-bliss', name: 'Angel', layers: [bliss.layer('angel-bg.png', { fit: 'cover' })] },
     { id: 'devil', set: 'lil-blaze', name: 'Devil', layers: [blaze.layer('devil-bg.png', { fit: 'cover' })] },
-    { id: 'possum', set: 'lil-marco', name: 'Possum', layers: [marco.layer('possum-bg.png', { fit: 'cover' })] }
+    { id: 'possum', set: 'lil-marco', name: 'Possum', layers: [marco.layer('possum-bg.png', { fit: 'cover' })] },
+    { id: 'raccoon', set: 'big-g', name: 'Raccoon', layers: [biggy.layer('raccoon-bg.png', { fit: 'cover' })] }
   ]
 };
 
