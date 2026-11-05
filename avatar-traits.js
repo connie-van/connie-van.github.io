@@ -31,7 +31,7 @@
 // A trait does not need an outfit: it just becomes a tile in its tab. OUTFITS are optional presets that fill several slots at once (see `sets`);
 // picking one also puts on its set's original colors and paired background (see SETS).
 // STACKING ORDER, back to front:
-//   background, acc back (L Acc.), hair back, lower body (bottoms), upper body (tops), lower face (face), upper face (eyes),
+//   background, acc back (L Acc.), hair back, lower body (bottoms), upper body (tops), lower face (Head tab), upper face (eyes),
 //   hair front, hat, front acc (R Acc.)
 // Hair is one trait with up to two layers: a back layer and a front layer, so a hair item lists both:
 //   { id:'curly', set:'...', name:'Curly', layers:[ x.svg('combined-hair_back_005.svg', { z: CATEGORY_Z.hairBack }), x.svg('combined-hair_front_005.svg') ] }
@@ -45,7 +45,7 @@ const CATEGORY_Z = { backgrounds: 0, leftHand: 5, hairBack: 8, bottoms: 10, tops
 
 // the tabs: [key, label, which panel]. Left panel = the body, right panel = accessories, background and colors.
 const TABS = [
-  ['outfits', 'Outfits', 'left'], ['tops', 'Tops', 'left'], ['bottoms', 'Bottoms', 'left'], ['hair', 'Hair', 'left'], ['face', 'Face', 'left'], ['eyes', 'Eyes', 'left'],
+  ['outfits', 'Outfits', 'left'], ['face', 'Head', 'left'], ['eyes', 'Eyes', 'left'], ['tops', 'Tops', 'left'], ['bottoms', 'Bottoms', 'left'], ['hair', 'Hair', 'left'],
   ['hats', 'Hats', 'right'], ['leftHand', 'L Acc.', 'right'], ['rightHand', 'R Acc.', 'right'], ['backgrounds', 'B.G.', 'right'], ['colors', 'Colors', 'right']
 ];
 // these always have something selected (no None tile); everything else is optional
