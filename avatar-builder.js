@@ -75,8 +75,16 @@
   }
   const applyBg = () => { card.style.background = bgCss(); };
 
+  // picking an outfit also brings its set's original colors and its paired background (when the set has one)
+  function wearSet(it) {
+    const set = SETS[it.set]; if (!set) return;
+    if (set.background && find('backgrounds', set.background)) state.sel.backgrounds = set.background;
+    Object.keys(set.colors || {}).forEach(k => { const c = normHex(set.colors[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); } });
+  }
+  // the Outfits tab always shows a fit in its set's original colors, whatever the visitor has customized
+  function outfitVars(it) { const c = (SETS[it.set] && SETS[it.set].colors) || {}; return Object.keys(c).map(k => '--' + k + ':' + c[k]).join(';'); }
   function pick(cat, id) {
-    if (cat === 'outfits') { state.sel = applyOutfit(state.sel, find('outfits', id)); return; }
+    if (cat === 'outfits') { const it = find('outfits', id); state.sel = applyOutfit(state.sel, it); wearSet(it); return; }
     if (cat === 'backgrounds') {
       if (id) state.sel.backgrounds = id;
       else { state.sel.backgrounds = null; state.bg.mode = 'none'; }          // None = transparent
@@ -234,7 +242,7 @@
     } else if (it) {
       thumb = '<div class="thumb iso">' + viewHtml(cat === 'outfits' ? layersInner(outfitLook(it), { noBg: true }) : itemInner(cat, it), it.cropF) + '</div>';
     }
-    return '<button class="' + cls + (on ? ' on' : '') + '" data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
+    return '<button class="' + cls + (on ? ' on' : '') + '"' + (cat === 'outfits' && it ? ' style="' + outfitVars(it) + '"' : '') + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
   function renderGrid(body, cat) {

@@ -25,7 +25,8 @@
 // ADDING A SET: make a folder named after it inside the artwork folder, upload its files there, add it to SETS below, and give each of its
 // traits  set:'<folder name>'.  Traits can also be added one at a time, with no set at all.
 //
-// A trait does not need an outfit: it just becomes a tile in its tab. OUTFITS are optional presets that fill several slots at once (see `sets`).
+// A trait does not need an outfit: it just becomes a tile in its tab. OUTFITS are optional presets that fill several slots at once (see `sets`);
+// picking one also puts on its set's original colors and paired background (see SETS).
 // STACKING ORDER, back to front:
 //   background, acc back (L Acc.), hair back, lower body (bottoms), upper body (tops), lower face (face), upper face (eyes),
 //   hair front, hat, front acc (R Acc.)
@@ -52,9 +53,12 @@ const HIDE_EMPTY_TABS = false;
 // ---------- sets ----------
 // A set is a group of traits that were made together. Each set has its own folder inside the artwork folder (named after the set),
 // so files with the same or similar names in different sets never clash. The names are stored here for later; nothing shows them yet.
+//   colors:      the set's ORIGINAL colors (body = skin, eyes, hair). The Outfits tab always shows the set in these, and picking
+//                the outfit puts them on the avatar. Leave a color out if the set doesn't have one: that color is left as it is.
+//   background:  the id of the set's paired background image. Picking the outfit switches to it. Leave it out if the set has none.
 const SETS = {
-  'bodegacatceo': { name: 'bodegacatceo', short: 'Bodega', number: '003' },
-  'lil-bliss':    { name: "Lil' Bliss", number: '004' }
+  'bodegacatceo': { name: 'bodegacatceo', short: 'Bodega', number: '003', colors: { body: '#9E9C91', eyes: '#161616' }, background: 'bodega' },
+  'lil-bliss':    { name: "Lil' Bliss", number: '004', colors: { body: '#FFF800', eyes: '#161616' }, background: 'angel' }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
