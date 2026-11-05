@@ -81,7 +81,9 @@ const SETS = {
   // full-color PNGs, nothing recolorable, no hat
   'snitches-get-stitches': { name: 'Snitches Get Stitches', background: 'stitches' },
   // full-color PNGs, nothing recolorable; no back accessory
-  'deadass': { name: 'Deadass', background: 'deadass' }
+  'deadass': { name: 'Deadass', background: 'deadass' },
+  // plain full-color SVGs (used as images, nothing recolorable); no accessories
+  'pickle-guy': { name: 'Pickle Guy', background: 'pickle' }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -99,6 +101,7 @@ const guard = inSet('guardian-of-the-realms');
 const eye = inSet('eye-of-the-beholder');
 const stitch = inSet('snitches-get-stitches');
 const dead = inSet('deadass');
+const pickle = inSet('pickle-guy');
 
 const TRAITS = {
   outfits: [
@@ -118,7 +121,9 @@ const TRAITS = {
     // no hat: wearing it takes any hat off
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
     // no back accessory: wearing it takes any L Acc. off
-    { id: 'deadass', set: 'deadass', name: 'Deadass', sets: { tops: 'deadass', bottoms: 'deadass', face: 'deadass', eyes: 'deadass', hats: 'ny-cap', rightHand: 'pizza-rat' } }
+    { id: 'deadass', set: 'deadass', name: 'Deadass', sets: { tops: 'deadass', bottoms: 'deadass', face: 'deadass', eyes: 'deadass', hats: 'ny-cap', rightHand: 'pizza-rat' } },
+    // no accessories: wearing it takes both off
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle Guy', sets: { tops: 'pickle', bottoms: 'pickle', face: 'pickle', eyes: 'pickle', hats: 'pickle-hat' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -135,7 +140,8 @@ const TRAITS = {
     { id: 'guardian', set: 'guardian-of-the-realms', name: 'Green pumpkin', layers: [guard.layer('body_003_2x.png')] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie torso', layers: [eye.layer('body_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Patchwork torso', layers: [stitch.layer('body_001_2x.png')] },
-    { id: 'deadass', set: 'deadass', name: 'Puffer jacket', layers: [dead.layer('body_001_2x.png')] }
+    { id: 'deadass', set: 'deadass', name: 'Puffer jacket', layers: [dead.layer('body_001_2x.png')] },
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle top', layers: [pickle.layer('body_002.svg')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -148,7 +154,8 @@ const TRAITS = {
     { id: 'guardian', set: 'guardian-of-the-realms', name: 'Jack-o-lantern', layers: [guard.layer('body_bottom_003_2x.png')] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie legs', layers: [eye.layer('body_bottom_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Patchwork legs', layers: [stitch.layer('body_bottom_001_2x.png')] },
-    { id: 'deadass', set: 'deadass', name: 'Jeans and boots', layers: [dead.layer('body_bottom_001_2x.png')] }
+    { id: 'deadass', set: 'deadass', name: 'Jeans and boots', layers: [dead.layer('body_bottom_001_2x.png')] },
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle bottom', layers: [pickle.layer('body_bottom_002.svg')] }
   ],
   hair: [],
   face: [                                                                                                     // lower face
@@ -161,7 +168,8 @@ const TRAITS = {
     { id: 'guardian', set: 'guardian-of-the-realms', name: 'Three-eyed cat', layers: [guard.layer('face_lower_003_2x.png')], hasEyes: true },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie hand', layers: [eye.layer('face_lower_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Voodoo head', layers: [stitch.layer('face_lower_001_2x.png')] },
-    { id: 'deadass', set: 'deadass', name: 'Skull', layers: [dead.layer('face_lower_001_2x.png')] }
+    { id: 'deadass', set: 'deadass', name: 'Skull', layers: [dead.layer('face_lower_001_2x.png')] },
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle head', layers: [pickle.layer('face_lower_002.svg')] }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
@@ -172,14 +180,16 @@ const TRAITS = {
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('face_upper_001_2x.png')] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Stitched eye', layers: [eye.layer('face_upper_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Button eye', layers: [stitch.layer('face_upper_001_2x.png')] },
-    { id: 'deadass', set: 'deadass', name: 'Eye sockets', layers: [dead.layer('face_upper_001_2x.png')] }
+    { id: 'deadass', set: 'deadass', name: 'Eye sockets', layers: [dead.layer('face_upper_001_2x.png')] },
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle eyes', layers: [pickle.layer('face_upper_002.svg')] }
   ],
   hats: [                                                                                                     // head accessory
     { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },
     { id: 'halo', set: 'lil-bliss', name: 'Halo', layers: [bliss.layer('head_accessory_004_3x.png')] },
     { id: 'imp', set: 'lil-blaze', name: 'Imp', layers: [blaze.svg('combined-head_accessory_005.svg')] },
     { id: 'bandage', set: 'mr-bossman', name: 'Bandage', layers: [boss.layer('head_accessory_001_2x.png')] },
-    { id: 'ny-cap', set: 'deadass', name: 'NY cap', layers: [dead.layer('head_accessory_001_2x.png')] }
+    { id: 'ny-cap', set: 'deadass', name: 'NY cap', layers: [dead.layer('head_accessory_001_2x.png')] },
+    { id: 'pickle-hat', set: 'pickle-guy', name: 'Pickle hat', layers: [pickle.layer('head_accessory_002.svg')] }
   ],
   rightHand: [                                                                                                // acc front
     { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
@@ -216,7 +226,8 @@ const TRAITS = {
     { id: 'realms', set: 'guardian-of-the-realms', name: 'Realms', layers: [guard.layer('GUARDIANOFTHEREALMS-BG.png', { fit: 'cover' })] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', layers: [eye.layer('EYEOFTHEBEHOLDER-BG.png', { fit: 'cover' })], star: 'light' },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', layers: [stitch.layer('SNITCHESGETSTITCHES-BG.png', { fit: 'cover' })] },
-    { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] }
+    { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] },
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle', layers: [pickle.layer('pickle-guy-bg.png', { fit: 'cover' })] }
   ]
 };
 
