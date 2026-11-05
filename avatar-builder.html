@@ -50,6 +50,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
 .tile.none.on .nlabel{color:var(--ink)}
 /* background images show at their own size, free of the square */
 .tile.bg{aspect-ratio:3/4;border:0}
+/* a tile with a dark backing (tileBg): the selected star sits on a small paper square so it stays visible */
+.tile.dark.on::after{background:var(--paper);padding:3px 3px 2px;top:5px;right:5px}
 .tile.bg .thumb{inset:0}
 .tile.bg:hover{box-shadow:none;outline:1px solid rgba(20,17,15,.4)}
 .tile.bg.on,.tile.bg.on:hover{box-shadow:none;outline:2px solid var(--ink)}

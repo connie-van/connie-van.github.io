@@ -257,6 +257,8 @@
     let extra = '';
     if (cat === 'outfits' && it) extra = ' style="' + outfitVars(it) + '"';                       // always the set's original colors
     else if (it && cat !== 'backgrounds' && it.originalInMenu !== false) { const o = ogTile(it); cls += o.cls; extra = o.style ? ' style="' + o.style + '"' : ''; }   // original colors until the visitor picks their own
+    // tileBg: a backing color for light artwork that would vanish on the paper-colored tile
+    if (it && it.tileBg) { cls += ' dark'; extra = extra ? extra.replace(/"$/, ';background:' + it.tileBg + '"') : ' style="background:' + it.tileBg + '"'; }
     return '<button class="' + cls + (on ? ' on' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
@@ -458,6 +460,9 @@
       const items = TRAITS[cat];
       s[cat] = !items.length ? null : (isRequired(cat) || Math.random() > 0.25) ? rnd(items).id : null;
     });
+    // eyes: always, unless the head has its own eyes drawn in (hasEyes)
+    const head = find('face', s.face);
+    s.eyes = (head && head.hasEyes) || !TRAITS.eyes.length ? null : (s.eyes || rnd(TRAITS.eyes).id);
     // background: a picture, a solid color, a gradient, or nothing
     const art = TRAITS.backgrounds, r = Math.random();
     s.backgrounds = null; state.bg.mode = 'none'; state.bg.stop = 0;

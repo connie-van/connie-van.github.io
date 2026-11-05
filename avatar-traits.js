@@ -16,6 +16,8 @@
 //   bring the originals back. The avatar itself always follows the visitor's colors. An item can opt out with  originalInMenu: false.
 //   Every item can also take  crop:[left, top, right, bottom]  (in CANVAS units) to choose by hand how its selection tile is zoomed.
 //   An item with  fullTile: true  shows ALL of its artwork in its tile, floating pieces included.
+//   An item with  tileBg:'#hex'  gets that backing color in its tile, for light artwork that would disappear on the paper-colored tile.
+//   A Head (face) item with  hasEyes: true  has its eyes drawn in: Shuffle then gives it no Eyes trait (Shuffle otherwise always picks eyes).
 //   Normally leave both out: the tile is cropped to the artwork automatically, and on Tops and Bottoms a floating piece
 //   that sits apart from the main trait is left out of the tile (it still shows on the live character).
 //
@@ -48,8 +50,9 @@ const TABS = [
   ['outfits', 'Outfits', 'left'], ['face', 'Head', 'left'], ['eyes', 'Eyes', 'left'], ['tops', 'Tops', 'left'], ['bottoms', 'Bottoms', 'left'], ['hair', 'Hair', 'left'],
   ['hats', 'Hats', 'right'], ['leftHand', 'L Acc.', 'right'], ['rightHand', 'R Acc.', 'right'], ['backgrounds', 'B.G.', 'right'], ['colors', 'Colors', 'right']
 ];
-// these always have something selected (no None tile); everything else is optional
-const REQUIRED = ['tops', 'bottoms', 'face', 'eyes'];
+// these always have something selected (no None tile); everything else is optional.
+// Eyes are optional so a head with its own eyes drawn in (hasEyes, see below) can be worn with no eyes on top.
+const REQUIRED = ['tops', 'bottoms', 'face'];
 // set to true to hide tabs that have nothing in them yet
 const HIDE_EMPTY_TABS = false;
 
@@ -68,7 +71,9 @@ const SETS = {
   // big-g is full-color PNG art too (nothing recolorable), so no `colors`; its original look has no hat
   'big-g':        { name: 'Big G', number: '007', background: 'raccoon' },
   // mr-bossman is full-color PNG art too (nothing recolorable), so no `colors`
-  'mr-bossman':   { name: 'Mr. Bossman', number: '001', background: 'rat' }
+  'mr-bossman':   { name: 'Mr. Bossman', number: '001', background: 'rat' },
+  // full-color PNGs, nothing recolorable; the head has its own eyes, so the set has no Eyes trait and wearing it takes eyes off
+  'guardian-of-the-realms': { name: 'Guardian of the Realms', background: 'realms' }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -82,6 +87,7 @@ const blaze = inSet('lil-blaze');         // set 005
 const marco = inSet('lil-marco');         // set 006
 const biggy = inSet('big-g');             // set 007
 const boss = inSet('mr-bossman');         // set 001
+const guard = inSet('guardian-of-the-realms');
 
 const TRAITS = {
   outfits: [
@@ -93,7 +99,9 @@ const TRAITS = {
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', sets: { tops: 'set-006', bottoms: 'set-006', face: 'set-006', eyes: 'set-006', leftHand: 'lid', rightHand: 'set-006' } },
     // no hat in this set either, so wearing it takes any hat off
     { id: 'set-007', set: 'big-g', name: 'Set 007', sets: { tops: 'set-007', bottoms: 'set-007', face: 'set-007', eyes: 'set-007', leftHand: 'set-007', rightHand: 'set-007' } },
-    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', sets: { tops: 'set-001', bottoms: 'set-001', face: 'set-001', eyes: 'set-001', hats: 'bandage', leftHand: 'cane', rightHand: 'cash' } }
+    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', sets: { tops: 'set-001', bottoms: 'set-001', face: 'set-001', eyes: 'set-001', hats: 'bandage', leftHand: 'cane', rightHand: 'cash' } },
+    // no eyes and no hat: wearing it takes both off (the cat head has its own eyes)
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Guardian', sets: { tops: 'guardian', bottoms: 'guardian', face: 'guardian', leftHand: 'sparkles', rightHand: 'ghosts' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -106,7 +114,8 @@ const TRAITS = {
     // the skull floats above the jacket (it sits behind the head), so this tile is cropped by hand to the jacket; the skull still shows on the avatar
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('body_002_2x.png')], crop: [113, 346, 295, 501] },
     // same as Big G: the skull floats above the jacket (behind the head), so the tile is cropped by hand to the jacket; the skull still shows on the avatar
-    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('body_001_2x.png')], crop: [112, 339, 295, 498] }
+    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('body_001_2x.png')], crop: [112, 339, 295, 498] },
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Green pumpkin', layers: [guard.layer('body_003_2x_1.png')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -115,7 +124,8 @@ const TRAITS = {
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-body_bottom_005.svg')] },
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('body_bottom_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('body_bottom_002_2x.png')] },
-    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('body_bottom_001_2x.png')] }
+    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('body_bottom_001_2x.png')] },
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Jack-o-lantern', layers: [guard.layer('body_bottom_003_2x_1.png')] }
   ],
   hair: [],
   face: [                                                                                                     // lower face
@@ -124,7 +134,8 @@ const TRAITS = {
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-face_lower_005.svg')] },
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('face_lower_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('face_lower_002_2x.png')] },
-    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('face_lower_001_2x.png')] }
+    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('face_lower_001_2x.png')] },
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Three-eyed cat', layers: [guard.layer('face_lower_003_2x_1.png')], hasEyes: true }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
@@ -146,7 +157,8 @@ const TRAITS = {
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-accessory_005.svg')] },
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('accessory_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_002_2x.png')] },
-    { id: 'cash', set: 'mr-bossman', name: 'Cash', layers: [boss.layer('accessory_001_2x.png')] }
+    { id: 'cash', set: 'mr-bossman', name: 'Cash', layers: [boss.layer('accessory_001_2x.png')] },
+    { id: 'ghosts', set: 'guardian-of-the-realms', name: 'Ghosts', layers: [guard.layer('accessory_003_2x_1.png')] }
   ],
   leftHand: [                                                                                                 // acc back (the furthest back, just in front of the background)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
@@ -154,7 +166,9 @@ const TRAITS = {
     { id: 'bat-wings', set: 'lil-blaze', name: 'Bat wings', layers: [blaze.svg('combined-accessory_back_005.svg')] },
     { id: 'lid', set: 'lil-marco', name: 'Trash lid', layers: [marco.layer('accessory_back_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_back_002_2x.png')] },
-    { id: 'cane', set: 'mr-bossman', name: 'Cane', layers: [boss.layer('accessory_back_001_2x.png')] }
+    { id: 'cane', set: 'mr-bossman', name: 'Cane', layers: [boss.layer('accessory_back_001_2x.png')] },
+    // the sparkles are near-white, so their tile gets a dark backing (taken from the Realms background) to show them
+    { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x_1.png')], tileBg: '#15121F' }
   ],
   backgrounds: [
     // background images show at their full size in the B.G. tab
@@ -163,7 +177,8 @@ const TRAITS = {
     { id: 'devil', set: 'lil-blaze', name: 'Devil', layers: [blaze.layer('devil-bg.png', { fit: 'cover' })] },
     { id: 'possum', set: 'lil-marco', name: 'Possum', layers: [marco.layer('possum-bg.png', { fit: 'cover' })] },
     { id: 'raccoon', set: 'big-g', name: 'Raccoon', layers: [biggy.layer('raccoon-bg.png', { fit: 'cover' })] },
-    { id: 'rat', set: 'mr-bossman', name: 'Rat', layers: [boss.layer('rat-bg-2.png', { fit: 'cover' })] }
+    { id: 'rat', set: 'mr-bossman', name: 'Rat', layers: [boss.layer('rat-bg-2.png', { fit: 'cover' })] },
+    { id: 'realms', set: 'guardian-of-the-realms', name: 'Realms', layers: [guard.layer('GUARDIANOFTHEREALMS-BG.png', { fit: 'cover' })] }
   ]
 };
 
