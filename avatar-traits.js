@@ -173,6 +173,11 @@ const MODE_STYLE = 'underline';
 // how round the avatar's background corners are in the main display, as a fraction of the card's width (0 = square, 0.05 = about 5%).
 // Only the main display: the background tiles in the B.G. tab stay square. Nothing is rounded when the background is None.
 const AVATAR_CORNER = 0.05;
+// where the character sits on the main display. The display is always 3:4 (the shape of the background art), the background fills it,
+// and the character (every trait, all sets) is drawn smaller inside it. Fractions of the display: left and top = where the character's
+// canvas starts, height = how tall the canvas is (its width follows from CANVAS). Measured against the finished Bodega art.
+// The selection tiles are not affected.
+const FIGURE = { left: 0.1406, top: 0.0845, height: 0.841 };
 
 // what the avatar looks like when the builder opens (null = nothing selected)
 const DEFAULT_SEL = { tops: 'set-003', bottoms: 'set-003', hair: null, face: 'set-003', eyes: 'set-003', hats: null, rightHand: 'pigeon', leftHand: 'try-me', backgrounds: 'bodega' };

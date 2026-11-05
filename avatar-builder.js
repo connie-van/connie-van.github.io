@@ -575,6 +575,8 @@
     // load every image once up front so picking a trait doesn't flash while it loads
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => (it.layers || []).forEach(l => { if (l.src) new Image().src = l.src; })));
     root.style.setProperty('--corner', AVATAR_CORNER);
+    const figW = FIGURE.height * (CANVAS.w / CANVAS.h) * (4 / 3);     // the canvas's width as a fraction of the 3:4 display
+    [['--fig-l', FIGURE.left], ['--fig-t', FIGURE.top], ['--fig-w', figW], ['--fig-h', FIGURE.height]].forEach(v => root.style.setProperty(v[0], (v[1] * 100).toFixed(3) + '%'));
     COLOR_GROUPS.forEach(g => { state.colors[g.key] = g.def; });
     state.saved = loadSaved();
     applyColors();
