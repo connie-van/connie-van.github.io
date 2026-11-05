@@ -83,7 +83,9 @@ const SETS = {
   // full-color PNGs, nothing recolorable; no back accessory
   'deadass': { name: 'Deadass', background: 'deadass' },
   // plain full-color SVGs (used as images, nothing recolorable); no accessories
-  'pickle-guy': { name: 'Pickle Guy', background: 'pickle' }
+  'pickle-guy': { name: 'Pickle Guy', background: 'pickle' },
+  // full-color PNGs, nothing recolorable; no hat, no accessories
+  'gummy': { name: 'Gummy', background: 'gummy' }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -102,6 +104,7 @@ const eye = inSet('eye-of-the-beholder');
 const stitch = inSet('snitches-get-stitches');
 const dead = inSet('deadass');
 const pickle = inSet('pickle-guy');
+const gummy = inSet('gummy');
 
 const TRAITS = {
   outfits: [
@@ -123,7 +126,9 @@ const TRAITS = {
     // no back accessory: wearing it takes any L Acc. off
     { id: 'deadass', set: 'deadass', name: 'Deadass', sets: { tops: 'deadass', bottoms: 'deadass', face: 'deadass', eyes: 'deadass', hats: 'ny-cap', rightHand: 'pizza-rat' } },
     // no accessories: wearing it takes both off
-    { id: 'pickle', set: 'pickle-guy', name: 'Pickle Guy', sets: { tops: 'pickle', bottoms: 'pickle', face: 'pickle', eyes: 'pickle', hats: 'pickle-hat' } }
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle Guy', sets: { tops: 'pickle', bottoms: 'pickle', face: 'pickle', eyes: 'pickle', hats: 'pickle-hat' } },
+    // no hat and no accessories: wearing it takes all three off
+    { id: 'gummy', set: 'gummy', name: 'Gummy', sets: { tops: 'gummy', bottoms: 'gummy', face: 'gummy', eyes: 'gummy' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -141,7 +146,8 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie torso', layers: [eye.layer('body_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Patchwork torso', layers: [stitch.layer('body_001_2x.png')] },
     { id: 'deadass', set: 'deadass', name: 'Puffer jacket', layers: [dead.layer('body_001_2x.png')] },
-    { id: 'pickle', set: 'pickle-guy', name: 'Pickle top', layers: [pickle.layer('body_002.svg')] }
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle top', layers: [pickle.layer('body_002.svg')] },
+    { id: 'gummy', set: 'gummy', name: 'Gummy top', layers: [gummy.layer('body_003_2x.png')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -155,7 +161,8 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie legs', layers: [eye.layer('body_bottom_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Patchwork legs', layers: [stitch.layer('body_bottom_001_2x.png')] },
     { id: 'deadass', set: 'deadass', name: 'Jeans and boots', layers: [dead.layer('body_bottom_001_2x.png')] },
-    { id: 'pickle', set: 'pickle-guy', name: 'Pickle bottom', layers: [pickle.layer('body_bottom_002.svg')] }
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle bottom', layers: [pickle.layer('body_bottom_002.svg')] },
+    { id: 'gummy', set: 'gummy', name: 'Gummy bottom', layers: [gummy.layer('body_bottom_003_2x.png')] }
   ],
   hair: [],
   face: [                                                                                                     // lower face
@@ -169,7 +176,8 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie hand', layers: [eye.layer('face_lower_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Voodoo head', layers: [stitch.layer('face_lower_001_2x.png')] },
     { id: 'deadass', set: 'deadass', name: 'Skull', layers: [dead.layer('face_lower_001_2x.png')] },
-    { id: 'pickle', set: 'pickle-guy', name: 'Pickle head', layers: [pickle.layer('face_lower_002.svg')] }
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle head', layers: [pickle.layer('face_lower_002.svg')] },
+    { id: 'gummy', set: 'gummy', name: 'Gummy head', layers: [gummy.layer('face_lower_003_2x.png')] }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
@@ -181,7 +189,8 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Stitched eye', layers: [eye.layer('face_upper_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Button eye', layers: [stitch.layer('face_upper_001_2x.png')] },
     { id: 'deadass', set: 'deadass', name: 'Eye sockets', layers: [dead.layer('face_upper_001_2x.png')] },
-    { id: 'pickle', set: 'pickle-guy', name: 'Pickle eyes', layers: [pickle.layer('face_upper_002.svg')] }
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle eyes', layers: [pickle.layer('face_upper_002.svg')] },
+    { id: 'gummy', set: 'gummy', name: 'Gummy eyes', layers: [gummy.layer('face_upper_003_2x.png')] }
   ],
   hats: [                                                                                                     // head accessory
     { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },
@@ -227,7 +236,8 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', layers: [eye.layer('EYEOFTHEBEHOLDER-BG.png', { fit: 'cover' })], star: 'light' },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', layers: [stitch.layer('SNITCHESGETSTITCHES-BG.png', { fit: 'cover' })] },
     { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] },
-    { id: 'pickle', set: 'pickle-guy', name: 'Pickle', layers: [pickle.layer('pickle-guy-bg.png', { fit: 'cover' })] }
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle', layers: [pickle.layer('pickle-guy-bg.png', { fit: 'cover' })] },
+    { id: 'gummy', set: 'gummy', name: 'Gummy', layers: [gummy.layer('gummy-bg.png', { fit: 'cover' })] }
   ]
 };
 
