@@ -74,10 +74,11 @@
     if (state.bg.mode === 'gradient') return 'linear-gradient(to bottom,' + state.bg.c1 + ',' + state.bg.c2 + ')';
     return '';
   }
-  const applyBg = () => { card.style.background = bgCss(); };
+  // the avatar's background (a picture, a solid color or a gradient) shows with rounded corners; with no background there is nothing to round
+  const applyBg = () => { card.style.background = bgCss(); card.classList.toggle('rounded', bgMode() !== 'none'); };
 
   // picking an outfit also brings its set's original colors and its paired background (when the set has one)
-  // "chosen" colors: tiles marked originalInMenu show their set's original colors until the visitor picks a color of their own
+  // "chosen" colors: trait tiles show their set's original colors until the visitor picks a color of their own
   // (the <html> element gets a c-body / c-eyes / c-hair class, and the CSS does the rest)
   const markChosen = k => { state.chosen[k] = true; root.classList.add('c-' + k); };
   const clearChosen = k => { state.chosen[k] = false; root.classList.remove('c-' + k); };
@@ -87,7 +88,7 @@
     Object.keys(set.colors || {}).forEach(k => { const c = normHex(set.colors[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); clearChosen(k); } });
   }
   // the Outfits tab always shows a fit in its set's original colors, whatever the visitor has customized.
-  // A single item can ask for the same in its own tab with  originalInMenu: true  (see avatar-traits.js), until the visitor picks a color of their own.
+  // Every other trait tile does the same, until the visitor picks a color of their own (an item can opt out with  originalInMenu: false  in avatar-traits.js).
   // The avatar itself always follows the colors the visitor picks..
   function ogTile(it) { const c = (SETS[it.set] && SETS[it.set].colors) || {}, ks = Object.keys(c); return { cls: ks.map(k => ' og og-' + k).join(''), style: ks.map(k => '--og-' + k + ':' + c[k]).join(';') }; }
   function outfitVars(it) { const c = (SETS[it.set] && SETS[it.set].colors) || {}; return Object.keys(c).map(k => '--' + k + ':' + c[k]).join(';'); }
@@ -252,7 +253,7 @@
     }
     let extra = '';
     if (cat === 'outfits' && it) extra = ' style="' + outfitVars(it) + '"';                       // always the set's original colors
-    else if (it && it.originalInMenu) { const o = ogTile(it); cls += o.cls; extra = ' style="' + o.style + '"'; }   // original colors until the visitor picks their own
+    else if (it && cat !== 'backgrounds' && it.originalInMenu !== false) { const o = ogTile(it); cls += o.cls; extra = o.style ? ' style="' + o.style + '"' : ''; }   // original colors until the visitor picks their own
     return '<button class="' + cls + (on ? ' on' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
@@ -559,6 +560,7 @@
   function start() {
     // load every image once up front so picking a trait doesn't flash while it loads
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => (it.layers || []).forEach(l => { if (l.src) new Image().src = l.src; })));
+    root.style.setProperty('--corner', AVATAR_CORNER);
     COLOR_GROUPS.forEach(g => { state.colors[g.key] = g.def; });
     state.saved = loadSaved();
     applyColors();
