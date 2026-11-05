@@ -15,7 +15,8 @@
 //   Every tile in a trait tab shows that item's set's ORIGINAL colors (see SETS) until the visitor picks a color of their own; Reset all and wearing an outfit
 //   bring the originals back. The avatar itself always follows the visitor's colors. An item can opt out with  originalInMenu: false.
 //   Every item can also take  crop:[left, top, right, bottom]  (in CANVAS units) to choose by hand how its selection tile is zoomed.
-//   Normally leave that out: the tile is cropped to the artwork automatically, and on Tops and Bottoms a floating piece
+//   An item with  fullTile: true  shows ALL of its artwork in its tile, floating pieces included.
+//   Normally leave both out: the tile is cropped to the artwork automatically, and on Tops and Bottoms a floating piece
 //   that sits apart from the main trait is left out of the tile (it still shows on the live character).
 //
 //   2) A combined SVG export:   bodega.svg('combined-body_003.svg')
@@ -90,8 +91,8 @@ const TRAITS = {
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
-    // same for the heart above the legs (it sits in the opening, so the tile starts just below it)
-    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-body_bottom_004.svg')], crop: [113, 443, 301, 585] },
+    // the heart above the legs is part of this piece, so its tile shows all of it (fullTile)
+    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-body_bottom_004.svg')], fullTile: true },
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-body_bottom_005.svg')] }
   ],
   hair: [],

@@ -220,7 +220,7 @@
       if (cat === 'outfits' || cat === 'backgrounds') return;
       TRAITS[cat].forEach(it => {
         if (it.crop) { it.cropF = { x0: it.crop[0] / CANVAS.w, y0: it.crop[1] / CANVAS.h, x1: it.crop[2] / CANVAS.w, y1: it.crop[3] / CANVAS.h }; return; }
-        jobs.push(Promise.resolve().then(() => itemAlpha(it)).then(a => { it.cropF = cropFromAlpha(a, RW, RH, cat === 'tops' || cat === 'bottoms'); }).catch(() => { it.cropF = null; }));   // if this fails the tile just shows the whole canvas
+        jobs.push(Promise.resolve().then(() => itemAlpha(it)).then(a => { it.cropF = cropFromAlpha(a, RW, RH, (cat === 'tops' || cat === 'bottoms') && !it.fullTile); }).catch(() => { it.cropF = null; }));   // if this fails the tile just shows the whole canvas
       });
     });
     return Promise.all(jobs).then(() => {
