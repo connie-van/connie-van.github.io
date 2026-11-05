@@ -33,7 +33,7 @@
 // A trait does not need an outfit: it just becomes a tile in its tab. OUTFITS are optional presets that fill several slots at once (see `sets`);
 // picking one also puts on its set's original colors and paired background (see SETS).
 // STACKING ORDER, back to front:
-//   background, acc back (L Acc.), hair back, lower body (bottoms), upper body (tops), lower face (Head tab), upper face (eyes),
+//   background, hair back, lower body (bottoms), upper body (tops), acc back (L Acc.), lower face (Head tab), upper face (eyes),
 //   hair front, hat, front acc (R Acc.)
 // Hair is one trait with up to two layers: a back layer and a front layer, so a hair item lists both:
 //   { id:'curly', set:'...', name:'Curly', layers:[ x.svg('combined-hair_back_005.svg', { z: CATEGORY_Z.hairBack }), x.svg('combined-hair_front_005.svg') ] }
@@ -43,7 +43,7 @@
 const CANVAS = { w: 380, h: 600 };
 
 // (leftHand = acc back, hairBack is only used by a hair trait's back layer, hair = hair front, rightHand = front acc)
-const CATEGORY_Z = { backgrounds: 0, leftHand: 5, hairBack: 8, bottoms: 10, tops: 20, face: 30, eyes: 40, hair: 50, hats: 60, rightHand: 82 };
+const CATEGORY_Z = { backgrounds: 0, hairBack: 8, bottoms: 10, tops: 20, leftHand: 25, face: 30, eyes: 40, hair: 50, hats: 60, rightHand: 82 };
 
 // the tabs: [key, label, which panel]. Left panel = the body, right panel = accessories, background and colors.
 const TABS = [
@@ -170,7 +170,7 @@ const TRAITS = {
     { id: 'ghosts', set: 'guardian-of-the-realms', name: 'Ghosts', layers: [guard.layer('accessory_003_2x.png')] },
     { id: 'skull-flame', set: 'eye-of-the-beholder', name: 'Skull flame', layers: [eye.layer('accessory_002_2x.png')] }
   ],
-  leftHand: [                                                                                                 // acc back (the furthest back, just in front of the background)
+  leftHand: [                                                                                                 // acc back (between the top and the head)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
     { id: 'wings', set: 'lil-bliss', name: 'Wings', layers: [bliss.layer('accessory_back_004_3x.png')] },
     { id: 'bat-wings', set: 'lil-blaze', name: 'Bat wings', layers: [blaze.svg('combined-accessory_back_005.svg')] },
