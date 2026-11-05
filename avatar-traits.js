@@ -73,7 +73,9 @@ const SETS = {
   // mr-bossman is full-color PNG art too (nothing recolorable), so no `colors`
   'mr-bossman':   { name: 'Mr. Bossman', number: '001', background: 'rat' },
   // full-color PNGs, nothing recolorable; the head has its own eyes, so the set has no Eyes trait and wearing it takes eyes off
-  'guardian-of-the-realms': { name: 'Guardian of the Realms', background: 'realms' }
+  'guardian-of-the-realms': { name: 'Guardian of the Realms', background: 'realms' },
+  // full-color PNGs, nothing recolorable, no hat
+  'eye-of-the-beholder': { name: 'Eye of the Beholder', background: 'beholder' }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -88,6 +90,7 @@ const marco = inSet('lil-marco');         // set 006
 const biggy = inSet('big-g');             // set 007
 const boss = inSet('mr-bossman');         // set 001
 const guard = inSet('guardian-of-the-realms');
+const eye = inSet('eye-of-the-beholder');
 
 const TRAITS = {
   outfits: [
@@ -101,7 +104,9 @@ const TRAITS = {
     { id: 'set-007', set: 'big-g', name: 'Set 007', sets: { tops: 'set-007', bottoms: 'set-007', face: 'set-007', eyes: 'set-007', leftHand: 'set-007', rightHand: 'set-007' } },
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', sets: { tops: 'set-001', bottoms: 'set-001', face: 'set-001', eyes: 'set-001', hats: 'bandage', leftHand: 'cane', rightHand: 'cash' } },
     // no eyes and no hat: wearing it takes both off (the cat head has its own eyes)
-    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Guardian', sets: { tops: 'guardian', bottoms: 'guardian', face: 'guardian', leftHand: 'sparkles', rightHand: 'ghosts' } }
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Guardian', sets: { tops: 'guardian', bottoms: 'guardian', face: 'guardian', leftHand: 'sparkles', rightHand: 'ghosts' } },
+    // no hat: wearing it takes any hat off
+    { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', sets: { tops: 'beholder', bottoms: 'beholder', face: 'beholder', eyes: 'beholder', leftHand: 'skull-flame-back', rightHand: 'skull-flame' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -115,7 +120,8 @@ const TRAITS = {
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('body_002_2x.png')], crop: [113, 346, 295, 501] },
     // same as Big G: the skull floats above the jacket (behind the head), so the tile is cropped by hand to the jacket; the skull still shows on the avatar
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('body_001_2x.png')], crop: [112, 339, 295, 498] },
-    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Green pumpkin', layers: [guard.layer('body_003_2x.png')] }
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Green pumpkin', layers: [guard.layer('body_003_2x.png')] },
+    { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie torso', layers: [eye.layer('body_002_2x.png')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -125,7 +131,8 @@ const TRAITS = {
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('body_bottom_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('body_bottom_002_2x.png')] },
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('body_bottom_001_2x.png')] },
-    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Jack-o-lantern', layers: [guard.layer('body_bottom_003_2x.png')] }
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Jack-o-lantern', layers: [guard.layer('body_bottom_003_2x.png')] },
+    { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie legs', layers: [eye.layer('body_bottom_002_2x.png')] }
   ],
   hair: [],
   face: [                                                                                                     // lower face
@@ -135,7 +142,8 @@ const TRAITS = {
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('face_lower_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('face_lower_002_2x.png')] },
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('face_lower_001_2x.png')] },
-    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Three-eyed cat', layers: [guard.layer('face_lower_003_2x.png')], hasEyes: true }
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Three-eyed cat', layers: [guard.layer('face_lower_003_2x.png')], hasEyes: true },
+    { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie hand', layers: [eye.layer('face_lower_002_2x.png')] }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
@@ -143,7 +151,8 @@ const TRAITS = {
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('face_upper_005.svg')] },
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('face_upper_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('face_upper_002_2x.png')] },
-    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('face_upper_001_2x.png')] }
+    { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('face_upper_001_2x.png')] },
+    { id: 'beholder', set: 'eye-of-the-beholder', name: 'Stitched eye', layers: [eye.layer('face_upper_002_2x.png')] }
   ],
   hats: [                                                                                                     // head accessory
     { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },
@@ -158,7 +167,8 @@ const TRAITS = {
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('accessory_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_002_2x.png')] },
     { id: 'cash', set: 'mr-bossman', name: 'Cash', layers: [boss.layer('accessory_001_2x.png')] },
-    { id: 'ghosts', set: 'guardian-of-the-realms', name: 'Ghosts', layers: [guard.layer('accessory_003_2x.png')] }
+    { id: 'ghosts', set: 'guardian-of-the-realms', name: 'Ghosts', layers: [guard.layer('accessory_003_2x.png')] },
+    { id: 'skull-flame', set: 'eye-of-the-beholder', name: 'Skull flame', layers: [eye.layer('accessory_002_2x.png')] }
   ],
   leftHand: [                                                                                                 // acc back (the furthest back, just in front of the background)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
@@ -168,7 +178,8 @@ const TRAITS = {
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_back_002_2x.png')] },
     { id: 'cane', set: 'mr-bossman', name: 'Cane', layers: [boss.layer('accessory_back_001_2x.png')] },
     // the sparkles are near-white, so their tile gets a dark backing (taken from the Realms background) to show them
-    { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x.png')], tileBg: '#15121F' }
+    { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x.png')], tileBg: '#15121F' },
+    { id: 'skull-flame-back', set: 'eye-of-the-beholder', name: 'Skull flame (back)', layers: [eye.layer('accessory_back_002_2x.png')] }
   ],
   backgrounds: [
     // background images show at their full size in the B.G. tab
@@ -178,7 +189,8 @@ const TRAITS = {
     { id: 'possum', set: 'lil-marco', name: 'Possum', layers: [marco.layer('possum-bg.png', { fit: 'cover' })] },
     { id: 'raccoon', set: 'big-g', name: 'Raccoon', layers: [biggy.layer('raccoon-bg.png', { fit: 'cover' })] },
     { id: 'rat', set: 'mr-bossman', name: 'Rat', layers: [boss.layer('rat-bg-2.png', { fit: 'cover' })] },
-    { id: 'realms', set: 'guardian-of-the-realms', name: 'Realms', layers: [guard.layer('GUARDIANOFTHEREALMS-BG.png', { fit: 'cover' })] }
+    { id: 'realms', set: 'guardian-of-the-realms', name: 'Realms', layers: [guard.layer('GUARDIANOFTHEREALMS-BG.png', { fit: 'cover' })] },
+    { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', layers: [eye.layer('EYEOFTHEBEHOLDER-BG.png', { fit: 'cover' })] }
   ]
 };
 
