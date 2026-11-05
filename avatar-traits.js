@@ -115,7 +115,7 @@ const TRAITS = {
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('body_002_2x.png')], crop: [113, 346, 295, 501] },
     // same as Big G: the skull floats above the jacket (behind the head), so the tile is cropped by hand to the jacket; the skull still shows on the avatar
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('body_001_2x.png')], crop: [112, 339, 295, 498] },
-    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Green pumpkin', layers: [guard.layer('body_003_2x_1.png')] }
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Green pumpkin', layers: [guard.layer('body_003_2x.png')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -125,7 +125,7 @@ const TRAITS = {
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('body_bottom_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('body_bottom_002_2x.png')] },
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('body_bottom_001_2x.png')] },
-    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Jack-o-lantern', layers: [guard.layer('body_bottom_003_2x_1.png')] }
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Jack-o-lantern', layers: [guard.layer('body_bottom_003_2x.png')] }
   ],
   hair: [],
   face: [                                                                                                     // lower face
@@ -135,7 +135,7 @@ const TRAITS = {
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('face_lower_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('face_lower_002_2x.png')] },
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('face_lower_001_2x.png')] },
-    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Three-eyed cat', layers: [guard.layer('face_lower_003_2x_1.png')], hasEyes: true }
+    { id: 'guardian', set: 'guardian-of-the-realms', name: 'Three-eyed cat', layers: [guard.layer('face_lower_003_2x.png')], hasEyes: true }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
@@ -158,7 +158,7 @@ const TRAITS = {
     { id: 'set-006', set: 'lil-marco', name: 'Set 006', layers: [marco.layer('accessory_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_002_2x.png')] },
     { id: 'cash', set: 'mr-bossman', name: 'Cash', layers: [boss.layer('accessory_001_2x.png')] },
-    { id: 'ghosts', set: 'guardian-of-the-realms', name: 'Ghosts', layers: [guard.layer('accessory_003_2x_1.png')] }
+    { id: 'ghosts', set: 'guardian-of-the-realms', name: 'Ghosts', layers: [guard.layer('accessory_003_2x.png')] }
   ],
   leftHand: [                                                                                                 // acc back (the furthest back, just in front of the background)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
@@ -168,7 +168,7 @@ const TRAITS = {
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_back_002_2x.png')] },
     { id: 'cane', set: 'mr-bossman', name: 'Cane', layers: [boss.layer('accessory_back_001_2x.png')] },
     // the sparkles are near-white, so their tile gets a dark backing (taken from the Realms background) to show them
-    { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x_1.png')], tileBg: '#15121F' }
+    { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x.png')], tileBg: '#15121F' }
   ],
   backgrounds: [
     // background images show at their full size in the B.G. tab
