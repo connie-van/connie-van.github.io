@@ -65,7 +65,10 @@
   // An outfit is a preset: it fills several slots at once. Every other category holds one item (or none, if it's optional).
   const outfitOn = (sel, it) => Object.keys(it.sets).every(c => sel[c] === it.sets[c]);
   const outfitLook = it => Object.assign({}, it.sets);
-  function applyOutfit(sel, it) { const s = Object.assign({}, sel); Object.keys(it.sets).forEach(c => { s[c] = it.sets[c]; }); return s; }
+  // wearing an outfit: it fills its slots, and takes off any OPTIONAL piece (hair, hat, accessories) it doesn't include, so the avatar matches the outfit.
+  // A required slot it doesn't include (say a set with no bottoms) keeps what is already on.
+  const OPTIONAL = CATS.filter(c => c !== 'outfits' && c !== 'backgrounds' && REQUIRED.indexOf(c) < 0);
+  function applyOutfit(sel, it) { const s = Object.assign({}, sel); OPTIONAL.forEach(c => { s[c] = null; }); Object.keys(it.sets).forEach(c => { s[c] = it.sets[c]; }); return s; }
   // the background: a background image wins; otherwise the solid/gradient/none color mode
   const bgMode = () => (state.sel.backgrounds ? 'art' : state.bg.mode);
   function bgCss() {
@@ -530,13 +533,24 @@
     flush();
     return out;
   }
+  // A plain full-color SVG (no green / yellow / blue marker shape, no embedded image) can't be recolored, so it is shown exactly as drawn:
+  // as one image, with a width and height added so browsers can size it (and so the tile can be cropped to it).
+  const MARKER_RE = /fill\s*[:=]\s*["']?\s*(lime|#0f0|#00ff00|yellow|#ff0|#ffff00|blue|#00f|#0000ff)\s*["';}\s]/i;
+  const isPlainVector = text => !/<image\b/i.test(text) && !MARKER_RE.test(text);
+  function plainVectorLayer(text, extra) {
+    const m = /viewBox\s*=\s*"([^"]+)"/.exec(text), vb = m ? m[1].trim().split(/[\s,]+/).map(Number) : [0, 0, CANVAS.w, CANVAS.h];
+    let t = text;
+    if (!/<svg\b[^>]*\swidth\s*=/.test(t)) t = t.replace(/<svg\b/, '<svg width="' + vb[2] + '" height="' + vb[3] + '"');
+    const url = window.URL && URL.createObjectURL ? URL.createObjectURL(new Blob([t], { type: 'image/svg+xml' })) : 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(t);
+    return Object.assign({ src: url }, extra);
+  }
   function loadArt() {
     const jobs = [], found = [];
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => {
       (it.layers || []).forEach((l, i) => {
         if (!l.svgSrc) return;
         jobs.push(fetch(l.svgSrc).then(r => { if (!r.ok) throw new Error(l.svgSrc + ' (' + r.status + ')'); return r.text(); })
-          .then(t => { found.push([it, i, expandSvg(t, l.z != null ? { z: l.z } : {})]); }));
+          .then(t => { const ex = l.z != null ? { z: l.z } : {}; found.push([it, i, isPlainVector(t) ? [plainVectorLayer(t, ex)] : expandSvg(t, ex)]); }));
       });
     }));
     return Promise.all(jobs).then(() => {
