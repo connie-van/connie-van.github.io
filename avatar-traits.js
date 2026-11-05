@@ -108,8 +108,14 @@ const gummy = inSet('gummy');
 
 const TRAITS = {
   outfits: [
+    // no back accessory: wearing it takes any L Acc. off
+    { id: 'deadass', set: 'deadass', name: 'Deadass', sets: { tops: 'deadass', bottoms: 'deadass', face: 'deadass', eyes: 'deadass', hats: 'ny-cap', rightHand: 'pizza-rat' } },
+    // no accessories: wearing it takes both off
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle Guy', sets: { tops: 'pickle', bottoms: 'pickle', face: 'pickle', eyes: 'pickle', hats: 'pickle-hat' } },
+    // no hat and no accessories: wearing it takes all three off
+    { id: 'gummy', set: 'gummy', name: 'Gummy', sets: { tops: 'gummy', bottoms: 'gummy', face: 'gummy', eyes: 'gummy' } },
     // a complete fit (no background): picking it fills all of these slots
-    { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', sets: { tops: 'set-003', bottoms: 'set-003', face: 'set-003', eyes: 'set-003', leftHand: 'try-me', rightHand: 'pigeon' } },   // no hat: the Toast is there to add if the visitor wants it
+    { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', sets: { tops: 'set-003', bottoms: 'set-003', face: 'set-003', eyes: 'set-003', leftHand: 'try-me', rightHand: 'pigeon' } },   // no hat: the Toast is there to add if the visitor wants it,
     { id: 'set-004', set: 'lil-bliss', name: 'Set 004', sets: { tops: 'set-004', bottoms: 'set-004', face: 'set-004', eyes: 'set-004', hats: 'halo', leftHand: 'wings', rightHand: 'set-004' } },
     { id: 'set-005', set: 'lil-blaze', name: 'Set 005', sets: { tops: 'set-005', bottoms: 'set-005', face: 'set-005', eyes: 'set-005', hats: 'imp', leftHand: 'bat-wings', rightHand: 'set-005' } },
     // set 006 has no hat: its original look is no hat, so wearing it takes off any hat (a hat can still be added afterwards)
@@ -122,13 +128,7 @@ const TRAITS = {
     // no hat: wearing it takes any hat off
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', sets: { tops: 'beholder', bottoms: 'beholder', face: 'beholder', eyes: 'beholder', leftHand: 'skull-flame-back', rightHand: 'skull-flame' } },
     // no hat: wearing it takes any hat off
-    { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
-    // no back accessory: wearing it takes any L Acc. off
-    { id: 'deadass', set: 'deadass', name: 'Deadass', sets: { tops: 'deadass', bottoms: 'deadass', face: 'deadass', eyes: 'deadass', hats: 'ny-cap', rightHand: 'pizza-rat' } },
-    // no accessories: wearing it takes both off
-    { id: 'pickle', set: 'pickle-guy', name: 'Pickle Guy', sets: { tops: 'pickle', bottoms: 'pickle', face: 'pickle', eyes: 'pickle', hats: 'pickle-hat' } },
-    // no hat and no accessories: wearing it takes all three off
-    { id: 'gummy', set: 'gummy', name: 'Gummy', sets: { tops: 'gummy', bottoms: 'gummy', face: 'gummy', eyes: 'gummy' } }
+    { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -225,6 +225,9 @@ const TRAITS = {
     { id: 'heart', set: 'snitches-get-stitches', name: 'Stitched heart', layers: [stitch.layer('accessory_back_001_2x.png')] }
   ],
   backgrounds: [
+    { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] },
+    { id: 'pickle', set: 'pickle-guy', name: 'Pickle', layers: [pickle.layer('pickle-guy-bg.png', { fit: 'cover' })] },
+    { id: 'gummy', set: 'gummy', name: 'Gummy', layers: [gummy.layer('gummy-bg.png', { fit: 'cover' })] },
     // background images show at their full size in the B.G. tab
     { id: 'bodega', set: 'bodegacatceo', name: 'Bodega', layers: [bodega.layer('bg-bodega.png', { fit: 'cover' })], star: 'dark' },
     { id: 'angel', set: 'lil-bliss', name: 'Angel', layers: [bliss.layer('angel-bg.png', { fit: 'cover' })] },
@@ -234,10 +237,7 @@ const TRAITS = {
     { id: 'rat', set: 'mr-bossman', name: 'Rat', layers: [boss.layer('rat-bg-2.png', { fit: 'cover' })] },
     { id: 'realms', set: 'guardian-of-the-realms', name: 'Realms', layers: [guard.layer('GUARDIANOFTHEREALMS-BG.png', { fit: 'cover' })] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', layers: [eye.layer('EYEOFTHEBEHOLDER-BG.png', { fit: 'cover' })], star: 'light' },
-    { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', layers: [stitch.layer('SNITCHESGETSTITCHES-BG.png', { fit: 'cover' })] },
-    { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] },
-    { id: 'pickle', set: 'pickle-guy', name: 'Pickle', layers: [pickle.layer('pickle-guy-bg.png', { fit: 'cover' })] },
-    { id: 'gummy', set: 'gummy', name: 'Gummy', layers: [gummy.layer('gummy-bg.png', { fit: 'cover' })] }
+    { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', layers: [stitch.layer('SNITCHESGETSTITCHES-BG.png', { fit: 'cover' })] }
   ]
 };
 
