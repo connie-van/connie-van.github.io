@@ -111,16 +111,20 @@ const TRAITS = {
 
 // ---------- colors ----------
 // What can be colored: skin, eyes, hair (solid colors). The background has its own options: none, solid or a 2-color gradient.
+// `def` is the color each one starts with (and what Reset all goes back to).
 const COLOR_GROUPS = [
   { key: 'body', label: 'Skin', def: '#9E9C91' },
   { key: 'eyes', label: 'Eyes', def: '#161616' },
   { key: 'hair', label: 'Hair', def: '#BB9250' }
 ];
 // the colors used when the background is a solid color or gradient
-const DEFAULT_BG = { mode: 'none', c1: '#FFD84D', c2: '#FF9EC4' };
-// the preset palette (12 per row) and how many colors a visitor can save in the "yours" row
-const PALETTE_PRESETS = ['#FFFFFF', '#EEDDCA', '#C0A98B', '#756A5E', '#161616', '#BB9250', '#EA4D85', '#EB5A2B', '#EBB249', '#5BC9C0', '#4F90E5', '#A650B8'];
+const DEFAULT_BG = { mode: 'none', c1: '#FFD91A', c2: '#FF9EC4' };
+// The preset palette: one row of 12. The row under it is the visitor's own saved colors (SAVED_SLOTS slots, empty at first).
+// Six natural tones and six brights, taken from the colors in the artwork. Keep it at 12 so it fills the row.
+const PALETTE_PRESETS = ['#FFFFFF', '#F6DDBF', '#BB9250', '#8B5A2B', '#9E9C91', '#161616', '#FF7A1A', '#FFD91A', '#12E6BE', '#2F80FF', '#9040FF', '#FF3D88'];
 const SAVED_SLOTS = 12;
+// how None / Solid / Gradient show which one is chosen: 'underline' (plain words, the chosen one underlined) or 'square' (a small square, hollow = off, filled = on)
+const MODE_STYLE = 'underline';
 
 // what the avatar looks like when the builder opens (null = nothing selected)
 const DEFAULT_SEL = { tops: 'set-003', bottoms: 'set-003', hair: null, face: 'set-003', eyes: 'set-003', hats: 'set-003', rightHand: 'pigeon', leftHand: 'try-me', backgrounds: 'bodega' };

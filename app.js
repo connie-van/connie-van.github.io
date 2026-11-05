@@ -137,7 +137,7 @@ function mediaBlock(m, cls) {
   else if (m.t === 'embed') {
     n = el('iframe', cls || 'm'); n.src = m.src; n.allowFullscreen = true; n.loading = 'lazy';
     if (m.height) { n.style.aspectRatio = 'auto'; n.style.height = m.height; }
-    if (m.alt) n.title = m.alt;
+    if (m.alt) n.setAttribute('aria-label', m.alt);      // not a title: a title shows as a tooltip over the whole builder
   }
   else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; }
   return n;

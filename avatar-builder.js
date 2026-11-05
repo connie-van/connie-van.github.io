@@ -298,38 +298,39 @@
     return 'background:transparent';
   }
   function renderColors(body) {
-    const used = usedGroups(state.sel), mode = bgMode(), off = state.target === 'bg' && (mode === 'none' || mode === 'art');
-    // keep the wheel in step with the color being edited (switching target, etc.)
+    const used = usedGroups(state.sel), mode = bgMode(), isBg = state.target === 'bg', off = isBg && (mode === 'none' || mode === 'art');
+    // keep the picker in step with the color being edited (switching target, etc.)
     if (hsvToHex(state.hsv) !== curHex()) state.hsv = hsvFromHex(curHex(), state.hsv.h);
+    // 1. what you're coloring
     const tgs = COLOR_GROUPS.map(g => '<button class="tg' + (state.target === g.key ? ' on' : '') + (used[g.key] ? '' : ' idle') + '" data-target="' + g.key + '"><i class="chip" style="background:var(--' + g.key + ')"></i>' + g.label + '</button>').join('') +
-      '<button class="tg' + (state.target === 'bg' ? ' on' : '') + '" data-target="bg"><i class="chip" id="bgchip" style="' + bgChip() + '"></i>Background</button>';
-    let side = '';
-    if (state.target === 'bg') {
-      side += '<div class="modes">' + [['none', 'None'], ['solid', 'Solid'], ['gradient', 'Gradient']].map(m => '<button class="mode' + (mode === m[0] ? ' on' : '') + '" data-mode="' + m[0] + '">' + m[1] + '</button>').join('') + '</div>';
-      if (mode === 'gradient') side += '<div class="stops">' + [state.bg.c1, state.bg.c2].map((c, i) => '<button class="stop' + (state.bg.stop === i ? ' on' : '') + '" data-stop="' + i + '" id="stop' + i + '" style="background:' + c + '" aria-label="Gradient color ' + (i + 1) + '"></button>').join('') + '</div>';
-    }
-    if (!off) side += '<div class="hex" id="hexbox"><span class="hash">#</span><input id="hex" type="text" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Hex color" value="' + curHex().slice(1) + '"><i class="cur" id="hexcur"></i></div>';
-    body.innerHTML = '<div class="targets">' + tgs + '</div>' +
-      '<div class="picker"><div class="wheelbox' + (off ? ' dim' : '') + '"><div class="wheel" id="wheel"><canvas id="wheelCv" width="400" height="400"></canvas><i class="handle" id="handle"></i></div>' +
-      '<div class="bright" id="bright"><i class="knob" id="knob"></i></div></div><div class="side">' + side + '</div></div>' +
-      '<div class="palette" id="palette"></div>';
+      '<button class="tg' + (isBg ? ' on' : '') + '" data-target="bg"><i class="chip" id="bgchip" style="' + bgChip() + '"></i>B.G.</button>';
+    // 2. background modes (background only)
+    const modes = !isBg ? '' : '<div class="modes ' + (MODE_STYLE === 'square' ? 'sq' : 'ul') + '">' +
+      [['none', 'None'], ['solid', 'Solid'], ['gradient', 'Gradient']].map(m => '<button class="mode' + (mode === m[0] ? ' on' : '') + '" data-mode="' + m[0] + '">' + m[1] + '</button>').join('') + '</div>';
+    // 3. the picker
+    const picker = '<div class="picker' + (off ? ' dim' : '') + '"><div class="sv" id="sv"><i class="handle" id="handle"></i></div><div class="hue" id="hue"><i class="knob" id="knob"></i></div></div>';
+    // 4. the color as a square (two for a gradient), then the hex
+    let swatch;
+    if (off) swatch = '<i class="swatch"' + (mode === 'art' ? ' style="' + bgChip() + '"' : '') + '></i>';
+    else if (isBg && mode === 'gradient') swatch = [state.bg.c1, state.bg.c2].map((c, i) => '<button class="swatch stop' + (state.bg.stop === i ? ' on' : '') + '" data-stop="' + i + '" id="stop' + i + '" style="background:' + c + '" aria-label="Gradient color ' + (i + 1) + '"></button>').join('');
+    else swatch = '<i class="swatch" id="swatch"></i>';
+    const hex = off ? '' : '<div class="hex" id="hexbox"><span class="hash">#</span><input id="hex" type="text" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Hex color" value="' + curHex().slice(1) + '"></div>';
+    body.innerHTML = '<div class="cwrap"><div class="targets">' + tgs + '</div>' + modes + picker + '<div class="hexrow">' + swatch + hex + '</div><div class="palette" id="palette"></div></div>';
     renderPalette();
-    drawWheel(state.hsv.v);
     bindPicker();
     syncPicker();
   }
+  // the palette: 12 presets, then 12 slots for the visitor's own colors (dashed = empty)
   function renderPalette() {
     const p = $('#palette'); if (!p) return;
     const cur = curHex().toUpperCase();
     let html = PALETTE_PRESETS.map(c => '<div class="pal' + (c.toUpperCase() === cur ? ' on' : '') + '"><button class="use" data-c="' + c + '" style="background:' + c + '" aria-label="Use ' + c + '"></button></div>').join('');
-    const firstEmpty = state.saved.length;
     for (let i = 0; i < SAVED_SLOTS; i++) {
       if (i < state.saved.length) {
         const c = state.saved[i];
         html += '<div class="pal saved' + (c.toUpperCase() === cur ? ' on' : '') + '"><button class="use" data-c="' + c + '" style="background:' + c + '" aria-label="Use saved ' + c + '"></button><button class="x" data-del="' + i + '" aria-label="Remove ' + c + '">x</button></div>';
       } else {
-        const full = false;
-        html += '<div class="pal slot"><button class="use" data-save="1" aria-label="Save the current color here">' + (i === firstEmpty ? '+' : '') + '</button></div>';
+        html += '<div class="pal slot"><button class="use" data-save="1" aria-label="Save the current color here">' + (i === state.saved.length ? '+' : '') + '</button></div>';
       }
     }
     p.innerHTML = html;
@@ -340,46 +341,18 @@
     if (state.saved.indexOf(hex) >= 0 || state.saved.length >= SAVED_SLOTS) return;
     state.saved.push(hex); persistSaved(); renderPalette();
   }
-
-  // the wheel: hue around, saturation outward; brightness comes from the slider
-  let wheelGeo = null;
-  function drawWheel(v) {
-    const cv = $('#wheelCv'); if (!cv || !cv.getContext) return;
-    const ctx = cv.getContext('2d'); if (!ctx) return;
-    const D = cv.width;
-    if (!wheelGeo || wheelGeo.D !== D) {
-      const hue = new Float32Array(D * D), rad = new Float32Array(D * D), c = (D - 1) / 2;
-      for (let y = 0; y < D; y++) for (let x = 0; x < D; x++) {
-        const dx = x - c, dy = y - c; let h = Math.atan2(dx, -dy) / (2 * Math.PI); if (h < 0) h += 1;
-        hue[y * D + x] = h; rad[y * D + x] = Math.sqrt(dx * dx + dy * dy) / (D / 2);
-      }
-      wheelGeo = { D: D, hue: hue, rad: rad };
-    }
-    const img = ctx.createImageData(D, D), data = img.data, V = Math.max(v, 0.3);   // never let the wheel go fully dark
-    for (let i = 0; i < D * D; i++) {
-      const r = wheelGeo.rad[i], o = i * 4;
-      if (r > 1) continue;
-      const c = hsvToRgb(wheelGeo.hue[i], r, V);
-      data[o] = c[0]; data[o + 1] = c[1]; data[o + 2] = c[2]; data[o + 3] = Math.round(clamp((1 - r) * (D / 2), 0, 1) * 255);
-    }
-    ctx.putImageData(img, 0, 0);
-  }
   // refresh everything that shows the current color, without rebuilding the panel (so dragging stays smooth)
   function syncPicker() {
-    const hex = curHex(), h = state.hsv, handle = $('#handle');
-    if (handle) {
-      const R = 100, a = h.h * 2 * Math.PI;
-      handle.style.left = (R + h.s * R * Math.sin(a)) + 'px'; handle.style.top = (R - h.s * R * Math.cos(a)) + 'px'; handle.style.setProperty('--hc', hex);
-    }
-    const bright = $('#bright'), knob = $('#knob');
-    if (bright && knob) {
-      bright.style.background = 'linear-gradient(to right,#000,' + rgbToHex(hsvToRgb(h.h, h.s, 1)) + ')';
-      knob.style.left = (h.v * 100) + '%';
-    }
+    const hex = curHex(), h = state.hsv;
+    const sv = $('#sv'), handle = $('#handle'), knob = $('#knob');
+    if (sv) sv.style.setProperty('--h', Math.round(h.h * 360));
+    if (handle) { handle.style.left = (h.s * 100) + '%'; handle.style.top = ((1 - h.v) * 100) + '%'; handle.style.setProperty('--hc', hex); }
+    if (knob) knob.style.left = (h.h * 100) + '%';
+    const sw = $('#swatch'); if (sw) sw.style.background = hex;
     const hexEl = $('#hex');
-    if (hexEl) { if (document.activeElement !== hexEl) hexEl.value = hex.slice(1); $('#hexbox').classList.remove('bad'); $('#hexcur').style.setProperty('--cur', hex); }
+    if (hexEl) { if (document.activeElement !== hexEl) hexEl.value = hex.slice(1); $('#hexbox').classList.remove('bad'); }
     const bc = $('#bgchip'); if (bc) bc.setAttribute('style', bgChip());
-    ['stop0', 'stop1'].forEach((id, i) => { const s = $('#' + id); if (s) s.style.background = i ? state.bg.c2 : state.bg.c1; });
+    ['stop0', 'stop1'].forEach((id, i) => { const el = $('#' + id); if (el) el.style.background = i ? state.bg.c2 : state.bg.c1; });
     document.querySelectorAll('#palette .pal').forEach(p => { const u = p.querySelector('.use'); if (u && u.dataset.c) p.classList.toggle('on', u.dataset.c.toUpperCase() === hex.toUpperCase()); });
   }
   function setColor(hex, fromHsv) {
@@ -398,7 +371,7 @@
     syncPicker();
   }
   function bindPicker() {
-    const wheel = $('#wheel'), bright = $('#bright'); if (!wheel || !bright) return;
+    const sv = $('#sv'), hue = $('#hue'); if (!sv || !hue) return;
     const drag = (el, fn) => el.addEventListener('pointerdown', e => {
       e.preventDefault();
       try { el.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
@@ -406,23 +379,21 @@
       const mv = ev => fn(ev), up = () => { el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); };
       el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
     });
-    drag(wheel, e => {
-      const r = wheel.getBoundingClientRect(), R = r.width / 2, x = e.clientX - r.left - R, y = e.clientY - r.top - R;
-      let h = Math.atan2(x, -y) / (2 * Math.PI); if (h < 0) h += 1;
-      state.hsv.h = h; state.hsv.s = Math.min(1, Math.sqrt(x * x + y * y) / R);
+    drag(sv, e => {
+      const r = sv.getBoundingClientRect();
+      state.hsv.s = clamp((e.clientX - r.left) / r.width, 0, 1);
+      state.hsv.v = 1 - clamp((e.clientY - r.top) / r.height, 0, 1);
       setColor(hsvToHex(state.hsv), true);
     });
-    let raf = 0;
-    drag(bright, e => {
-      const r = bright.getBoundingClientRect();
-      state.hsv.v = clamp((e.clientX - r.left) / r.width, 0, 1);
+    drag(hue, e => {
+      const r = hue.getBoundingClientRect();
+      state.hsv.h = clamp((e.clientX - r.left) / r.width, 0, 0.9999);
       setColor(hsvToHex(state.hsv), true);
-      if (!raf) raf = requestAnimationFrame(() => { raf = 0; drawWheel(state.hsv.v); });
     });
     const hex = $('#hex');
     if (hex) {
       const raw = () => hex.value.replace(/^#/, '');
-      const applyTyped = () => { const n = normHex(hex.value); if (n && n !== curHex().toUpperCase()) { setColor(n); drawWheel(state.hsv.v); } };
+      const applyTyped = () => { const n = normHex(hex.value); if (n && n !== curHex().toUpperCase()) setColor(n); };
       // a full 6-digit code applies as you type; a 3-digit shorthand applies when you press Enter or leave the field
       hex.addEventListener('input', () => {
         const ok6 = /^[0-9a-f]{6}$/i.test(raw()), ok3 = /^[0-9a-f]{3}$/i.test(raw());
