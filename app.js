@@ -169,12 +169,13 @@ function project(slug) {
     if (hasCredits) side.appendChild(el('dl', 'credits', p.credits.map(c => '<div><dt>' + esc(c.role) + '</dt><dd>' + esc(c.name) + '</dd></div>').join('')));
     intro.appendChild(side);
   }
-  d.appendChild(intro);
+  if (!p.titleBelow) d.appendChild(intro);          // titleBelow: true puts the title, blurb and credits after the media
   if (!p.media.length) {
     for (let i = 0; i < 3; i++) d.appendChild(el('div', 'm', '')).style.cssText = 'aspect-ratio:16/9;background:' + COLORS[(PROJECTS.indexOf(p) + i * 3) % COLORS.length];
   } else {
     p.media.forEach(m => d.appendChild(mediaBlock(m)));
   }
+  if (p.titleBelow) { intro.classList.add('below'); d.appendChild(intro); }
   return d;
 }
 

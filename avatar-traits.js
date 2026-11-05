@@ -7,27 +7,37 @@
 //
 // ADDING A TRAIT: add an object to the category's list below. Two kinds of layers:
 //
-//   1) A plain image:           layer('head_accessory_003_3x_1.png')     (the file is looked up in the artwork folder, ART below)
+//   1) A plain image:           bodega.layer('head_accessory_003_3x_1.png')     (looked up in that set's folder, see SETS below)
 //         optional:  z (stacking number, higher = in front),  fit:'cover' (background images),
 //                    tint:'body' | 'eyes' | 'hair'  (fills the image's shape with that color)
 //
+//   A layer with  z: CATEGORY_Z.hairBack  sits behind the body (see the stacking order below).
 //   Every item can also take  crop:[left, top, right, bottom]  (in CANVAS units) to choose by hand how its selection tile is zoomed.
 //   Normally leave that out: the tile is cropped to the artwork automatically, and on Tops and Bottoms a floating piece
 //   that sits apart from the main trait is left out of the tile (it still shows on the live character).
 //
-//   2) A combined SVG export:   svgLayer('combined-body_003.svg')
+//   2) A combined SVG export:   bodega.svg('combined-body_003.svg')
 //         The builder reads the SVG straight from your file: the flat shape painted in a marker color becomes color-changeable,
 //         and the art image inside the SVG is drawn on top. Marker colors:
 //              green (lime, #0f0)  ->  Skin color      yellow (#ff0)  ->  Eyes color      blue (#00f)  ->  Hair color
 //         Drop in a new export with the same file name and it just works. Use web-sized images (under about 1600px wide).
 //
+// ADDING A SET: make a folder named after it inside the artwork folder, upload its files there, add it to SETS below, and give each of its
+// traits  set:'<folder name>'.  Traits can also be added one at a time, with no set at all.
+//
 // A trait does not need an outfit: it just becomes a tile in its tab. OUTFITS are optional presets that fill several slots at once (see `sets`).
-// Stacking order, back to front: background, body bottom, body (tops), lower face (face), upper face (eyes), hair, hats,
-// acc back (L Acc.), acc front (R Acc.). To change it, edit CATEGORY_Z.
+// STACKING ORDER, back to front:
+//   background, acc back (L Acc.), hair back, lower body (bottoms), upper body (tops), lower face (face), upper face (eyes),
+//   hair front, hat, front acc (R Acc.)
+// Hair is one trait with up to two layers: a back layer and a front layer, so a hair item lists both:
+//   { id:'curly', set:'...', name:'Curly', layers:[ x.svg('combined-hair_back_005.svg', { z: CATEGORY_Z.hairBack }), x.svg('combined-hair_front_005.svg') ] }
+//   (the layer with no z uses the hair front position). Both layers take the one Hair color. A hair trait with no back layer just lists the front.
+// To change the order, edit CATEGORY_Z.
 
 const CANVAS = { w: 380, h: 600 };
 
-const CATEGORY_Z = { backgrounds: 0, bottoms: 10, tops: 20, face: 30, eyes: 40, hair: 50, hats: 60, leftHand: 75, rightHand: 82 };
+// (leftHand = acc back, hairBack is only used by a hair trait's back layer, hair = hair front, rightHand = front acc)
+const CATEGORY_Z = { backgrounds: 0, leftHand: 5, hairBack: 8, bottoms: 10, tops: 20, face: 30, eyes: 40, hair: 50, hats: 60, rightHand: 82 };
 
 // the tabs: [key, label, which panel]. Left panel = the body, right panel = accessories, background and colors.
 const TABS = [
@@ -39,26 +49,63 @@ const REQUIRED = ['tops', 'bottoms', 'face', 'eyes'];
 // set to true to hide tabs that have nothing in them yet
 const HIDE_EMPTY_TABS = false;
 
-const ART = 'media/reddit-avatars/builder/';     // where the artwork lives
-const layer = (file, extra) => Object.assign({ src: ART + file }, extra || {});
-const svgLayer = (file, extra) => Object.assign({ svgSrc: ART + file }, extra || {});
+// ---------- sets ----------
+// A set is a group of traits that were made together. Each set has its own folder inside the artwork folder (named after the set),
+// so files with the same or similar names in different sets never clash. The names are stored here for later; nothing shows them yet.
+const SETS = {
+  'bodegacatceo': { name: 'bodegacatceo', short: 'Bodega', number: '003' },
+  'lil-bliss':    { name: "Lil' Bliss", number: '004' }
+};
+const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
+// layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
+const inSet = folder => ({
+  layer: (file, extra) => Object.assign({ src: ART + folder + '/' + file }, extra || {}),
+  svg: (file, extra) => Object.assign({ svgSrc: ART + folder + '/' + file }, extra || {})
+});
+const bodega = inSet('bodegacatceo');      // set 003
+const bliss = inSet('lil-bliss');          // set 004
 
 const TRAITS = {
   outfits: [
     // a complete fit (no background): picking it fills all of these slots
-    { id: 'set-003', name: 'Set 003', sets: { tops: 'set-003', bottoms: 'set-003', face: 'set-003', eyes: 'set-003', hats: 'set-003', leftHand: 'try-me', rightHand: 'pigeon' } }
+    { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', sets: { tops: 'set-003', bottoms: 'set-003', face: 'set-003', eyes: 'set-003', hats: 'set-003', leftHand: 'try-me', rightHand: 'pigeon' } },
+    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', sets: { tops: 'set-004', bottoms: 'set-004', face: 'set-004', eyes: 'set-004', hats: 'halo', leftHand: 'wings', rightHand: 'set-004' } }
   ],
-  tops:    [ { id: 'set-003', name: 'Set 003', layers: [svgLayer('combined-body_003.svg')] } ],               // body
-  bottoms: [ { id: 'set-003', name: 'Set 003', layers: [layer('body_bottom_003_3x_1.png')] } ],              // body bottom
+  tops: [                                                                                                     // body
+    { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
+    // the little devil on top touches the body, so its tile is cropped by hand to leave it out (it still shows on the avatar)
+    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-body_004.svg')], crop: [98, 347, 304, 501] }
+  ],
+  bottoms: [                                                                                                  // body bottom
+    { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
+    // same for the heart above the legs (it sits in the opening, so the tile starts just below it)
+    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-body_bottom_004.svg')], crop: [113, 443, 301, 585] }
+  ],
   hair: [],
-  face:    [ { id: 'set-003', name: 'Set 003', layers: [svgLayer('combined-face_lower_003.svg')] } ],        // lower face
-  eyes:    [ { id: 'set-003', name: 'Set 003', layers: [svgLayer('combined-face_upper_003.svg')] } ],        // upper face
-  hats:    [ { id: 'set-003', name: 'Toast', layers: [layer('head_accessory_003_3x_1.png')] } ],             // head accessory
-  rightHand: [ { id: 'pigeon', name: 'Pigeon', layers: [layer('1_r-acc_web.png')] } ],                      // acc front (1_r-acc, resized from 4000px)
-  leftHand: [ { id: 'try-me', name: 'TRY ME', layers: [layer('accessory_back_003_4x_1.png')] } ],           // acc back (sits in front of the head accessory)
+  face: [                                                                                                     // lower face
+    { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_lower_003.svg')] },
+    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-face_lower_004.svg')] }
+  ],
+  eyes: [                                                                                                     // upper face
+    { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
+    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('face_upper_004.svg')] }
+  ],
+  hats: [                                                                                                     // head accessory
+    { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },
+    { id: 'halo', set: 'lil-bliss', name: 'Halo', layers: [bliss.layer('head_accessory_004_3x.png')] }
+  ],
+  rightHand: [                                                                                                // acc front
+    { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
+    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-accessory_004.svg')] }
+  ],
+  leftHand: [                                                                                                 // acc back (the furthest back, just in front of the background)
+    { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
+    { id: 'wings', set: 'lil-bliss', name: 'Wings', layers: [bliss.layer('accessory_back_004_3x.png')] }
+  ],
   backgrounds: [
-    // background images show at their full size in the B.G. tab. cp4-bodega-bg-v03:
-    { id: 'bodega', name: 'Bodega', layers: [layer('bg-bodega.png', { fit: 'cover' })] }
+    // background images show at their full size in the B.G. tab
+    { id: 'bodega', set: 'bodegacatceo', name: 'Bodega', layers: [bodega.layer('bg-bodega.png', { fit: 'cover' })] },
+    { id: 'angel', set: 'lil-bliss', name: 'Angel', layers: [bliss.layer('angel-bg.png', { fit: 'cover' })] }
   ]
 };
 

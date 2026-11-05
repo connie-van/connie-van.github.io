@@ -490,11 +490,15 @@
       return URL.createObjectURL(new Blob([bytes], { type: m[1] }));
     } catch (e) { return uri; }
   }
-  function shapeMarkup(el, css) {
-    const cls = (el.getAttribute('class') || '').split(/\s+/);
+  // the fill color a shape (or a group) asks for: from its class, its fill attribute, or the group it sits in
+  function fillOf(el, css, inherited) {
     let color = null;
-    cls.forEach(c => { if (css[c]) color = css[c]; });
+    (el.getAttribute('class') || '').split(/\s+/).forEach(c => { if (css[c]) color = css[c]; });
     if (!color && el.getAttribute('fill')) color = el.getAttribute('fill').trim().toLowerCase();
+    return color || inherited || null;
+  }
+  function shapeMarkup(el, css, inherited) {
+    const color = fillOf(el, css, inherited);
     const attrs = [];
     Array.prototype.forEach.call(el.attributes, a => { if (['class', 'fill', 'style'].indexOf(a.name) < 0) attrs.push(a.name + '="' + esc(a.value) + '"'); });
     const group = color && MARKERS[color];
@@ -512,7 +516,8 @@
     });
     const out = []; let shapes = [];
     const flush = () => { if (shapes.length) { out.push(Object.assign({ svg: shapes.join(''), vb: vb }, extra)); shapes = []; } };
-    Array.prototype.forEach.call(rootEl.children, el => {
+    // shapes can sit directly in the SVG or inside <g> groups (newer exports wrap them in a group)
+    const walk = (el, inherited) => {
       const tag = el.localName;
       if (tag === 'defs' || tag === 'style' || tag === 'title' || tag === 'desc') return;
       if (tag === 'image') {
@@ -520,8 +525,16 @@
         if (href) { flush(); out.push(Object.assign({ src: dataUriToUrl(href) }, extra)); }
         return;
       }
-      shapes.push(shapeMarkup(el, css));
-    });
+      if (tag === 'g') {
+        const tr = el.getAttribute('transform'), color = fillOf(el, css, inherited);
+        if (tr) shapes.push('<g transform="' + esc(tr) + '">');
+        Array.prototype.forEach.call(el.children, k => walk(k, color));
+        if (tr) shapes.push('</g>');
+        return;
+      }
+      shapes.push(shapeMarkup(el, css, inherited));
+    };
+    Array.prototype.forEach.call(rootEl.children, el => walk(el, null));
     flush();
     return out;
   }
