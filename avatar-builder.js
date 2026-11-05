@@ -122,6 +122,8 @@
     const bg = find('backgrounds', sel.backgrounds);
     if (opt.bgOnly) { if (bg) add(bg.layers, CATEGORY_Z.backgrounds); return out.join(''); }
     if (!opt.noBg && bg) add(bg.layers, CATEGORY_Z.backgrounds);
+    // the ground shadow (SHADOW in avatar-traits.js): always on, just in front of the background, behind every trait
+    if (!opt.noBg && typeof SHADOW !== 'undefined' && SHADOW) out.push('<svg class="layer shadow" viewBox="0 0 ' + CANVAS.w + ' ' + CANVAS.h + '" style="z-index:' + (CATEGORY_Z.backgrounds + 1) + '" aria-hidden="true"><ellipse cx="' + SHADOW.cx + '" cy="' + SHADOW.cy + '" rx="' + SHADOW.rx + '" ry="' + SHADOW.ry + '" fill="' + SHADOW.color + '" fill-opacity="' + SHADOW.opacity + '"/></svg>');
     CATS.forEach(cat => {
       if (cat === 'backgrounds' || cat === 'outfits') return;
       const it = find(cat, sel[cat]);
@@ -583,6 +585,7 @@
     const light = L => contrast(L, paper) > contrast(L, ink);       // true = use the paper-colored star
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => { if (it.tileBg) it.starLight = light(lum(rgbOf(it.tileBg))); }));
     return Promise.all(TRAITS.backgrounds.map(it => new Promise(res => {
+      if (it.star === 'light' || it.star === 'dark') { it.starLight = it.star === 'light'; return res(); }   // set by hand
       const l = (it.layers || []).find(x => x.src); if (!l) return res();
       const img = new Image();
       img.onload = () => {

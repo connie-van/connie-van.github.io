@@ -16,6 +16,8 @@
 //   bring the originals back. The avatar itself always follows the visitor's colors. An item can opt out with  originalInMenu: false.
 //   Every item can also take  crop:[left, top, right, bottom]  (in CANVAS units) to choose by hand how its selection tile is zoomed.
 //   An item with  fullTile: true  shows ALL of its artwork in its tile, floating pieces included.
+//   A background with  star:'light'  or  star:'dark'  sets the selected star's color on its B.G. tile and its set's Outfits tile
+//   (otherwise it's picked automatically from the artwork under the star).
 //   An item with  tileBg:'#hex'  gets that backing color in its tile, for light artwork that would disappear on the paper-colored tile.
 //   A Head (face) item with  hasEyes: true  has its eyes drawn in: Shuffle then gives it no Eyes trait (Shuffle otherwise always picks eyes).
 //   Normally leave both out: the tile is cropped to the artwork automatically, and on Tops and Bottoms a floating piece
@@ -205,14 +207,14 @@ const TRAITS = {
   ],
   backgrounds: [
     // background images show at their full size in the B.G. tab
-    { id: 'bodega', set: 'bodegacatceo', name: 'Bodega', layers: [bodega.layer('bg-bodega.png', { fit: 'cover' })] },
+    { id: 'bodega', set: 'bodegacatceo', name: 'Bodega', layers: [bodega.layer('bg-bodega.png', { fit: 'cover' })], star: 'dark' },
     { id: 'angel', set: 'lil-bliss', name: 'Angel', layers: [bliss.layer('angel-bg.png', { fit: 'cover' })] },
     { id: 'devil', set: 'lil-blaze', name: 'Devil', layers: [blaze.layer('devil-bg.png', { fit: 'cover' })] },
-    { id: 'possum', set: 'lil-marco', name: 'Possum', layers: [marco.layer('possum-bg.png', { fit: 'cover' })] },
+    { id: 'possum', set: 'lil-marco', name: 'Possum', layers: [marco.layer('possum-bg.png', { fit: 'cover' })], star: 'light' },
     { id: 'raccoon', set: 'big-g', name: 'Raccoon', layers: [biggy.layer('raccoon-bg.png', { fit: 'cover' })] },
     { id: 'rat', set: 'mr-bossman', name: 'Rat', layers: [boss.layer('rat-bg-2.png', { fit: 'cover' })] },
     { id: 'realms', set: 'guardian-of-the-realms', name: 'Realms', layers: [guard.layer('GUARDIANOFTHEREALMS-BG.png', { fit: 'cover' })] },
-    { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', layers: [eye.layer('EYEOFTHEBEHOLDER-BG.png', { fit: 'cover' })] },
+    { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', layers: [eye.layer('EYEOFTHEBEHOLDER-BG.png', { fit: 'cover' })], star: 'light' },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', layers: [stitch.layer('SNITCHESGETSTITCHES-BG.png', { fit: 'cover' })] },
     { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] }
   ]
@@ -237,6 +239,9 @@ const MODE_STYLE = 'underline';
 // how round the avatar's background corners are in the main display, as a fraction of the card's width (0 = square, 0.05 = about 5%).
 // Only the main display: the background tiles in the B.G. tab stay square. Nothing is rounded when the background is None.
 const AVATAR_CORNER = 0.05;
+// the ground shadow under every character: always on, just in front of the background and behind every trait.
+// An ellipse in canvas units (the 380 x 600 canvas), measured from the Deadass composite. Set SHADOW = null to turn it off.
+const SHADOW = { cx: 190.5, cy: 547.5, rx: 81, ry: 41.5, color: '#000000', opacity: 0.30 };
 // where the character sits on the main display. The display is always 3:4 (the shape of the background art), the background fills it,
 // and the character (every trait, all sets) is drawn smaller inside it. Fractions of the display: left and top = where the character's
 // canvas starts, height = how tall the canvas is (its width follows from CANVAS). Measured against the finished Bodega art.
