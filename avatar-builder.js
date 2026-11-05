@@ -249,12 +249,13 @@
     let thumb = '', cls = 'tile';
     if (!it) cls += ' none';
     if (cat === 'backgrounds') {
-      cls += ' bg';
+      cls += ' bg' + (it && it.starLight ? ' lt' : '');
       if (it) thumb = '<div class="thumb"><div class="avatar">' + layersInner({ backgrounds: id }, { bgOnly: true }) + '</div></div>';
     } else if (cat === 'outfits' && it) {
       // the whole look, as on the main display: the set's background with the character placed on it (3:4, like the B.G. tiles)
       const set = SETS[it.set], look = Object.assign(outfitLook(it), { backgrounds: set && set.background ? set.background : null });
-      cls += ' bg fit';
+      const sbg = set && set.background && find('backgrounds', set.background);
+      cls += ' bg fit' + (sbg && sbg.starLight ? ' lt' : '');
       thumb = '<div class="thumb"><div class="avatar">' + layersInner(look) + '</div></div>';
     } else if (it) {
       thumb = '<div class="thumb iso">' + viewHtml(cat === 'outfits' ? layersInner(outfitLook(it), { noBg: true }) : itemInner(cat, it), it.cropF) + '</div>';
@@ -263,7 +264,7 @@
     if (cat === 'outfits' && it) extra = ' style="' + outfitVars(it) + '"';                       // always the set's original colors
     else if (it && cat !== 'backgrounds' && it.originalInMenu !== false) { const o = ogTile(it); cls += o.cls; extra = o.style ? ' style="' + o.style + '"' : ''; }   // original colors until the visitor picks their own
     // tileBg: a backing color for light artwork that would vanish on the paper-colored tile
-    if (it && it.tileBg) { cls += ' dark'; extra = extra ? extra.replace(/"$/, ';background:' + it.tileBg + '"') : ' style="background:' + it.tileBg + '"'; }
+    if (it && it.tileBg) { cls += ' dark' + (it.starLight ? ' lt' : ''); extra = extra ? extra.replace(/"$/, ';background:' + it.tileBg + '"') : ' style="background:' + it.tileBg + '"'; }
     return '<button class="' + cls + (on ? ' on' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
@@ -570,6 +571,37 @@
     });
   }
 
+  // ---------- the selected star's color ----------
+  // The star sits in a tile's top-right corner with nothing behind it, so it is dark (ink) on light artwork and paper-colored on dark artwork.
+  // For background images (B.G. tiles, and Outfits tiles through their set's background) the corner of the image is measured once here;
+  // for a tileBg it is that color. Whichever of ink or paper stands out more against it wins. Every other tile keeps the dark star.
+  function starTones() {
+    const cs = getComputedStyle(root), rgbOf = h => { h = normHex(h) || '#000000'; return [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16)); };
+    const lum = c => { const f = c.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2]; };
+    const contrast = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    const ink = lum(rgbOf(cs.getPropertyValue('--ink').trim())), paper = lum(rgbOf(cs.getPropertyValue('--paper').trim()));
+    const light = L => contrast(L, paper) > contrast(L, ink);       // true = use the paper-colored star
+    Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => { if (it.tileBg) it.starLight = light(lum(rgbOf(it.tileBg))); }));
+    return Promise.all(TRAITS.backgrounds.map(it => new Promise(res => {
+      const l = (it.layers || []).find(x => x.src); if (!l) return res();
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const W = 118, H = 157, c = document.createElement('canvas'); c.width = W; c.height = H;   // a typical B.G./Outfits tile, in px
+          const g = c.getContext('2d'), s = Math.max(W / img.naturalWidth, H / img.naturalHeight);   // drawn like the tile (cover)
+          g.drawImage(img, (W - img.naturalWidth * s) / 2, (H - img.naturalHeight * s) / 2, img.naturalWidth * s, img.naturalHeight * s);
+          const d = g.getImageData(W - 19, 5, 13, 13).data;   // exactly where the star sits (13px, 5px from the top, 6px from the right)
+          let L = 0, n = 0;
+          for (let i = 0; i < d.length; i += 4) { L += lum([d[i], d[i + 1], d[i + 2]]); n++; }
+          it.starLight = light(L / n);
+        } catch (e) { /* can't read it: keep the dark star */ }
+        res();
+      };
+      img.onerror = () => res();
+      img.src = l.src;
+    })));
+  }
+
   // ---------- narrow screens: the panels stack, so the frame needs to be taller ----------
   function fitFrame() {
     const f = window.frameElement; if (!f) return;
@@ -595,7 +627,7 @@
   fitFrame();
   card.innerHTML = '<p class="empty" style="padding:16px">Loading\u2026</p>';
   renderTabs('left'); renderTabs('right');
-  loadArt().then(computeCrops).then(start).catch(err => {
+  loadArt().then(computeCrops).then(starTones).then(start).catch(err => {
     console.error(err);
     card.innerHTML = '<p class="empty" style="padding:16px">Couldn\u2019t load the artwork. Open this page from the website, not as a file on your computer.</p>';
   });
