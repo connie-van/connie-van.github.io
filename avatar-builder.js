@@ -266,7 +266,7 @@
     if (cat === 'outfits' && it) extra = ' style="' + outfitVars(it) + '"';                       // always the set's original colors
     else if (it && cat !== 'backgrounds' && it.originalInMenu !== false) { const o = ogTile(it); cls += o.cls; extra = o.style ? ' style="' + o.style + '"' : ''; }   // original colors until the visitor picks their own
     // tileBg: a backing color for light artwork that would vanish on the paper-colored tile
-    if (it && it.tileBg) { cls += ' dark' + (it.starLight ? ' lt' : ''); extra = extra ? extra.replace(/"$/, ';background:' + it.tileBg + '"') : ' style="background:' + it.tileBg + '"'; }
+    if (it && it.tileBg) { const tb = tileBgCss(it); cls += ' dark' + (it.starLight ? ' lt' : ''); extra = extra ? extra.replace(/"$/, ';background:' + tb + '"') : ' style="background:' + tb + '"'; }
     return '<button class="' + cls + (on ? ' on' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
@@ -573,6 +573,13 @@
     });
   }
 
+  // a tileBg color at its tileBgOpacity (1 when not set)
+  function tileBgCss(it) {
+    const h = normHex(it.tileBg), a = it.tileBgOpacity == null ? 1 : it.tileBgOpacity;
+    if (!h || a >= 1) return it.tileBg;
+    return 'rgba(' + [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16)).join(',') + ',' + a + ')';
+  }
+
   // ---------- the selected star's color ----------
   // The star sits in a tile's top-right corner with nothing behind it, so it is dark (ink) on light artwork and paper-colored on dark artwork.
   // For background images (B.G. tiles, and Outfits tiles through their set's background) the corner of the image is measured once here;
@@ -583,7 +590,12 @@
     const contrast = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
     const ink = lum(rgbOf(cs.getPropertyValue('--ink').trim())), paper = lum(rgbOf(cs.getPropertyValue('--paper').trim()));
     const light = L => contrast(L, paper) > contrast(L, ink);       // true = use the paper-colored star
-    Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => { if (it.tileBg) it.starLight = light(lum(rgbOf(it.tileBg))); }));
+    const paperRgb = rgbOf(cs.getPropertyValue('--paper').trim());
+    Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => {
+      if (!it.tileBg) return;
+      const a = it.tileBgOpacity == null ? 1 : it.tileBgOpacity, c = rgbOf(it.tileBg).map((v, i) => v * a + paperRgb[i] * (1 - a));   // as it shows over the paper
+      it.starLight = light(lum(c));
+    }));
     return Promise.all(TRAITS.backgrounds.map(it => new Promise(res => {
       if (it.star === 'light' || it.star === 'dark') { it.starLight = it.star === 'light'; return res(); }   // set by hand
       const l = (it.layers || []).find(x => x.src); if (!l) return res();

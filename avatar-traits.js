@@ -18,7 +18,8 @@
 //   An item with  fullTile: true  shows ALL of its artwork in its tile, floating pieces included.
 //   A background with  star:'light'  or  star:'dark'  sets the selected star's color on its B.G. tile and its set's Outfits tile
 //   (otherwise it's picked automatically from the artwork under the star).
-//   An item with  tileBg:'#hex'  gets that backing color in its tile, for light artwork that would disappear on the paper-colored tile.
+//   An item with  tileBg:'#hex'  gets that backing color in its tile, for light artwork that would disappear on the paper-colored tile;
+//   add  tileBgOpacity: 0.25  (0 to 1) to tint it instead of filling it solid.
 //   A Head (face) item with  hasEyes: true  has its eyes drawn in: Shuffle then gives it no Eyes trait (Shuffle otherwise always picks eyes).
 //   Normally leave both out: the tile is cropped to the artwork automatically, and on Tops and Bottoms a floating piece
 //   that sits apart from the main trait is left out of the tile (it still shows on the live character).
@@ -219,8 +220,8 @@ const TRAITS = {
     { id: 'lid', set: 'lil-marco', name: 'Trash lid', layers: [marco.layer('accessory_back_003_2x.png')] },
     { id: 'set-007', set: 'big-g', name: 'Set 007', layers: [biggy.layer('accessory_back_002_2x.png')] },
     { id: 'cane', set: 'mr-bossman', name: 'Cane', layers: [boss.layer('accessory_back_001_2x.png')] },
-    // the sparkles are near-white, so their tile gets a dark backing (taken from the Realms background) to show them
-    { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x.png')], tileBg: '#15121F' },
+    // the sparkles are near-white, so their tile gets a light tint of the Realms night color behind them
+    { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x.png')], tileBg: '#15121F', tileBgOpacity: 0.25 },
     { id: 'skull-flame-back', set: 'eye-of-the-beholder', name: 'Skull flame (back)', layers: [eye.layer('accessory_back_002_2x.png')] },
     { id: 'heart', set: 'snitches-get-stitches', name: 'Stitched heart', layers: [stitch.layer('accessory_back_001_2x.png')] }
   ],
