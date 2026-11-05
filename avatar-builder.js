@@ -17,6 +17,7 @@
     bg: Object.assign({ stop: 0 }, DEFAULT_BG),   // background color (used when no background image is on)
     target: 'body',                               // what the color picker is editing: body | eyes | hair | bg
     hsv: { h: 0, s: 0, v: 0 },
+    chosen: { body: false, eyes: false, hair: false },   // true once the visitor has picked a color themselves (not from an outfit)
     saved: []
   };
   const card = $('#card');
@@ -76,12 +77,19 @@
   const applyBg = () => { card.style.background = bgCss(); };
 
   // picking an outfit also brings its set's original colors and its paired background (when the set has one)
+  // "chosen" colors: tiles marked originalInMenu show their set's original colors until the visitor picks a color of their own
+  // (the <html> element gets a c-body / c-eyes / c-hair class, and the CSS does the rest)
+  const markChosen = k => { state.chosen[k] = true; root.classList.add('c-' + k); };
+  const clearChosen = k => { state.chosen[k] = false; root.classList.remove('c-' + k); };
   function wearSet(it) {
     const set = SETS[it.set]; if (!set) return;
     if (set.background && find('backgrounds', set.background)) state.sel.backgrounds = set.background;
-    Object.keys(set.colors || {}).forEach(k => { const c = normHex(set.colors[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); } });
+    Object.keys(set.colors || {}).forEach(k => { const c = normHex(set.colors[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); clearChosen(k); } });
   }
-  // the Outfits tab always shows a fit in its set's original colors, whatever the visitor has customized
+  // the Outfits tab always shows a fit in its set's original colors, whatever the visitor has customized.
+  // A single item can ask for the same in its own tab with  originalInMenu: true  (see avatar-traits.js), until the visitor picks a color of their own.
+  // The avatar itself always follows the colors the visitor picks..
+  function ogTile(it) { const c = (SETS[it.set] && SETS[it.set].colors) || {}, ks = Object.keys(c); return { cls: ks.map(k => ' og og-' + k).join(''), style: ks.map(k => '--og-' + k + ':' + c[k]).join(';') }; }
   function outfitVars(it) { const c = (SETS[it.set] && SETS[it.set].colors) || {}; return Object.keys(c).map(k => '--' + k + ':' + c[k]).join(';'); }
   function pick(cat, id) {
     if (cat === 'outfits') { const it = find('outfits', id); state.sel = applyOutfit(state.sel, it); wearSet(it); return; }
@@ -242,7 +250,10 @@
     } else if (it) {
       thumb = '<div class="thumb iso">' + viewHtml(cat === 'outfits' ? layersInner(outfitLook(it), { noBg: true }) : itemInner(cat, it), it.cropF) + '</div>';
     }
-    return '<button class="' + cls + (on ? ' on' : '') + '"' + (cat === 'outfits' && it ? ' style="' + outfitVars(it) + '"' : '') + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
+    let extra = '';
+    if (cat === 'outfits' && it) extra = ' style="' + outfitVars(it) + '"';                       // always the set's original colors
+    else if (it && it.originalInMenu) { const o = ogTile(it); cls += o.cls; extra = ' style="' + o.style + '"'; }   // original colors until the visitor picks their own
+    return '<button class="' + cls + (on ? ' on' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
   function renderGrid(body, cat) {
@@ -375,6 +386,7 @@
     } else {
       state.colors[state.target] = hex;
       root.style.setProperty('--' + state.target, hex);
+      markChosen(state.target);
     }
     syncPicker();
   }
@@ -429,7 +441,7 @@
   function resetAll() {
     state.sel = Object.assign({}, DEFAULT_SEL);
     state.bg = Object.assign({ stop: 0 }, DEFAULT_BG);
-    COLOR_GROUPS.forEach(g => { state.colors[g.key] = g.def; });
+    COLOR_GROUPS.forEach(g => { state.colors[g.key] = g.def; clearChosen(g.key); });   // back to the original colors, and menu tiles show their originals again
     state.target = 'body';
     applyColors();
     renderAll();
@@ -449,7 +461,7 @@
     else if (r < 0.6) { state.bg.mode = 'solid'; state.bg.c1 = rnd(PALETTE_PRESETS); }
     else if (r < 0.8) { state.bg.mode = 'gradient'; state.bg.c1 = rnd(PALETTE_PRESETS); state.bg.c2 = rnd(PALETTE_PRESETS); }
     state.sel = s;
-    COLOR_GROUPS.forEach(g => { state.colors[g.key] = rnd(PALETTE_PRESETS); });
+    COLOR_GROUPS.forEach(g => { state.colors[g.key] = rnd(PALETTE_PRESETS); markChosen(g.key); });
     applyColors();
     renderAll();
   }

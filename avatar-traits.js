@@ -12,6 +12,8 @@
 //                    tint:'body' | 'eyes' | 'hair'  (fills the image's shape with that color)
 //
 //   A layer with  z: CATEGORY_Z.hairBack  sits behind the body (see the stacking order below).
+//   An item can also take  originalInMenu: true  so its tile shows its set's original colors until the visitor picks a color of their own
+//   (the avatar always follows the visitor's colors). Reset all and wearing an outfit bring the originals back.
 //   Every item can also take  crop:[left, top, right, bottom]  (in CANVAS units) to choose by hand how its selection tile is zoomed.
 //   Normally leave that out: the tile is cropped to the artwork automatically, and on Tops and Bottoms a floating piece
 //   that sits apart from the main trait is left out of the tile (it still shows on the live character).
@@ -106,17 +108,19 @@ const TRAITS = {
   hats: [                                                                                                     // head accessory
     { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },
     { id: 'halo', set: 'lil-bliss', name: 'Halo', layers: [bliss.layer('head_accessory_004_3x.png')] },
-    { id: 'imp', set: 'lil-blaze', name: 'Imp', layers: [blaze.svg('combined-head_accessory_005.svg')] }
+    // the imp is a little character of its own, so its tile in this menu shows the set's original red (originalInMenu) until the visitor
+    // picks a color of their own; on the avatar it always takes the skin color the visitor picks
+    { id: 'imp', set: 'lil-blaze', name: 'Imp', layers: [blaze.svg('combined-head_accessory_005.svg')], originalInMenu: true }
   ],
   rightHand: [                                                                                                // acc front
     { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
-    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-accessory_004.svg')] },
-    { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-accessory_005.svg')] }
+    { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-accessory_004.svg')], originalInMenu: true },
+    { id: 'set-005', set: 'lil-blaze', name: 'Set 005', layers: [blaze.svg('combined-accessory_005.svg')], originalInMenu: true }
   ],
   leftHand: [                                                                                                 // acc back (the furthest back, just in front of the background)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
     { id: 'wings', set: 'lil-bliss', name: 'Wings', layers: [bliss.layer('accessory_back_004_3x.png')] },
-    { id: 'bat-wings', set: 'lil-blaze', name: 'Bat wings', layers: [blaze.svg('combined-accessory_back_005.svg')] }
+    { id: 'bat-wings', set: 'lil-blaze', name: 'Bat wings', layers: [blaze.svg('combined-accessory_back_005.svg')], originalInMenu: true }
   ],
   backgrounds: [
     // background images show at their full size in the B.G. tab

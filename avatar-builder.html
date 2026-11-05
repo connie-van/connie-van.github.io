@@ -60,6 +60,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
 .empty{font:500 10.5px/1.6 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
 .empty .star{font-family:'Noto Star',sans-serif;font-size:13px;color:var(--ink);margin-right:6px}
 
+/* tiles marked originalInMenu show their set's original colors until the visitor picks a color of their own (the c-* classes are set on <html>) */
+html:not(.c-body) .tile.og-body{--body:var(--og-body)}
+html:not(.c-eyes) .tile.og-eyes{--eyes:var(--og-eyes)}
+html:not(.c-hair) .tile.og-hair{--hair:var(--og-hair)}
+
 /* ---------- the avatar ---------- */
 .stage{position:relative;display:flex;align-items:center;justify-content:center;padding:25px 16px;min-width:0;min-height:0}
 .card{position:relative;height:100%;aspect-ratio:3/4;max-width:100%}
