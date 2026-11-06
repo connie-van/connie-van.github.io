@@ -56,6 +56,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
    .holo = vertical rainbow stripes crossed by diagonal silver bands, sliding with the cursor; .glare = a soft highlight under the cursor.
    They are invisible until the tile is hovered (.hov), so tiles that aren't hovered cost nothing. */
 .tile.collect{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+/* collectible Outfits tiles also get the main display's rounded corners (AVATAR_CORNER); every other tile stays square */
+.tile.collect,.tile.collect .thumb,.tile.collect .holo,.tile.collect .glare{border-radius:calc(var(--corner,0) * 100%) / calc(var(--corner,0) * 75%)}
+.tile.collect .thumb{overflow:hidden}
+.tile.collect.on::after{top:7px;right:9px}
 .tile.collect.hov{z-index:3;transition:transform .08s linear;will-change:transform}
 .tile.collect.on::after{z-index:4}
 .tile.collect .holo,.tile.collect .glare{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;transition:opacity .4s}
