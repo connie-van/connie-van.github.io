@@ -259,7 +259,7 @@
       const sbg = set && set.background && find('backgrounds', set.background);
       const collect = !!(set && set.collectible);
       cls += ' bg fit' + (sbg && sbg.starLight ? ' lt' : '') + (collect ? ' collect' : '');
-      thumb = '<div class="thumb"><div class="avatar">' + layersInner(look) + '</div></div>' + (collect ? '<span class="holo" aria-hidden="true"></span><span class="glare" aria-hidden="true"></span>' : '');
+      thumb = '<div class="thumb"><div class="avatar">' + layersInner(look) + '</div></div>' + (collect ? '<span class="holo" aria-hidden="true"></span><span class="shine" aria-hidden="true"></span>' : '');
     } else if (it) {
       thumb = '<div class="thumb iso">' + viewHtml(cat === 'outfits' ? layersInner(outfitLook(it), { noBg: true }) : itemInner(cat, it), it.cropF) + '</div>';
     }
@@ -630,12 +630,35 @@
 
   // ---------- start ----------
   // ---------- holographic hover on collectible Outfits tiles ----------
-  // The pointer's spot on the tile drives a few CSS variables; the foil itself is all CSS (.holo / .glare in avatar-builder.html).
+  // The pointer's spot on the tile drives a few CSS variables; the foil itself is all CSS (.holo / .shine in avatar-builder.html).
   // Only the tile under the cursor does any work. Mouse/trackpad only: touch screens have no hover.
+
+  // The pixel halftone both layers are printed through: a grid of squares whose size depends on where they sit (HOLO.pattern).
+  // Made once as an SVG and handed to the CSS as --holo-mask.
+  function holoMask(pattern, tileWidth) {
+    // about 7 screen pixels per square, whatever size the tiles are, so the squares read the same as on the test page
+    const C = Math.max(12, Math.round((tileWidth || 120) / 7)), R = Math.round(C * 4 / 3);
+    const W = 300, H = 400, cw = W / C, ch = H / R, f = n => n.toFixed(2);
+    let out = '';
+    for (let j = 0; j < R; j++) for (let i = 0; i < C; i++) {
+      const u = (i + 0.5) / C, v = (j + 0.5) / R, d = (u + (1 - v)) / 2;
+      let t = pattern === 'diagonal-balanced' ? Math.abs(d - 0.5) * 2                               // big in two opposite corners
+        : pattern === 'edges' ? Math.min(1, Math.hypot((u - 0.5) * 1.5, (v - 0.5) * 1.1) * 1.55)   // big at the edges, small in the middle
+        : Math.abs(v - 0.5) * 2;                                                                   // 'vertical-balanced': big at the top and bottom
+      t = Math.max(0, Math.min(1, t));
+      const s = cw * t * t * 1.02;                    // the square's side
+      if (s < 0.35) continue;
+      out += '<rect x="' + f(i * cw + (cw - s) / 2) + '" y="' + f(j * ch + (ch - s) / 2) + '" width="' + f(s) + '" height="' + f(s) + '"/>';
+    }
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" shape-rendering="crispEdges">' + out + '</svg>';
+    return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+  }
+
   function holoInit() {
     if (typeof HOLO === 'undefined' || !window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     root.style.setProperty('--holo-i', HOLO.intensity);
-    root.style.setProperty('--holo-nudge', (HOLO.nudge || 0) + 'px');
+    const sample = document.querySelector('#body-left .tile.collect');
+    root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0));
     let cur = null, frame = 0, last = null;
     const off = t => t.classList.remove('hov');
     const paint = () => {
@@ -643,9 +666,9 @@
       const r = cur.getBoundingClientRect();
       const x = Math.min(1, Math.max(0, (last.clientX - r.left) / r.width)), y = Math.min(1, Math.max(0, (last.clientY - r.top) / r.height));
       const st = cur.style;
-      st.setProperty('--mx', (x * 100).toFixed(1) + '%'); st.setProperty('--my', (y * 100).toFixed(1) + '%');
-      st.setProperty('--bx', (35 + x * 30).toFixed(1) + '%'); st.setProperty('--by', (35 + y * 30).toFixed(1) + '%');
-      st.setProperty('--hyp', Math.min(1, Math.hypot(x - 0.5, y - 0.5) * 2).toFixed(3));
+      // the foil and the shine travel the same distance, in the same direction, as the cursor moves
+      st.setProperty('--bx', (40 + x * 20).toFixed(1) + '%'); st.setProperty('--by', (40 + y * 20).toFixed(1) + '%');
+      st.setProperty('--shx', (-15 + x * 130).toFixed(1) + '%'); st.setProperty('--shy', (-15 + y * 130).toFixed(1) + '%');
     };
     const body = document.getElementById('body-left');
     body.addEventListener('pointermove', e => {

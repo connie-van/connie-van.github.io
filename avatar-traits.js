@@ -265,10 +265,12 @@ const MODE_STYLE = 'underline';
 const AVATAR_CORNER = 0.05;
 // the ground shadow under every character: always on, just in front of the background and behind every trait.
 // An ellipse in canvas units (the 380 x 600 canvas), measured from the Deadass composite. Set SHADOW = null to turn it off.
-// the holographic hover on collectible Outfits tiles: rainbow stripes and silver bands seen through a halftone dot screen, sliding with the cursor,
-// with a soft glare. The tile also jumps up-left by `nudge` px onto a hard black shadow (no blur, no easing), like an old raised web button.
-// intensity 0 to 1 (how strong the foil is), nudge in px (0 for none). Mouse/trackpad only: off on touch screens.
-const HOLO = { intensity: 0.8, nudge: 3 };
+// the holographic hover on collectible Outfits tiles (the tile itself stays still): the Venusaur-ex-style foil (chunky rainbow stripes and
+// wide silver bands) plus one soft rainbow shine, both printed through a pixel halftone and sliding together with the cursor.
+// intensity 0 to 1 (how strong it is; the shine runs a little stronger than the foil).
+// pattern = where the big squares go: 'vertical-balanced' (top and bottom, small through the middle), 'diagonal-balanced', or 'edges'.
+// Mouse/trackpad only: off on touch screens.
+const HOLO = { intensity: 0.5, pattern: 'vertical-balanced' };
 const SHADOW = { cx: 190.5, cy: 547.5, rx: 81, ry: 41.5, color: '#000000', opacity: 0.30 };
 // where the character sits on the main display. The display is always 3:4 (the shape of the background art), the background fills it,
 // and the character (every trait, all sets) is drawn smaller inside it. Fractions of the display: left and top = where the character's

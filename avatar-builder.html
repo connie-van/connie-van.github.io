@@ -52,35 +52,33 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
 .tile.bg{aspect-ratio:3/4;border:0}
 .tile.bg .thumb{inset:0}
 .tile.bg:hover{box-shadow:none;outline:1px solid rgba(20,17,15,.4)}
-/* collectible Outfits tiles: the holographic hover (HOLO in avatar-traits.js). Two layers sit over the artwork:
-   .holo = rainbow stripes crossed by diagonal silver bands, sliding with the cursor and printed through a fine halftone dot screen;
-   .glare = a soft highlight under the cursor.
+/* collectible Outfits tiles: the holographic hover (HOLO in avatar-traits.js). The tile itself stays still; two layers sit over the artwork,
+   both printed through the same pixel halftone (square dots that grow from tiny to nearly solid; the pattern is made once in
+   avatar-builder.js as --holo-mask), and both slide with the cursor:
+   .holo  = the Venusaur-ex-style foil: chunky rainbow stripes crossed by wide silver bands;
+   .shine = one soft rainbow band, about a third of the card wide, moving through the squares with the foil.
    They are invisible until the tile is hovered (.hov), so tiles that aren't hovered cost nothing. */
-
 /* collectible Outfits tiles also get the main display's rounded corners (AVATAR_CORNER); every other tile stays square */
-.tile.collect,.tile.collect .thumb,.tile.collect .holo,.tile.collect .glare{border-radius:calc(var(--corner,0) * 100%) / calc(var(--corner,0) * 75%)}
+.tile.collect,.tile.collect .thumb,.tile.collect .holo,.tile.collect .shine{border-radius:calc(var(--corner,0) * 100%) / calc(var(--corner,0) * 75%)}
 .tile.collect .thumb{overflow:hidden}
-.tile.collect.on::after{top:7px;right:9px}
-/* hover: an instant hard-shadow nudge (HOLO.nudge), no easing; specific enough to win over the selected tile's own hover style */
-.tile.bg.collect.hov,.tile.bg.collect.hov:hover{z-index:3;transform:translate(calc(var(--holo-nudge,3px) * -1),calc(var(--holo-nudge,3px) * -1));box-shadow:var(--holo-nudge,3px) var(--holo-nudge,3px) 0 0 var(--ink)}
-.tile.collect.on::after{z-index:4}
-.tile.collect .holo,.tile.collect .glare{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;transition:opacity .4s}
+.tile.collect.on::after{top:7px;right:9px;z-index:4}
+.tile.collect .holo,.tile.collect .shine{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;transition:opacity .3s;
+  -webkit-mask-image:var(--holo-mask,none);mask-image:var(--holo-mask,none);-webkit-mask-size:100% 100%;mask-size:100% 100%}
 .tile.collect .holo{
   background-image:
     repeating-linear-gradient(0deg,#ff7a8a 0%,#ffe36e 4%,#a6ff7a 8%,#78f2ff 12%,#8aa2ff 16%,#d48aff 20%,#ff7a8a 24%),
     repeating-linear-gradient(128deg,#101528 0%,#93a3a6 2.5%,#cfe0e0 3.2%,#93a3a6 3.9%,#101528 6.5%,#101528 9%);
-  background-size:100% 160%,220% 220%;
+  background-size:100% 1100%,1400% 1400%;
   background-position:var(--bx,50%) var(--by,50%),var(--bx,50%) var(--by,50%);
   background-blend-mode:hue;
   mix-blend-mode:color-dodge;
-  filter:brightness(.85) contrast(1.05) saturate(.75);
-  -webkit-mask-image:radial-gradient(circle,#000 0 1.35px,transparent 1.6px);mask-image:radial-gradient(circle,#000 0 1.35px,transparent 1.6px);
-  -webkit-mask-size:4px 4px;mask-size:4px 4px}
-.tile.collect .glare{
-  background-image:radial-gradient(farthest-corner circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.85) 0%,rgba(255,255,255,.35) 22%,rgba(0,0,0,.35) 90%);
-  mix-blend-mode:overlay}
-.tile.collect.hov .holo{opacity:calc(var(--holo-i,.85) * (.85 + var(--hyp,0) * .15))}
-.tile.collect.hov .glare{opacity:calc(var(--holo-i,.85) * .45)}
+  filter:brightness(.8) contrast(1.35) saturate(1.35)}
+.tile.collect .shine{
+  background-image:linear-gradient(128deg,transparent 0%,transparent 41%,rgba(255,130,210,.85) 45.5%,rgba(255,236,140,.95) 48%,rgba(150,255,200,.95) 50%,rgba(130,210,255,.95) 52%,rgba(190,150,255,.85) 54.5%,transparent 59%,transparent 100%);
+  background-size:300% 300%;background-repeat:no-repeat;background-position:var(--shx,50%) var(--shy,50%);
+  mix-blend-mode:screen}
+.tile.collect.hov .holo{opacity:var(--holo-i,.5)}
+.tile.collect.hov .shine{opacity:calc(var(--holo-i,.5) * 1.4)}
 .tile.bg.on,.tile.bg.on:hover{box-shadow:none;outline:2px solid var(--ink)}
 .tile.bg.none{border:1px solid var(--ink)}
 .tile.bg.none.on,.tile.bg.none.on:hover{outline:0;box-shadow:inset 0 0 0 1px var(--ink)}
