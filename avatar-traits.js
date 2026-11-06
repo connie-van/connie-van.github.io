@@ -269,8 +269,9 @@ const AVATAR_CORNER = 0.05;
 // wide silver bands) plus one soft rainbow shine, both printed through a pixel halftone and sliding together with the cursor.
 // intensity 0 to 1 (how strong it is; the shine runs a little stronger than the foil).
 // pattern = where the big squares go: 'vertical-balanced' (top and bottom, small through the middle), 'diagonal-balanced', or 'edges'.
+// dot = the size of the biggest squares, in screen pixels (smaller number = finer pixels).
 // Mouse/trackpad only: off on touch screens.
-const HOLO = { intensity: 0.5, pattern: 'vertical-balanced' };
+const HOLO = { intensity: 0.5, pattern: 'vertical-balanced', dot: 4 };
 const SHADOW = { cx: 190.5, cy: 547.5, rx: 81, ry: 41.5, color: '#000000', opacity: 0.30 };
 // where the character sits on the main display. The display is always 3:4 (the shape of the background art), the background fills it,
 // and the character (every trait, all sets) is drawn smaller inside it. Fractions of the display: left and top = where the character's

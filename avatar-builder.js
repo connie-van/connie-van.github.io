@@ -635,9 +635,9 @@
 
   // The pixel halftone both layers are printed through: a grid of squares whose size depends on where they sit (HOLO.pattern).
   // Made once as an SVG and handed to the CSS as --holo-mask.
-  function holoMask(pattern, tileWidth) {
-    // about 7 screen pixels per square, whatever size the tiles are, so the squares read the same as on the test page
-    const C = Math.max(12, Math.round((tileWidth || 120) / 7)), R = Math.round(C * 4 / 3);
+  function holoMask(pattern, tileWidth, dot) {
+    // one grid cell (the largest a square gets) is about `dot` screen pixels, whatever size the tiles are
+    const C = Math.max(12, Math.round((tileWidth || 120) / (dot || 4))), R = Math.round(C * 4 / 3);
     const W = 300, H = 400, cw = W / C, ch = H / R, f = n => n.toFixed(2);
     let out = '';
     for (let j = 0; j < R; j++) for (let i = 0; i < C; i++) {
@@ -658,7 +658,7 @@
     if (typeof HOLO === 'undefined' || !window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     root.style.setProperty('--holo-i', HOLO.intensity);
     const sample = document.querySelector('#body-left .tile.collect');
-    root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0));
+    root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0, HOLO.dot));
     let cur = null, frame = 0, last = null;
     const off = t => t.classList.remove('hov');
     const paint = () => {
