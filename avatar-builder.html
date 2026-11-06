@@ -53,7 +53,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
 .tile.bg .thumb{inset:0}
 .tile.bg:hover{box-shadow:none;outline:1px solid rgba(20,17,15,.4)}
 /* collectible Outfits tiles: the holographic hover (HOLO in avatar-traits.js). Two layers sit over the artwork:
-   .holo = vertical rainbow stripes crossed by diagonal silver bands, sliding with the cursor; .glare = a soft highlight under the cursor.
+   .holo = rainbow stripes crossed by diagonal silver bands, sliding with the cursor and printed through a fine halftone dot screen;
+   .glare = a soft highlight under the cursor.
    They are invisible until the tile is hovered (.hov), so tiles that aren't hovered cost nothing. */
 .tile.collect{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
 /* collectible Outfits tiles also get the main display's rounded corners (AVATAR_CORNER); every other tile stays square */
@@ -71,12 +72,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
   background-position:var(--bx,50%) var(--by,50%),var(--bx,50%) var(--by,50%);
   background-blend-mode:hue;
   mix-blend-mode:color-dodge;
-  filter:brightness(.72) contrast(1.6) saturate(1.4)}
+  filter:brightness(.85) contrast(1.05) saturate(.75);
+  -webkit-mask-image:radial-gradient(circle,#000 0 1.35px,transparent 1.6px);mask-image:radial-gradient(circle,#000 0 1.35px,transparent 1.6px);
+  -webkit-mask-size:4px 4px;mask-size:4px 4px}
 .tile.collect .glare{
   background-image:radial-gradient(farthest-corner circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.85) 0%,rgba(255,255,255,.35) 22%,rgba(0,0,0,.35) 90%);
   mix-blend-mode:overlay}
 .tile.collect.hov .holo{opacity:calc(var(--holo-i,.85) * (.85 + var(--hyp,0) * .15))}
-.tile.collect.hov .glare{opacity:calc(var(--holo-i,.85) * .7)}
+.tile.collect.hov .glare{opacity:calc(var(--holo-i,.85) * .45)}
 .tile.bg.on,.tile.bg.on:hover{box-shadow:none;outline:2px solid var(--ink)}
 .tile.bg.none{border:1px solid var(--ink)}
 .tile.bg.none.on,.tile.bg.none.on:hover{outline:0;box-shadow:inset 0 0 0 1px var(--ink)}

@@ -265,9 +265,10 @@ const MODE_STYLE = 'underline';
 const AVATAR_CORNER = 0.05;
 // the ground shadow under every character: always on, just in front of the background and behind every trait.
 // An ellipse in canvas units (the 380 x 600 canvas), measured from the Deadass composite. Set SHADOW = null to turn it off.
-// the holographic hover on collectible Outfits tiles: rainbow stripes and silver bands that slide with the cursor, a soft glare, a slight tilt.
+// the holographic hover on collectible Outfits tiles: rainbow stripes and silver bands seen through a halftone dot screen, sliding with the cursor,
+// with a soft glare and a slight tilt.
 // intensity 0 to 1 (how strong the foil is), tilt = degrees at the tile's edge (0 for none). Off on touch screens and with reduced motion's tilt.
-const HOLO = { intensity: 0.85, tilt: 7 };
+const HOLO = { intensity: 0.8, tilt: 7 };
 const SHADOW = { cx: 190.5, cy: 547.5, rx: 81, ry: 41.5, color: '#000000', opacity: 0.30 };
 // where the character sits on the main display. The display is always 3:4 (the shape of the background art), the background fills it,
 // and the character (every trait, all sets) is drawn smaller inside it. Fractions of the display: left and top = where the character's
