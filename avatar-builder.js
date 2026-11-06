@@ -635,9 +635,9 @@
   function holoInit() {
     if (typeof HOLO === 'undefined' || !window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     root.style.setProperty('--holo-i', HOLO.intensity);
-    const still = matchMedia('(prefers-reduced-motion: reduce)');
+    root.style.setProperty('--holo-nudge', (HOLO.nudge || 0) + 'px');
     let cur = null, frame = 0, last = null;
-    const off = t => { t.classList.remove('hov'); t.style.removeProperty('transform'); };
+    const off = t => t.classList.remove('hov');
     const paint = () => {
       frame = 0; if (!cur || !last) return;
       const r = cur.getBoundingClientRect();
@@ -646,8 +646,6 @@
       st.setProperty('--mx', (x * 100).toFixed(1) + '%'); st.setProperty('--my', (y * 100).toFixed(1) + '%');
       st.setProperty('--bx', (35 + x * 30).toFixed(1) + '%'); st.setProperty('--by', (35 + y * 30).toFixed(1) + '%');
       st.setProperty('--hyp', Math.min(1, Math.hypot(x - 0.5, y - 0.5) * 2).toFixed(3));
-      const t = still.matches ? 0 : HOLO.tilt;
-      st.transform = t ? 'perspective(700px) rotateX(' + ((0.5 - y) * 2 * t).toFixed(2) + 'deg) rotateY(' + ((x - 0.5) * 2 * t).toFixed(2) + 'deg) scale(1.03)' : '';
     };
     const body = document.getElementById('body-left');
     body.addEventListener('pointermove', e => {
