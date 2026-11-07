@@ -635,6 +635,7 @@
 
   // The pixel halftone both layers are printed through: a grid of squares whose size depends on where they sit (HOLO.pattern).
   // Made once as an SVG and handed to the CSS as --holo-mask.
+  const HOLO_MAX_FILL = 0.7;   // the biggest square is 70% of its cell, which always leaves a gap between neighbours
   function holoMask(pattern, tileWidth, dot) {
     // one grid cell (the largest a square gets) is about `dot` screen pixels, whatever size the tiles are
     const C = Math.max(12, Math.round((tileWidth || 120) / (dot || 4))), R = Math.round(C * 4 / 3);
@@ -646,7 +647,7 @@
         : pattern === 'edges' ? Math.min(1, Math.hypot((u - 0.5) * 1.5, (v - 0.5) * 1.1) * 1.55)   // big at the edges, small in the middle
         : Math.abs(v - 0.5) * 2;                                                                   // 'vertical-balanced': big at the top and bottom
       t = Math.max(0, Math.min(1, t));
-      const s = cw * t * t * 1.02;                    // the square's side
+      const s = cw * t * t * HOLO_MAX_FILL;           // the square's side: never fills its cell, so the squares never join into a solid
       if (s < 0.35) continue;
       out += '<rect x="' + f(i * cw + (cw - s) / 2) + '" y="' + f(j * ch + (ch - s) / 2) + '" width="' + f(s) + '" height="' + f(s) + '"/>';
     }
