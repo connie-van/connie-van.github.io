@@ -64,6 +64,8 @@ const HIDE_EMPTY_TABS = false;
 // so files with the same or similar names in different sets never clash. The names are stored here for later; nothing shows them yet.
 //   colors:      the set's ORIGINAL colors (body = skin, eyes, hair). The Outfits tab always shows the set in these, and picking
 //                the outfit puts them on the avatar. Leave a color out if the set doesn't have one: that color is left as it is.
+//                An outfit (or a trait) can carry its own  colors: { ... }  too: those override the set's, color by color, for that item only.
+//                Add  ?livecolors  to the page address to see the Outfits tiles in the colors you pick (handy for choosing originals).
 //   background:  the id of the set's paired background image. Picking the outfit switches to it. Leave it out if the set has none.
 //   clearBackground: true  for a set with no background of its own whose outfits should be worn on transparency: picking one of its
 //                outfits sets the background to None (the visitor can change it afterwards). Without it, a set with no background

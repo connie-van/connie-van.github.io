@@ -85,17 +85,22 @@
   // (the <html> element gets a c-body / c-eyes / c-hair class, and the CSS does the rest)
   const markChosen = k => { state.chosen[k] = true; root.classList.add('c-' + k); };
   const clearChosen = k => { state.chosen[k] = false; root.classList.remove('c-' + k); };
+  // an item's original colors: its set's, with any  colors  on the item itself (an outfit or a trait) taking over per color
+  const ogColors = it => Object.assign({}, (SETS[it.set] && SETS[it.set].colors) || {}, it.colors || {});
   function wearSet(it) {
     const set = SETS[it.set]; if (!set) return;
     if (set.background && find('backgrounds', set.background)) state.sel.backgrounds = set.background;
     else if (set.clearBackground) { state.sel.backgrounds = null; state.bg.mode = 'none'; state.bg.stop = 0; }   // worn on transparency
-    Object.keys(set.colors || {}).forEach(k => { const c = normHex(set.colors[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); clearChosen(k); } });
+    const og = ogColors(it);
+    Object.keys(og).forEach(k => { const c = normHex(og[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); clearChosen(k); } });
   }
   // the Outfits tab always shows a fit in its set's original colors, whatever the visitor has customized.
   // Every other trait tile does the same, until the visitor picks a color of their own (an item can opt out with  originalInMenu: false  in avatar-traits.js).
   // The avatar itself always follows the colors the visitor picks..
-  function ogTile(it) { const c = (SETS[it.set] && SETS[it.set].colors) || {}, ks = Object.keys(c); return { cls: ks.map(k => ' og og-' + k).join(''), style: ks.map(k => '--og-' + k + ':' + c[k]).join(';') }; }
-  function outfitVars(it) { const c = (SETS[it.set] && SETS[it.set].colors) || {}; return Object.keys(c).map(k => '--' + k + ':' + c[k]).join(';'); }
+  function ogTile(it) { const c = ogColors(it), ks = Object.keys(c); return { cls: ks.map(k => ' og og-' + k).join(''), style: ks.map(k => '--og-' + k + ':' + c[k]).join(';') }; }
+  // ?livecolors in the page address: Outfits tiles follow the picked colors instead (for choosing originals; visitors never see this)
+  const LIVE_OUTFITS = /[?&]livecolors\b/.test(location.search);
+  function outfitVars(it) { if (LIVE_OUTFITS) return ''; const c = ogColors(it); return Object.keys(c).map(k => '--' + k + ':' + c[k]).join(';'); }
   function pick(cat, id) {
     if (cat === 'outfits') { const it = find('outfits', id); state.sel = applyOutfit(state.sel, it); wearSet(it); return; }
     if (cat === 'backgrounds') {
@@ -359,7 +364,9 @@
     if (off) swatch = '<i class="swatch"' + (mode === 'art' ? ' style="' + bgChip() + '"' : '') + '></i>';
     else if (isBg && mode === 'gradient') swatch = [state.bg.c1, state.bg.c2].map((c, i) => '<button class="swatch stop' + (state.bg.stop === i ? ' on' : '') + '" data-stop="' + i + '" id="stop' + i + '" style="background:' + c + '" aria-label="Gradient color ' + (i + 1) + '"></button>').join('');
     else swatch = '<i class="swatch" id="swatch"></i>';
-    const hex = off ? '' : '<div class="hex" id="hexbox"><span class="hash">#</span><input id="hex" type="text" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Hex color" value="' + curHex().slice(1) + '"></div>';
+    const hex = off ? '' : '<div class="hex" id="hexbox"><span class="hash">#</span><input id="hex" type="text" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Hex color" value="' + curHex().slice(1) + '"></div>' +
+      // the eyedropper picks any color on screen; it only shows in browsers that have one (Chrome, Edge, Opera, not Safari or Firefox yet)
+      ('EyeDropper' in window ? '<button class="dropper" id="dropper" aria-label="Pick a color from the screen" title="Pick a color from the screen"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.7 3.3a2.4 2.4 0 0 0-3.4 0L14.5 6l-1.4-1.4-1.4 1.4 1.4 1.4-8.4 8.4a2 2 0 0 0-.6 1.4V20h2.8a2 2 0 0 0 1.4-.6l8.4-8.4 1.4 1.4 1.4-1.4L18 9.5l2.7-2.8a2.4 2.4 0 0 0 0-3.4ZM7 18H6v-1l8.4-8.4 1 1L7 18Z" fill="currentColor"/></svg></button>' : '');
     body.innerHTML = '<div class="cwrap"><div class="targets">' + tgs + '</div>' + modes + picker + '<div class="hexrow">' + swatch + hex + '</div><div class="palette" id="palette"></div></div>';
     renderPalette();
     bindPicker();
@@ -435,6 +442,15 @@
       const r = hue.getBoundingClientRect();
       state.hsv.h = clamp((e.clientX - r.left) / r.width, 0, 0.9999);
       setColor(hsvToHex(state.hsv), true);
+    });
+    const dropper = $('#dropper');
+    if (dropper) dropper.addEventListener('click', () => {
+      new window.EyeDropper().open().then(r => {
+        let c = r.sRGBHex || '';
+        const m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);       // some versions answer rgb(...) instead of a hex code
+        if (m) c = '#' + [m[1], m[2], m[3]].map(v => (+v).toString(16).padStart(2, '0')).join('');
+        const n = normHex(c); if (n) setColor(n);
+      }).catch(() => { /* closed with Esc: nothing to do */ });
     });
     const hex = $('#hex');
     if (hex) {
