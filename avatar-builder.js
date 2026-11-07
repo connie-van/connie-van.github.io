@@ -660,8 +660,9 @@
     root.style.setProperty('--holo-i', HOLO.intensity);
     const sample = document.querySelector('#body-left .tile.collect');
     root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0, HOLO.dot));
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
     let cur = null, frame = 0, last = null;
-    const off = t => t.classList.remove('hov');
+    const off = t => { t.classList.remove('hov'); t.style.removeProperty('transform'); };
     const paint = () => {
       frame = 0; if (!cur || !last) return;
       const r = cur.getBoundingClientRect();
@@ -670,6 +671,9 @@
       // the foil and the shine travel the same distance, in the same direction, as the cursor moves
       st.setProperty('--bx', (40 + x * 20).toFixed(1) + '%'); st.setProperty('--by', (40 + y * 20).toFixed(1) + '%');
       st.setProperty('--shx', (-15 + x * 130).toFixed(1) + '%'); st.setProperty('--shy', (-15 + y * 130).toFixed(1) + '%');
+      // a very small tilt toward the cursor and a hair of scale (HOLO.tilt, HOLO.lift); none with reduced motion
+      const t = still.matches ? 0 : (HOLO.tilt || 0), k = still.matches ? 1 : (HOLO.lift || 1);
+      st.transform = (t || k !== 1) ? 'perspective(900px) rotateX(' + ((0.5 - y) * 2 * t).toFixed(2) + 'deg) rotateY(' + ((x - 0.5) * 2 * t).toFixed(2) + 'deg) scale(' + k + ')' : '';
     };
     const body = document.getElementById('body-left');
     body.addEventListener('pointermove', e => {

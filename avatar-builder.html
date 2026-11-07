@@ -61,6 +61,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
 /* collectible Outfits tiles also get the main display's rounded corners (AVATAR_CORNER); every other tile stays square */
 .tile.collect,.tile.collect .thumb,.tile.collect .holo,.tile.collect .shine{border-radius:calc(var(--corner,0) * 100%) / calc(var(--corner,0) * 75%)}
 .tile.collect .thumb{overflow:hidden}
+/* the slight tilt and lift on hover (HOLO.tilt / HOLO.lift): eases in and settles back gently */
+.tile.collect{transition:transform .3s ease-out}
+.tile.collect.hov{z-index:3;transition:transform .15s ease-out}
 .tile.collect.on::after{top:7px;right:9px;z-index:4}
 .tile.collect .holo,.tile.collect .shine{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;transition:opacity .3s;
   -webkit-mask-image:var(--holo-mask,none);mask-image:var(--holo-mask,none);-webkit-mask-size:100% 100%;mask-size:100% 100%}
