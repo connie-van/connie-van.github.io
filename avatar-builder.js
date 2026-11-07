@@ -558,13 +558,41 @@
     const url = window.URL && URL.createObjectURL ? URL.createObjectURL(new Blob([t], { type: 'image/svg+xml' })) : 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(t);
     return Object.assign({ src: url }, extra);
   }
+  // A recolorable vector SVG: drawn entirely in vector shapes (no embedded image), with marker-colored shapes for Skin / Eyes / Hair.
+  // It keeps its own styles (opacity, clip paths and so on), so instead of being taken apart it is used whole: its class names and ids
+  // get a prefix unique to the file (so two SVGs on the page can't clash), and its marker colors become the Skin / Eyes / Hair colors.
+  let vectorCount = 0;
+  function scopedVector(text, extra) {
+    const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+    if (doc.getElementsByTagName('parsererror').length) throw new Error('not a valid SVG');
+    const rootEl = doc.documentElement, vb = rootEl.getAttribute('viewBox') || VB(), p = 'v' + (++vectorCount) + '-';
+    const marker = c => MARKERS[String(c).trim().toLowerCase()];
+    const swap = body => body.replace(/(fill|stroke)\s*:\s*([^;}]+)/gi, (m, prop, val) => marker(val) ? prop + ':var(--' + marker(val) + ')' : m);
+    Array.prototype.forEach.call(rootEl.querySelectorAll('*'), el => {
+      if (el.localName === 'style') {
+        el.textContent = String(el.textContent).replace(/([^{}]+)\{([^}]*)\}/g, (m, sel, body) => sel.replace(/\.([A-Za-z_][\w-]*)/g, '.' + p + '$1') + '{' + swap(body) + '}');
+        return;
+      }
+      if (el.id) el.id = p + el.id;
+      if (el.getAttribute('class')) el.setAttribute('class', el.getAttribute('class').trim().split(/\s+/).map(c => p + c).join(' '));
+      ['fill', 'stroke'].forEach(a => { const v = el.getAttribute(a); if (v && marker(v)) { el.removeAttribute(a); el.setAttribute('style', (el.getAttribute('style') || '') + ';' + a + ':var(--' + marker(v) + ')'); } });
+      Array.prototype.forEach.call(el.attributes, a => {
+        if (/url\(#/.test(a.value)) a.value = a.value.replace(/url\(#([^)]+)\)/g, 'url(#' + p + '$1)');
+        if ((a.name === 'href' || a.name === 'xlink:href') && a.value.charAt(0) === '#') a.value = '#' + p + a.value.slice(1);
+      });
+      if (el.getAttribute('style')) el.setAttribute('style', swap(el.getAttribute('style')).replace(/url\(#([^)]+)\)/g, 'url(#' + p + '$1)'));
+    });
+    const ser = new XMLSerializer();
+    const inner = Array.prototype.map.call(rootEl.childNodes, n => n.nodeType === 1 ? ser.serializeToString(n) : '').join('').replace(/ xmlns="http:\/\/www\.w3\.org\/2000\/svg"/g, '');
+    return [Object.assign({ svg: inner, vb: vb }, extra)];
+  }
   function loadArt() {
     const jobs = [], found = [];
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => {
       (it.layers || []).forEach((l, i) => {
         if (!l.svgSrc) return;
         jobs.push(fetch(l.svgSrc).then(r => { if (!r.ok) throw new Error(l.svgSrc + ' (' + r.status + ')'); return r.text(); })
-          .then(t => { const ex = l.z != null ? { z: l.z } : {}; found.push([it, i, isPlainVector(t) ? [plainVectorLayer(t, ex)] : expandSvg(t, ex)]); }));
+          .then(t => { const ex = l.z != null ? { z: l.z } : {}; found.push([it, i, isPlainVector(t) ? [plainVectorLayer(t, ex)] : /<image\b/i.test(t) ? expandSvg(t, ex) : scopedVector(t, ex)]); }));
       });
     }));
     return Promise.all(jobs).then(() => {

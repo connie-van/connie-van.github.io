@@ -88,7 +88,10 @@ const SETS = {
   // plain full-color SVGs (used as images, nothing recolorable); no accessories
   'pickle-guy': { name: 'Pickle Guy', background: 'pickle', collectible: true },
   // full-color PNGs, nothing recolorable; no hat, no accessories
-  'gummy': { name: 'Gummy', background: 'gummy', collectible: true }
+  'gummy': { name: 'Gummy', background: 'gummy', collectible: true },
+  // Reddit work, not collectible: no outfit and no background, just individual pieces (two tops, back and front accessories).
+  // Vector SVGs; the lime shapes (hands and arms) take the Skin color.
+  'june23': { name: 'June 23', collectible: false, colors: { body: '#FFFFFF' } }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -108,6 +111,7 @@ const stitch = inSet('snitches-get-stitches');
 const dead = inSet('deadass');
 const pickle = inSet('pickle-guy');
 const gummy = inSet('gummy');
+const june = inSet('june23');
 
 const TRAITS = {
   outfits: [
@@ -150,7 +154,9 @@ const TRAITS = {
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Patchwork torso', layers: [stitch.layer('body_001_2x.png')] },
     { id: 'deadass', set: 'deadass', name: 'Puffer jacket', layers: [dead.layer('body_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle top', layers: [pickle.layer('body_002.svg')] },
-    { id: 'gummy', set: 'gummy', name: 'Gummy top', layers: [gummy.layer('body_003_2x.png')] }
+    { id: 'gummy', set: 'gummy', name: 'Gummy top', layers: [gummy.layer('body_003_2x.png')] },
+    { id: 'love-wins-tee', set: 'june23', name: 'Love Wins tee', layers: [june.svg('body_001.svg')] },
+    { id: 'rainbow-tee', set: 'june23', name: 'Black rainbow tee', layers: [june.svg('body_008.svg')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -213,7 +219,16 @@ const TRAITS = {
     { id: 'ghosts', set: 'guardian-of-the-realms', name: 'Ghosts', layers: [guard.layer('accessory_003_2x.png')] },
     { id: 'skull-flame', set: 'eye-of-the-beholder', name: 'Skull flame', layers: [eye.layer('accessory_002_2x.png')] },
     { id: 'needle', set: 'snitches-get-stitches', name: 'Needle and thread', layers: [stitch.layer('accessory_001_2x.png')] },
-    { id: 'pizza-rat', set: 'deadass', name: 'Pizza rat', layers: [dead.layer('accessory_001_2x.png')] }
+    { id: 'pizza-rat', set: 'deadass', name: 'Pizza rat', layers: [dead.layer('accessory_001_2x.png')] },
+    { id: 'rainbow-heart', set: 'june23', name: 'Rainbow heart', layers: [june.svg('accessory_001.svg')] },
+    { id: 'trans-heart', set: 'june23', name: 'Trans flag heart', layers: [june.svg('accessory_002.svg')] },
+    { id: 'lesbian-heart', set: 'june23', name: 'Lesbian flag heart', layers: [june.svg('accessory_003.svg')] },
+    { id: 'bi-heart', set: 'june23', name: 'Bi flag heart', layers: [june.svg('accessory_004.svg')] },
+    { id: 'nonbinary-heart', set: 'june23', name: 'Nonbinary flag heart', layers: [june.svg('accessory_005.svg')] },
+    { id: 'pan-heart', set: 'june23', name: 'Pan flag heart', layers: [june.svg('accessory_006.svg')] },
+    { id: 'ace-heart', set: 'june23', name: 'Ace flag heart', layers: [june.svg('accessory_007.svg')] },
+    { id: 'pan-african-heart', set: 'june23', name: 'Pan-African flag heart', layers: [june.svg('accessory_008.svg')] },
+    { id: 'juneteenth-heart', set: 'june23', name: 'Juneteenth flag heart', layers: [june.svg('accessory_009.svg')] }
   ],
   leftHand: [                                                                                                 // acc back (between the top and the head)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
@@ -225,7 +240,10 @@ const TRAITS = {
     // the sparkles are near-white, so their tile gets a light tint of the Realms night color behind them
     { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x.png')], tileBg: '#15121F', tileBgOpacity: 0.25 },
     { id: 'skull-flame-back', set: 'eye-of-the-beholder', name: 'Skull flame (back)', layers: [eye.layer('accessory_back_002_2x.png')] },
-    { id: 'heart', set: 'snitches-get-stitches', name: 'Stitched heart', layers: [stitch.layer('accessory_back_001_2x.png')] }
+    { id: 'heart', set: 'snitches-get-stitches', name: 'Stitched heart', layers: [stitch.layer('accessory_back_001_2x.png')] },
+    { id: 'iced-coffee', set: 'june23', name: 'Iced coffee', layers: [june.svg('accessory_back_001.svg')] },
+    { id: 'iced-matcha', set: 'june23', name: 'Iced matcha', layers: [june.svg('accessory_back_002.svg')] },
+    { id: 'juneteenth-heart-back', set: 'june23', name: 'Juneteenth flag heart (back)', layers: [june.svg('accessory_back_009.svg')] }
   ],
   backgrounds: [
     { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] },
