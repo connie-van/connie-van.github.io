@@ -156,11 +156,9 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', sets: { tops: 'beholder', bottoms: 'beholder', face: 'beholder', eyes: 'beholder', leftHand: 'skull-flame-back', rightHand: 'skull-flame' } },
     // no hat: wearing it takes any hat off
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
-    // onboarding outfits (no background: worn on transparency). Alt grunge wears the sunglasses; it has no hair and no front accessory.
+    // onboarding outfits (no background: worn on transparency). None has a front accessory; Alt grunge has no hair.
     { id: 'altgrunge', set: 'onboarding24', name: 'Alt grunge', sets: { tops: 'altgrunge', bottoms: 'altgrunge', face: 'altgrunge', eyes: 'altgrunge-sunglasses', hats: 'altgrunge-hood', leftHand: 'altgrunge-phone' } },
-    // Funky has no eyes of its own and no front accessory, so wearing it takes those off
-    { id: 'funky', set: 'onboarding24', name: 'Funky', sets: { tops: 'funky', bottoms: 'funky', face: 'funky', hair: 'funky', hats: 'funky-visor', leftHand: 'funky-juice' } },
-    // no front accessory in either gamer outfit
+    { id: 'funky', set: 'onboarding24', name: 'Funky', sets: { tops: 'funky', bottoms: 'funky', face: 'funky', eyes: 'funky', hair: 'funky', hats: 'funky-visor', leftHand: 'funky-juice' } },
     { id: 'gamergirl', set: 'onboarding24', name: 'Gamer girl', sets: { tops: 'gamergirl', bottoms: 'gamergirl', face: 'gamergirl', eyes: 'gamergirl', hair: 'gamergirl', hats: 'gamergirl-headset', leftHand: 'gamergirl-controller' } },
     { id: 'gamerguy', set: 'onboarding24', name: 'Gamer guy', sets: { tops: 'gamerguy', bottoms: 'gamerguy', face: 'gamerguy', eyes: 'gamerguy', hair: 'gamerguy', hats: 'gamerguy-headset', leftHand: 'gamerguy-joystick' } },
     { id: 'genz', set: 'onboarding24', name: 'Gen Z', sets: { tops: 'genz', bottoms: 'genz', face: 'genz', eyes: 'genz', hair: 'genz', hats: 'genz-bucket-hat', leftHand: 'genz-bag' } },
@@ -274,7 +272,7 @@ const TRAITS = {
     { id: 'lidded-eyes-lashes', set: 'bhm23', name: 'Lidded eyes with lashes', layers: [bhm.svg('face_upper_008.svg')] },
     { id: 'side-eye', set: 'bhm23', name: 'Side-eye', layers: [bhm.svg('face_upper_010.svg')] },
     { id: 'altgrunge-sunglasses', set: 'onboarding24', name: 'Sunglasses', layers: [onb.svg('altgrunge-upperface.svg')] },
-    { id: 'altgrunge-eyes', set: 'onboarding24', name: 'Sleepy eyes', layers: [onb.svg('altgrunge-upperface-nosunnies.svg')] },
+    { id: 'funky', set: 'onboarding24', name: 'Sleepy eyes', layers: [onb.svg('funky-upperface.svg')] },
     { id: 'gamergirl', set: 'onboarding24', name: 'Lash flick eyes', layers: [onb.svg('gamergirl-upperface.svg')] },
     { id: 'gamerguy', set: 'onboarding24', name: 'Focused eyes', layers: [onb.svg('gamerguy-upperface.svg')] },
     { id: 'genz', set: 'onboarding24', name: 'Sparkle eyes', layers: [onb.svg('genz-upperface.svg')] },
