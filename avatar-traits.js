@@ -65,9 +65,14 @@ const HIDE_EMPTY_TABS = false;
 //   colors:      the set's ORIGINAL colors (body = skin, eyes, hair). The Outfits tab always shows the set in these, and picking
 //                the outfit puts them on the avatar. Leave a color out if the set doesn't have one: that color is left as it is.
 //   background:  the id of the set's paired background image. Picking the outfit switches to it. Leave it out if the set has none.
-// REDDIT WORK: a set with  reddit: true  was made for Reddit (as opposed to the personal creator-program sets). Every one of its trait
-// tiles gets an orange tab with a star on its left edge that opens to "Made 4 Reddit" on hover. An item can set its own tab text with
-// tag: '...' (the base Snoo pieces use tag: 'By Reddit', since Reddit made those, not me).
+// MENU SECTIONS: every tab groups its tiles under dividers, in this order. A trait's section comes from its set:
+//   'personal' = my own creator-program sets; 'reddit' = a set with  reddit: true  (work I made for Reddit);
+//   'base' = an item with  base: true  (the base Snoo, made by Reddit). Empty sections are skipped. Change the labels here.
+const SECTIONS = [
+  { key: 'personal', label: 'Made 4 Reddit creator program' },
+  { key: 'reddit', label: 'Made 4 Reddit' },
+  { key: 'base', label: 'Snoo base \u00b7 by Reddit' }
+];
 // COLLECTIBLE: a set with  collectible: true  is part of the collectible line. Its Outfits tile gets the holographic hover (HOLO below);
 // a set without it (anything added later that isn't collectible) shows a plain tile. Its traits belong to the set, so they share the flag.
 const SETS = {
@@ -145,7 +150,7 @@ const TRAITS = {
     // no hat: wearing it takes any hat off
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
     // the base Snoo, whole: head, eyes, body and legs; wearing it takes off hair, hat and accessories (it has no background, so the current one stays)
-    { id: 'snoo', set: 'bhm23', name: 'Snoo', tag: 'By Reddit', sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } }
+    { id: 'snoo', set: 'bhm23', name: 'Snoo', base: true, sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -167,7 +172,7 @@ const TRAITS = {
     { id: 'gummy', set: 'gummy', name: 'Gummy top', layers: [gummy.layer('body_003_2x.png')] },
     { id: 'love-wins-tee', set: 'june23', name: 'Love Wins tee', layers: [june.svg('body_001.svg')] },
     { id: 'rainbow-tee', set: 'june23', name: 'Black rainbow tee', layers: [june.svg('body_008.svg')] },
-    { id: 'snoo-body', set: 'bhm23', name: 'Snoo body', tag: 'By Reddit', layers: [bhm.svg('body_013.svg')] }
+    { id: 'snoo-body', set: 'bhm23', name: 'Snoo body', base: true, layers: [bhm.svg('body_013.svg')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -183,7 +188,7 @@ const TRAITS = {
     { id: 'deadass', set: 'deadass', name: 'Jeans and boots', layers: [dead.layer('body_bottom_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle bottom', layers: [pickle.layer('body_bottom_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy bottom', layers: [gummy.layer('body_bottom_003_2x.png')] },
-    { id: 'snoo-legs', set: 'bhm23', name: 'Snoo legs', tag: 'By Reddit', layers: [bhm.svg('body_bottom_013.svg')] }
+    { id: 'snoo-legs', set: 'bhm23', name: 'Snoo legs', base: true, layers: [bhm.svg('body_bottom_013.svg')] }
   ],
   hair: [
     { id: 'buns-braids', set: 'bhm23', name: 'Space buns with braids', layers: [bhm.svg('hair_back_004.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_004.svg')] },
@@ -212,7 +217,7 @@ const TRAITS = {
     { id: 'deadass', set: 'deadass', name: 'Skull', layers: [dead.layer('face_lower_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle head', layers: [pickle.layer('face_lower_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy head', layers: [gummy.layer('face_lower_003_2x.png')] },
-    { id: 'snoo-head', set: 'bhm23', name: 'Snoo head', tag: 'By Reddit', layers: [bhm.svg('face_lower_013.svg')] }
+    { id: 'snoo-head', set: 'bhm23', name: 'Snoo head', base: true, layers: [bhm.svg('face_lower_013.svg')] }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
@@ -229,7 +234,7 @@ const TRAITS = {
     { id: 'lidded-eyes', set: 'bhm23', name: 'Lidded eyes', layers: [bhm.svg('face_upper_005.svg')] },
     { id: 'lidded-eyes-lashes', set: 'bhm23', name: 'Lidded eyes with lashes', layers: [bhm.svg('face_upper_008.svg')] },
     { id: 'side-eye', set: 'bhm23', name: 'Side-eye', layers: [bhm.svg('face_upper_010.svg')] },
-    { id: 'snoo-eyes', set: 'bhm23', name: 'Snoo eyes', tag: 'By Reddit', layers: [bhm.svg('face_upper_013.svg')] }
+    { id: 'snoo-eyes', set: 'bhm23', name: 'Snoo eyes', base: true, layers: [bhm.svg('face_upper_013.svg')] }
   ],
   hats: [                                                                                                     // head accessory
     { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },

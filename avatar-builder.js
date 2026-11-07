@@ -258,7 +258,7 @@
       const set = SETS[it.set], look = Object.assign(outfitLook(it), { backgrounds: set && set.background ? set.background : null });
       const sbg = set && set.background && find('backgrounds', set.background);
       const collect = !!(set && set.collectible);
-      cls += ' bg fit' + (sbg && sbg.starLight ? ' lt' : '') + (collect ? ' collect' : '');
+      cls += ' bg fit' + (sbg && sbg.starLight ? ' lt' : '') + (collect ? ' collect' : '') + (sbg ? '' : ' nobg');
       thumb = '<div class="thumb"><div class="avatar">' + layersInner(look) + '</div></div>' + (collect ? '<span class="holo" aria-hidden="true"></span><span class="shine" aria-hidden="true"></span>' : '');
     } else if (it) {
       thumb = '<div class="thumb iso">' + viewHtml(cat === 'outfits' ? layersInner(outfitLook(it), { noBg: true }) : itemInner(cat, it), it.cropF) + '</div>';
@@ -268,20 +268,24 @@
     else if (it && cat !== 'backgrounds' && it.originalInMenu !== false) { const o = ogTile(it); cls += o.cls; extra = o.style ? ' style="' + o.style + '"' : ''; }   // original colors until the visitor picks their own
     // tileBg: a backing color for light artwork that would vanish on the paper-colored tile
     if (it && it.tileBg) { const tb = tileBgCss(it); cls += ' dark' + (it.starLight ? ' lt' : ''); extra = extra ? extra.replace(/"$/, ';background:' + tb + '"') : ' style="background:' + tb + '"'; }
-    // Reddit work (a set with reddit: true): an orange tab with a star on the tile's left edge that opens on hover to say "Made 4 Reddit",
-    // or the item's own `tag` text (the base Snoo pieces, which Reddit made, say "By Reddit")
-    const reddit = !!(it && SETS[it.set] && SETS[it.set].reddit);
-    const tagText = reddit ? (it.tag || 'Made 4 Reddit') : '';
-    const label = name + (reddit ? ' (' + tagText + ')' : '');
-    const tag = reddit ? '<span class="rtag" aria-hidden="true"><span class="rtag-star">\u2736</span><span class="rtag-txt">' + esc(tagText) + '</span></span>' : '';
-    return '<button class="' + cls + (on ? ' on' : '') + (reddit ? ' reddit' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' +
-      thumb + (it ? '' : '<span class="nlabel">None</span>') + tag + '</button>';
+    return '<button class="' + cls + (on ? ' on' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
+      thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
+  // which section a trait belongs to: the base Snoo pieces (base: true), Reddit work (its set has reddit: true), or a personal set
+  const sectionOf = it => it.base ? 'base' : (SETS[it.set] && SETS[it.set].reddit ? 'reddit' : 'personal');
   function renderGrid(body, cat) {
     if (!TRAITS[cat].length) { body.innerHTML = '<p class="empty"><span class="star" aria-hidden="true">\u2736</span>Nothing in ' + esc(LABEL[cat]) + ' yet</p>'; return; }
-    let html = '<div class="grid">';
-    if (cat !== 'outfits' && !isRequired(cat)) html += tile(cat, null, 0);      // optional traits get a None tile
-    TRAITS[cat].forEach((it, i) => { html += tile(cat, it, i); });
+    // tiles are grouped into SECTIONS (avatar-traits.js), each under a divider, in that order; the None tile opens the first one
+    let html = '<div class="grid">', first = true;
+    SECTIONS.forEach(sec => {
+      const items = [];
+      TRAITS[cat].forEach((it, i) => { if (sectionOf(it) === sec.key) items.push([it, i]); });
+      if (!items.length) return;
+      html += '<h3 class="sec' + (first ? ' first' : '') + '">' + esc(sec.label) + '</h3>';
+      if (first && cat !== 'outfits' && !isRequired(cat)) html += tile(cat, null, 0);   // optional traits get a None tile
+      items.forEach(x => { html += tile(cat, x[0], x[1]); });
+      first = false;
+    });
     body.innerHTML = html + '</div>';
   }
   function renderSide(s) {

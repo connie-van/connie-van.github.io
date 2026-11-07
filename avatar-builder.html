@@ -39,16 +39,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
 /* ---------- trait tiles ---------- */
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:30px;row-gap:20px;align-items:start}
 .tile{position:relative;display:block;width:100%;aspect-ratio:1;border:1px solid var(--ink)}
-/* Reddit work: an orange tab hanging off the tile's left edge, just a star until the tile is hovered, then it opens to "Made 4 Reddit" (or "By Reddit" on the base Snoo) */
-.tile.reddit:hover,.tile.reddit:focus-visible{z-index:5}
-.rtag{position:absolute;left:-6px;bottom:7%;z-index:5;display:flex;align-items:center;gap:7px;height:18px;padding:0 6px;
-  max-width:24px;overflow:hidden;white-space:nowrap;background:#EB5528;color:var(--paper);pointer-events:none;
-  font:500 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;transition:max-width .25s ease-out}
-.rtag-star{flex:none;width:12px;text-align:center;font:400 12px/1 'Noto Star',sans-serif}
-.rtag-txt{opacity:0;transition:opacity .15s}
-.tile.reddit:hover .rtag,.tile.reddit:focus-visible .rtag{max-width:170px}
-.tile.reddit:hover .rtag-txt,.tile.reddit:focus-visible .rtag-txt{opacity:1;transition-delay:.05s}
-@media (prefers-reduced-motion:reduce){.rtag,.rtag-txt{transition:none}}
+/* an outfit with no background (the Snoo) keeps a thin frame like the trait tiles, so it doesn't float */
+.tile.bg.nobg{border:1px solid var(--ink)}
+/* section dividers in the menus (SECTIONS in avatar-traits.js): a label and a line across the full width of the grid */
+.sec{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:18px 0 2px;font:500 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.sec.first{margin-top:0}
+.sec::after{content:"";flex:1;height:1px;background:var(--ink)}
 .tile:hover{box-shadow:inset 0 0 0 1px rgba(20,17,15,.4)}
 .tile.on,.tile.on:hover{box-shadow:inset 0 0 0 1px var(--ink)}
 .tile.on::after{content:"\2736";position:absolute;top:4px;right:6px;font:400 13px/1 'Noto Star',sans-serif;color:var(--ink)}
