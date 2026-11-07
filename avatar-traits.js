@@ -91,7 +91,11 @@ const SETS = {
   'gummy': { name: 'Gummy', background: 'gummy', collectible: true },
   // Reddit work, not collectible: no outfit and no background, just individual pieces (two tops, back and front accessories).
   // Vector SVGs; the lime shapes (hands and arms) take the Skin color.
-  'june23': { name: 'June 23', collectible: false, colors: { body: '#FFFFFF' } }
+  'june23': { name: 'June 23', collectible: false, colors: { body: '#FFFFFF' } },
+  // Reddit work, not collectible: single traits only (no outfit, no background), including the base Snoo (head, eyes, body, legs).
+  // Vector SVGs: lime shapes take the Skin color,
+  // yellow the Eyes color, blue the Hair color. No original colors given, so its tiles show the visitor's current colors.
+  'bhm23': { name: 'BHM 23', collectible: false }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -112,6 +116,7 @@ const dead = inSet('deadass');
 const pickle = inSet('pickle-guy');
 const gummy = inSet('gummy');
 const june = inSet('june23');
+const bhm = inSet('bhm23');
 
 const TRAITS = {
   outfits: [
@@ -156,7 +161,8 @@ const TRAITS = {
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle top', layers: [pickle.layer('body_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy top', layers: [gummy.layer('body_003_2x.png')] },
     { id: 'love-wins-tee', set: 'june23', name: 'Love Wins tee', layers: [june.svg('body_001.svg')] },
-    { id: 'rainbow-tee', set: 'june23', name: 'Black rainbow tee', layers: [june.svg('body_008.svg')] }
+    { id: 'rainbow-tee', set: 'june23', name: 'Black rainbow tee', layers: [june.svg('body_008.svg')] },
+    { id: 'snoo-body', set: 'bhm23', name: 'Snoo body', layers: [bhm.svg('body_013.svg')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -171,9 +177,23 @@ const TRAITS = {
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Patchwork legs', layers: [stitch.layer('body_bottom_001_2x.png')] },
     { id: 'deadass', set: 'deadass', name: 'Jeans and boots', layers: [dead.layer('body_bottom_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle bottom', layers: [pickle.layer('body_bottom_002.svg')] },
-    { id: 'gummy', set: 'gummy', name: 'Gummy bottom', layers: [gummy.layer('body_bottom_003_2x.png')] }
+    { id: 'gummy', set: 'gummy', name: 'Gummy bottom', layers: [gummy.layer('body_bottom_003_2x.png')] },
+    { id: 'snoo-legs', set: 'bhm23', name: 'Snoo legs', layers: [bhm.svg('body_bottom_013.svg')] }
   ],
-  hair: [],
+  hair: [
+    { id: 'buns-braids', set: 'bhm23', name: 'Space buns with braids', layers: [bhm.svg('hair_back_004.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_004.svg')] },
+    { id: 'long-waves', set: 'bhm23', name: 'Long waves', layers: [bhm.svg('hair_back_005.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_005.svg')] },
+    { id: 'short-bob', set: 'bhm23', name: 'Short bob', layers: [bhm.svg('hair_back_006.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_006.svg')] },
+    { id: 'swept-fringe', set: 'bhm23', name: 'Swept fringe', layers: [bhm.svg('hair_007.svg')] },
+    { id: 'locs', set: 'bhm23', name: 'Locs', layers: [bhm.svg('hair_back_008.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_008.svg')] },
+    { id: 'curls', set: 'bhm23', name: 'Curls', layers: [bhm.svg('hair_back_009.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_009.svg')] },
+    { id: 'box-braids', set: 'bhm23', name: 'Braids', layers: [bhm.svg('hair_010.svg')] },
+    { id: 'braids-bun', set: 'bhm23', name: 'Braids with bun', layers: [bhm.svg('hair_back_011.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_011.svg')] },
+    { id: 'swoop-puff', set: 'bhm23', name: 'Swoop with puff', layers: [bhm.svg('hair_back_012.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_012.svg')] },
+    { id: 'curls-headwrap', set: 'bhm23', name: 'Curls with headwrap', layers: [bhm.svg('hair_001.svg')] },
+    { id: 'beaded-braids', set: 'bhm23', name: 'Beaded braids', layers: [bhm.svg('hair_back_002.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_002.svg')] },
+    { id: 'knotted-updo', set: 'bhm23', name: 'Knotted updo', layers: [bhm.svg('hair_back_003.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_003.svg')] }
+  ],
   face: [                                                                                                     // lower face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_lower_003.svg')] },
     { id: 'set-004', set: 'lil-bliss', name: 'Set 004', layers: [bliss.svg('combined-face_lower_004.svg')] },
@@ -186,7 +206,8 @@ const TRAITS = {
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Voodoo head', layers: [stitch.layer('face_lower_001_2x.png')] },
     { id: 'deadass', set: 'deadass', name: 'Skull', layers: [dead.layer('face_lower_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle head', layers: [pickle.layer('face_lower_002.svg')] },
-    { id: 'gummy', set: 'gummy', name: 'Gummy head', layers: [gummy.layer('face_lower_003_2x.png')] }
+    { id: 'gummy', set: 'gummy', name: 'Gummy head', layers: [gummy.layer('face_lower_003_2x.png')] },
+    { id: 'snoo-head', set: 'bhm23', name: 'Snoo head', layers: [bhm.svg('face_lower_013.svg')] }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
@@ -199,7 +220,13 @@ const TRAITS = {
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Button eye', layers: [stitch.layer('face_upper_001_2x.png')] },
     { id: 'deadass', set: 'deadass', name: 'Eye sockets', layers: [dead.layer('face_upper_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle eyes', layers: [pickle.layer('face_upper_002.svg')] },
-    { id: 'gummy', set: 'gummy', name: 'Gummy eyes', layers: [gummy.layer('face_upper_003_2x.png')] }
+    { id: 'gummy', set: 'gummy', name: 'Gummy eyes', layers: [gummy.layer('face_upper_003_2x.png')] },
+    { id: 'lidded-eyes', set: 'bhm23', name: 'Lidded eyes', layers: [bhm.svg('face_upper_005.svg')] },
+    { id: 'lidded-eyes-lashes', set: 'bhm23', name: 'Lidded eyes with lashes', layers: [bhm.svg('face_upper_008.svg')] },
+    { id: 'side-eye', set: 'bhm23', name: 'Side-eye', layers: [bhm.svg('face_upper_010.svg')] },
+    { id: 'lidded-eyes-white', set: 'bhm23', name: 'Lidded eyes, white lids', layers: [bhm.svg('face_upper_005_1.svg')] },
+    { id: 'lidded-eyes-lashes-white', set: 'bhm23', name: 'Lidded eyes with lashes, white lids', layers: [bhm.svg('face_upper_008_1.svg')] },
+    { id: 'snoo-eyes', set: 'bhm23', name: 'Snoo eyes', layers: [bhm.svg('face_upper_013.svg')] }
   ],
   hats: [                                                                                                     // head accessory
     { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },
@@ -207,7 +234,10 @@ const TRAITS = {
     { id: 'imp', set: 'lil-blaze', name: 'Imp', layers: [blaze.svg('combined-head_accessory_005.svg')] },
     { id: 'bandage', set: 'mr-bossman', name: 'Bandage', layers: [boss.layer('head_accessory_001_2x.png')] },
     { id: 'ny-cap', set: 'deadass', name: 'NY cap', layers: [dead.layer('head_accessory_001_2x.png')] },
-    { id: 'pickle-hat', set: 'pickle-guy', name: 'Pickle hat', layers: [pickle.layer('head_accessory_002.svg')] }
+    { id: 'pickle-hat', set: 'pickle-guy', name: 'Pickle hat', layers: [pickle.layer('head_accessory_002.svg')] },
+    { id: 'gold-earrings', set: 'bhm23', name: 'Gold earrings', layers: [bhm.svg('head_accessory_005.svg')] },
+    { id: 'gold-studs', set: 'bhm23', name: 'Gold studs', layers: [bhm.svg('head_accessory_001.svg')] },
+    { id: 'gold-hoops', set: 'bhm23', name: 'Gold hoops', layers: [bhm.svg('head_accessory_003.svg')] }
   ],
   rightHand: [                                                                                                // acc front
     { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
@@ -243,7 +273,11 @@ const TRAITS = {
     { id: 'heart', set: 'snitches-get-stitches', name: 'Stitched heart', layers: [stitch.layer('accessory_back_001_2x.png')] },
     { id: 'iced-coffee', set: 'june23', name: 'Iced coffee', layers: [june.svg('accessory_back_001.svg')] },
     { id: 'iced-matcha', set: 'june23', name: 'Iced matcha', layers: [june.svg('accessory_back_002.svg')] },
-    { id: 'juneteenth-heart-back', set: 'june23', name: 'Juneteenth flag heart (back)', layers: [june.svg('accessory_back_009.svg')] }
+    { id: 'juneteenth-heart-back', set: 'june23', name: 'Juneteenth flag heart (back)', layers: [june.svg('accessory_back_009.svg')] },
+    { id: 'nameplate', set: 'bhm23', name: 'Nameplate necklace', layers: [bhm.svg('accessory_back_004.svg')] },
+    { id: 'gold-chain', set: 'bhm23', name: 'Gold chain', layers: [bhm.svg('accessory_back_006.svg')] },
+    { id: 'gold-charm', set: 'bhm23', name: 'Gold charm necklace', layers: [bhm.svg('accessory_back_007.svg')] },
+    { id: 'snoo-medallion', set: 'bhm23', name: 'Snoo medallion', layers: [bhm.svg('accessory_back_011.svg')] }
   ],
   backgrounds: [
     { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] },
