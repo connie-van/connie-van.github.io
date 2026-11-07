@@ -65,6 +65,8 @@ const HIDE_EMPTY_TABS = false;
 //   colors:      the set's ORIGINAL colors (body = skin, eyes, hair). The Outfits tab always shows the set in these, and picking
 //                the outfit puts them on the avatar. Leave a color out if the set doesn't have one: that color is left as it is.
 //   background:  the id of the set's paired background image. Picking the outfit switches to it. Leave it out if the set has none.
+// REDDIT WORK: a set with  reddit: true  was made for Reddit (as opposed to the personal creator-program sets). Every one of its trait
+// tiles gets an orange tab with a star on its left edge that opens to "Made for Reddit" on hover.
 // COLLECTIBLE: a set with  collectible: true  is part of the collectible line. Its Outfits tile gets the holographic hover (HOLO below);
 // a set without it (anything added later that isn't collectible) shows a plain tile. Its traits belong to the set, so they share the flag.
 const SETS = {
@@ -91,11 +93,11 @@ const SETS = {
   'gummy': { name: 'Gummy', background: 'gummy', collectible: true },
   // Reddit work, not collectible: no outfit and no background, just individual pieces (two tops, back and front accessories).
   // Vector SVGs; the lime shapes (hands and arms) take the Skin color.
-  'june23': { name: 'June 23', collectible: false, colors: { body: '#FFFFFF' } },
+  'june23': { name: 'June 23', collectible: false, reddit: true, colors: { body: '#FFFFFF' } },
   // Reddit work, not collectible: single traits only (no outfit, no background), including the base Snoo (head, eyes, body, legs).
   // Vector SVGs: lime shapes take the Skin color,
-  // yellow the Eyes color, blue the Hair color. No original colors given, so its tiles show the visitor's current colors.
-  'bhm23': { name: 'BHM 23', collectible: false }
+  // yellow the Eyes color, blue the Hair color. Original colors are the classic Snoo's: white body, orange-red eyes.
+  'bhm23': { name: 'BHM 23', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#FF4500' } }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -140,7 +142,9 @@ const TRAITS = {
     // no hat: wearing it takes any hat off
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', sets: { tops: 'beholder', bottoms: 'beholder', face: 'beholder', eyes: 'beholder', leftHand: 'skull-flame-back', rightHand: 'skull-flame' } },
     // no hat: wearing it takes any hat off
-    { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } }
+    { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
+    // the base Snoo, whole: head, eyes, body and legs; wearing it takes off hair, hat and accessories (it has no background, so the current one stays)
+    { id: 'snoo', set: 'bhm23', name: 'Snoo', sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -224,8 +228,6 @@ const TRAITS = {
     { id: 'lidded-eyes', set: 'bhm23', name: 'Lidded eyes', layers: [bhm.svg('face_upper_005.svg')] },
     { id: 'lidded-eyes-lashes', set: 'bhm23', name: 'Lidded eyes with lashes', layers: [bhm.svg('face_upper_008.svg')] },
     { id: 'side-eye', set: 'bhm23', name: 'Side-eye', layers: [bhm.svg('face_upper_010.svg')] },
-    { id: 'lidded-eyes-white', set: 'bhm23', name: 'Lidded eyes, white lids', layers: [bhm.svg('face_upper_005_1.svg')] },
-    { id: 'lidded-eyes-lashes-white', set: 'bhm23', name: 'Lidded eyes with lashes, white lids', layers: [bhm.svg('face_upper_008_1.svg')] },
     { id: 'snoo-eyes', set: 'bhm23', name: 'Snoo eyes', layers: [bhm.svg('face_upper_013.svg')] }
   ],
   hats: [                                                                                                     // head accessory
@@ -271,8 +273,6 @@ const TRAITS = {
     { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x.png')], tileBg: '#15121F', tileBgOpacity: 0.25 },
     { id: 'skull-flame-back', set: 'eye-of-the-beholder', name: 'Skull flame (back)', layers: [eye.layer('accessory_back_002_2x.png')] },
     { id: 'heart', set: 'snitches-get-stitches', name: 'Stitched heart', layers: [stitch.layer('accessory_back_001_2x.png')] },
-    { id: 'iced-coffee', set: 'june23', name: 'Iced coffee', layers: [june.svg('accessory_back_001.svg')] },
-    { id: 'iced-matcha', set: 'june23', name: 'Iced matcha', layers: [june.svg('accessory_back_002.svg')] },
     { id: 'juneteenth-heart-back', set: 'june23', name: 'Juneteenth flag heart (back)', layers: [june.svg('accessory_back_009.svg')] },
     { id: 'nameplate', set: 'bhm23', name: 'Nameplate necklace', layers: [bhm.svg('accessory_back_004.svg')] },
     { id: 'gold-chain', set: 'bhm23', name: 'Gold chain', layers: [bhm.svg('accessory_back_006.svg')] },

@@ -268,8 +268,12 @@
     else if (it && cat !== 'backgrounds' && it.originalInMenu !== false) { const o = ogTile(it); cls += o.cls; extra = o.style ? ' style="' + o.style + '"' : ''; }   // original colors until the visitor picks their own
     // tileBg: a backing color for light artwork that would vanish on the paper-colored tile
     if (it && it.tileBg) { const tb = tileBgCss(it); cls += ' dark' + (it.starLight ? ' lt' : ''); extra = extra ? extra.replace(/"$/, ';background:' + tb + '"') : ' style="background:' + tb + '"'; }
-    return '<button class="' + cls + (on ? ' on' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
-      thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
+    // Reddit work (a set with reddit: true): an orange tab with a star on the tile's left edge that opens to say "Made for Reddit" on hover
+    const reddit = !!(it && SETS[it.set] && SETS[it.set].reddit);
+    const label = name + (reddit ? ' (Made for Reddit)' : '');
+    const tag = reddit ? '<span class="rtag" aria-hidden="true"><span class="rtag-star">\u2736</span><span class="rtag-txt">Made for Reddit</span></span>' : '';
+    return '<button class="' + cls + (on ? ' on' : '') + (reddit ? ' reddit' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' +
+      thumb + (it ? '' : '<span class="nlabel">None</span>') + tag + '</button>';
   }
   function renderGrid(body, cat) {
     if (!TRAITS[cat].length) { body.innerHTML = '<p class="empty"><span class="star" aria-hidden="true">\u2736</span>Nothing in ' + esc(LABEL[cat]) + ' yet</p>'; return; }
