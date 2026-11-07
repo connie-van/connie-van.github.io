@@ -268,10 +268,12 @@
     else if (it && cat !== 'backgrounds' && it.originalInMenu !== false) { const o = ogTile(it); cls += o.cls; extra = o.style ? ' style="' + o.style + '"' : ''; }   // original colors until the visitor picks their own
     // tileBg: a backing color for light artwork that would vanish on the paper-colored tile
     if (it && it.tileBg) { const tb = tileBgCss(it); cls += ' dark' + (it.starLight ? ' lt' : ''); extra = extra ? extra.replace(/"$/, ';background:' + tb + '"') : ' style="background:' + tb + '"'; }
-    // Reddit work (a set with reddit: true): an orange tab with a star on the tile's left edge that opens to say "Made for Reddit" on hover
+    // Reddit work (a set with reddit: true): an orange tab with a star on the tile's left edge that opens on hover to say "Made 4 Reddit",
+    // or the item's own `tag` text (the base Snoo pieces, which Reddit made, say "By Reddit")
     const reddit = !!(it && SETS[it.set] && SETS[it.set].reddit);
-    const label = name + (reddit ? ' (Made for Reddit)' : '');
-    const tag = reddit ? '<span class="rtag" aria-hidden="true"><span class="rtag-star">\u2736</span><span class="rtag-txt">Made for Reddit</span></span>' : '';
+    const tagText = reddit ? (it.tag || 'Made 4 Reddit') : '';
+    const label = name + (reddit ? ' (' + tagText + ')' : '');
+    const tag = reddit ? '<span class="rtag" aria-hidden="true"><span class="rtag-star">\u2736</span><span class="rtag-txt">' + esc(tagText) + '</span></span>' : '';
     return '<button class="' + cls + (on ? ' on' : '') + (reddit ? ' reddit' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + tag + '</button>';
   }
