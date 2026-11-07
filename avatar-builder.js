@@ -600,18 +600,24 @@
     return [Object.assign({ svg: inner, vb: vb }, extra)];
   }
   function loadArt() {
-    const jobs = [], found = [];
+    const jobs = [], found = [], broken = new Set();
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => {
       (it.layers || []).forEach((l, i) => {
         if (!l.svgSrc) return;
         jobs.push(fetch(l.svgSrc).then(r => { if (!r.ok) throw new Error(l.svgSrc + ' (' + r.status + ')'); return r.text(); })
-          .then(t => { const ex = l.z != null ? { z: l.z } : {}; found.push([it, i, isPlainVector(t) ? [plainVectorLayer(t, ex)] : /<image\b/i.test(t) ? expandSvg(t, ex) : scopedVector(t, ex)]); }));
+          .then(t => { const ex = l.z != null ? { z: l.z } : {}; found.push([it, i, isPlainVector(t) ? [plainVectorLayer(t, ex)] : /<image\b/i.test(t) ? expandSvg(t, ex) : scopedVector(t, ex)]); })
+          // a missing or unreadable file only takes its own trait off the page (named in the console), never the whole builder
+          .catch(err => { broken.add(it); console.warn('Avatar builder: left out "' + it.name + '" (' + cat + '): ' + err.message); }));
       });
     }));
     return Promise.all(jobs).then(() => {
       const byItem = new Map();
       found.forEach(f => { if (!byItem.has(f[0])) byItem.set(f[0], {}); byItem.get(f[0])[f[1]] = f[2]; });
       byItem.forEach((map, it) => { it.layers = [].concat.apply([], it.layers.map((l, i) => (map[i] ? map[i] : [l]))); });
+      if (!broken.size) return;
+      Object.keys(TRAITS).forEach(cat => { TRAITS[cat] = TRAITS[cat].filter(it => !broken.has(it)); });
+      // outfits wearing a left-out piece go without it
+      TRAITS.outfits.forEach(o => Object.keys(o.sets || {}).forEach(c => { if (!find(c, o.sets[c])) delete o.sets[c]; }));
     });
   }
 
