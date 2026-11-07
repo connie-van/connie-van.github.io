@@ -88,6 +88,7 @@
   function wearSet(it) {
     const set = SETS[it.set]; if (!set) return;
     if (set.background && find('backgrounds', set.background)) state.sel.backgrounds = set.background;
+    else if (set.clearBackground) { state.sel.backgrounds = null; state.bg.mode = 'none'; state.bg.stop = 0; }   // worn on transparency
     Object.keys(set.colors || {}).forEach(k => { const c = normHex(set.colors[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); clearChosen(k); } });
   }
   // the Outfits tab always shows a fit in its set's original colors, whatever the visitor has customized.
@@ -577,7 +578,9 @@
     if (doc.getElementsByTagName('parsererror').length) throw new Error('not a valid SVG');
     const rootEl = doc.documentElement, vb = rootEl.getAttribute('viewBox') || VB(), p = 'v' + (++vectorCount) + '-';
     const marker = c => MARKERS[String(c).trim().toLowerCase()];
-    const swap = body => body.replace(/(fill|stroke)\s*:\s*([^;}]+)/gi, (m, prop, val) => marker(val) ? prop + ':var(--' + marker(val) + ')' : m);
+    // Reddit's own exports also paint marker shapes with  var(--color-body / -eyes / -hair, ...): those become the Skin / Eyes / Hair colors too
+    const swap = body => body.replace(/(fill|stroke)\s*:\s*([^;}]+)/gi, (m, prop, val) => marker(val) ? prop + ':var(--' + marker(val) + ')' : m)
+      .replace(/var\(\s*--color-(body|eyes|hair)\b/gi, 'var(--$1');
     Array.prototype.forEach.call(rootEl.querySelectorAll('*'), el => {
       if (el.localName === 'style') {
         el.textContent = String(el.textContent).replace(/([^{}]+)\{([^}]*)\}/g, (m, sel, body) => sel.replace(/\.([A-Za-z_][\w-]*)/g, '.' + p + '$1') + '{' + swap(body) + '}');

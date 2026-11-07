@@ -65,6 +65,9 @@ const HIDE_EMPTY_TABS = false;
 //   colors:      the set's ORIGINAL colors (body = skin, eyes, hair). The Outfits tab always shows the set in these, and picking
 //                the outfit puts them on the avatar. Leave a color out if the set doesn't have one: that color is left as it is.
 //   background:  the id of the set's paired background image. Picking the outfit switches to it. Leave it out if the set has none.
+//   clearBackground: true  for a set with no background of its own whose outfits should be worn on transparency: picking one of its
+//                outfits sets the background to None (the visitor can change it afterwards). Without it, a set with no background
+//                leaves the current background as it is.
 // MENU SECTIONS: every tab groups its tiles under dividers, in this order. A trait's section comes from its set:
 //   'personal' = my own creator-program sets; 'reddit' = a set with  reddit: true  (work I made for Reddit);
 //   'base' = an item with  base: true  (the base Snoo, made by Reddit). Empty sections are skipped. Change the labels here.
@@ -103,7 +106,10 @@ const SETS = {
   // Reddit work, not collectible: single traits only (no outfit, no background), including the base Snoo (head, eyes, body, legs).
   // Vector SVGs: lime shapes take the Skin color,
   // yellow the Eyes color, blue the Hair color. Original colors are the classic Snoo's: white body, orange-red eyes.
-  'bhm23': { name: 'BHM 23', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#FF4500' } }
+  'bhm23': { name: 'BHM 23', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#FF4500' } },
+  // Reddit work, not collectible: onboarding outfits (Alt grunge, Funky, Gamer girl, Gamer guy, Gen Z, Tracksuit). No backgrounds, so wearing either one clears the
+  // background to None. Vector SVGs: lime shapes take the Skin color, yellow the Eyes color, blue the Hair color.
+  'onboarding24': { name: 'Onboarding 24', collectible: false, reddit: true, colors: { eyes: '#000000' }, clearBackground: true }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
@@ -125,6 +131,7 @@ const pickle = inSet('pickle-guy');
 const gummy = inSet('gummy');
 const june = inSet('june23');
 const bhm = inSet('bhm23');
+const onb = inSet('onboarding24');
 
 const TRAITS = {
   outfits: [
@@ -149,6 +156,15 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', sets: { tops: 'beholder', bottoms: 'beholder', face: 'beholder', eyes: 'beholder', leftHand: 'skull-flame-back', rightHand: 'skull-flame' } },
     // no hat: wearing it takes any hat off
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
+    // onboarding outfits (no background: worn on transparency). Alt grunge wears the sunglasses; it has no hair and no front accessory.
+    { id: 'altgrunge', set: 'onboarding24', name: 'Alt grunge', sets: { tops: 'altgrunge', bottoms: 'altgrunge', face: 'altgrunge', eyes: 'altgrunge-sunglasses', hats: 'altgrunge-hood', leftHand: 'altgrunge-phone' } },
+    // Funky has no eyes of its own and no front accessory, so wearing it takes those off
+    { id: 'funky', set: 'onboarding24', name: 'Funky', sets: { tops: 'funky', bottoms: 'funky', face: 'funky', hair: 'funky', hats: 'funky-visor', leftHand: 'funky-juice' } },
+    // no front accessory in either gamer outfit
+    { id: 'gamergirl', set: 'onboarding24', name: 'Gamer girl', sets: { tops: 'gamergirl', bottoms: 'gamergirl', face: 'gamergirl', eyes: 'gamergirl', hair: 'gamergirl', hats: 'gamergirl-headset', leftHand: 'gamergirl-controller' } },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Gamer guy', sets: { tops: 'gamerguy', bottoms: 'gamerguy', face: 'gamerguy', eyes: 'gamerguy', hair: 'gamerguy', hats: 'gamerguy-headset', leftHand: 'gamerguy-joystick' } },
+    { id: 'genz', set: 'onboarding24', name: 'Gen Z', sets: { tops: 'genz', bottoms: 'genz', face: 'genz', eyes: 'genz', hair: 'genz', hats: 'genz-bucket-hat', leftHand: 'genz-bag' } },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Tracksuit', sets: { tops: 'tracksuit', bottoms: 'tracksuit', face: 'tracksuit', eyes: 'tracksuit', hair: 'tracksuit', hats: 'tracksuit-cap', leftHand: 'tracksuit-bottle' } },
     // the base Snoo, whole: head, eyes, body and legs; wearing it takes off hair, hat and accessories (it has no background, so the current one stays)
     { id: 'snoo', set: 'bhm23', name: 'Snoo', base: true, sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } }
   ],
@@ -172,6 +188,12 @@ const TRAITS = {
     { id: 'gummy', set: 'gummy', name: 'Gummy top', layers: [gummy.layer('body_003_2x.png')] },
     { id: 'love-wins-tee', set: 'june23', name: 'Love Wins tee', layers: [june.svg('body_001.svg')] },
     { id: 'rainbow-tee', set: 'june23', name: 'Black rainbow tee', layers: [june.svg('body_008.svg')] },
+    { id: 'altgrunge', set: 'onboarding24', name: 'Black jacket', layers: [onb.svg('altgrunge-upperbody.svg')] },
+    { id: 'funky', set: 'onboarding24', name: 'Camo tee', layers: [onb.svg('funky-upperbody.svg')] },
+    { id: 'gamergirl', set: 'onboarding24', name: 'Heart tee', layers: [onb.svg('gamergirl-upperbody.svg')] },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Pixel tee', layers: [onb.svg('gamerguy-upperbody.svg')] },
+    { id: 'genz', set: 'onboarding24', name: 'Smiley crop top', layers: [onb.svg('genz-upperbody.svg')] },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Track jacket', layers: [onb.svg('tracksuit-upperbody.svg')] },
     { id: 'snoo-body', set: 'bhm23', name: 'Snoo body', base: true, layers: [bhm.svg('body_013.svg')] }
   ],
   bottoms: [                                                                                                  // body bottom
@@ -188,6 +210,12 @@ const TRAITS = {
     { id: 'deadass', set: 'deadass', name: 'Jeans and boots', layers: [dead.layer('body_bottom_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle bottom', layers: [pickle.layer('body_bottom_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy bottom', layers: [gummy.layer('body_bottom_003_2x.png')] },
+    { id: 'altgrunge', set: 'onboarding24', name: 'Chain shorts', layers: [onb.svg('altgrunge-bottom.svg')] },
+    { id: 'funky', set: 'onboarding24', name: 'Shorts and clogs', layers: [onb.svg('funky-bottom.svg')] },
+    { id: 'gamergirl', set: 'onboarding24', name: 'Shorts and pink slides', layers: [onb.svg('gamergirl-bottom.svg')] },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Plaid shorts and slides', layers: [onb.svg('gamerguy-bottom.svg')] },
+    { id: 'genz', set: 'onboarding24', name: 'Orange shorts and sneakers', layers: [onb.svg('genz-bottom.svg')] },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Track pants', layers: [onb.svg('tracksuit-bottom.svg')] },
     { id: 'snoo-legs', set: 'bhm23', name: 'Snoo legs', base: true, layers: [bhm.svg('body_bottom_013.svg')] }
   ],
   hair: [
@@ -202,7 +230,12 @@ const TRAITS = {
     { id: 'swoop-puff', set: 'bhm23', name: 'Swoop with puff', layers: [bhm.svg('hair_back_012.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_012.svg')] },
     { id: 'curls-headwrap', set: 'bhm23', name: 'Curls with headwrap', layers: [bhm.svg('hair_001.svg')] },
     { id: 'beaded-braids', set: 'bhm23', name: 'Beaded braids', layers: [bhm.svg('hair_back_002.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_002.svg')] },
-    { id: 'knotted-updo', set: 'bhm23', name: 'Knotted updo', layers: [bhm.svg('hair_back_003.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_003.svg')] }
+    { id: 'knotted-updo', set: 'bhm23', name: 'Knotted updo', layers: [bhm.svg('hair_back_003.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_003.svg')] },
+    { id: 'funky', set: 'onboarding24', name: 'Wavy hair', layers: [onb.svg('funky-hair.svg')] },
+    { id: 'gamergirl', set: 'onboarding24', name: 'Long layers', layers: [onb.svg('gamergirl-hair.svg')] },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Messy fringe', layers: [onb.svg('gamerguy-hair.svg')] },
+    { id: 'genz', set: 'onboarding24', name: 'Shag', layers: [onb.svg('genz-hair.svg')] },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Short hair and beard', layers: [onb.svg('tracksuit-hair.svg')] }
   ],
   face: [                                                                                                     // lower face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_lower_003.svg')] },
@@ -217,6 +250,12 @@ const TRAITS = {
     { id: 'deadass', set: 'deadass', name: 'Skull', layers: [dead.layer('face_lower_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle head', layers: [pickle.layer('face_lower_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy head', layers: [gummy.layer('face_lower_003_2x.png')] },
+    { id: 'altgrunge', set: 'onboarding24', name: 'Pierced head', layers: [onb.svg('altgrunge-lowerface.svg')] },
+    { id: 'funky', set: 'onboarding24', name: 'Kissy head', layers: [onb.svg('funky-lowerface.svg')] },
+    { id: 'gamergirl', set: 'onboarding24', name: 'Sweet smile head', layers: [onb.svg('gamergirl-lowerface.svg')] },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Grin head', layers: [onb.svg('gamerguy-lowerface.svg')] },
+    { id: 'genz', set: 'onboarding24', name: 'Soft smile head', layers: [onb.svg('genz-lowerface.svg')] },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Calm smile head', layers: [onb.svg('tracksuit-lowerface.svg')] },
     { id: 'snoo-head', set: 'bhm23', name: 'Snoo head', base: true, layers: [bhm.svg('face_lower_013.svg')] }
   ],
   eyes: [                                                                                                     // upper face
@@ -234,6 +273,12 @@ const TRAITS = {
     { id: 'lidded-eyes', set: 'bhm23', name: 'Lidded eyes', layers: [bhm.svg('face_upper_005.svg')] },
     { id: 'lidded-eyes-lashes', set: 'bhm23', name: 'Lidded eyes with lashes', layers: [bhm.svg('face_upper_008.svg')] },
     { id: 'side-eye', set: 'bhm23', name: 'Side-eye', layers: [bhm.svg('face_upper_010.svg')] },
+    { id: 'altgrunge-sunglasses', set: 'onboarding24', name: 'Sunglasses', layers: [onb.svg('altgrunge-upperface.svg')] },
+    { id: 'altgrunge-eyes', set: 'onboarding24', name: 'Sleepy eyes', layers: [onb.svg('altgrunge-upperface-nosunnies.svg')] },
+    { id: 'gamergirl', set: 'onboarding24', name: 'Lash flick eyes', layers: [onb.svg('gamergirl-upperface.svg')] },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Focused eyes', layers: [onb.svg('gamerguy-upperface.svg')] },
+    { id: 'genz', set: 'onboarding24', name: 'Sparkle eyes', layers: [onb.svg('genz-upperface.svg')] },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Unbothered eyes', layers: [onb.svg('tracksuit-upperface.svg')] },
     { id: 'snoo-eyes', set: 'bhm23', name: 'Snoo eyes', base: true, layers: [bhm.svg('face_upper_013.svg')] }
   ],
   hats: [                                                                                                     // head accessory
@@ -245,7 +290,13 @@ const TRAITS = {
     { id: 'pickle-hat', set: 'pickle-guy', name: 'Pickle hat', layers: [pickle.layer('head_accessory_002.svg')] },
     { id: 'gold-earrings', set: 'bhm23', name: 'Gold earrings', layers: [bhm.svg('head_accessory_005.svg')] },
     { id: 'gold-studs', set: 'bhm23', name: 'Gold studs', layers: [bhm.svg('head_accessory_001.svg')] },
-    { id: 'gold-hoops', set: 'bhm23', name: 'Gold hoops', layers: [bhm.svg('head_accessory_003.svg')] }
+    { id: 'gold-hoops', set: 'bhm23', name: 'Gold hoops', layers: [bhm.svg('head_accessory_003.svg')] },
+    { id: 'altgrunge-hood', set: 'onboarding24', name: 'Black hood', layers: [onb.svg('altgrunge-head-acc.svg')] },
+    { id: 'funky-visor', set: 'onboarding24', name: 'Lime visor', layers: [onb.svg('funky-head-acc.svg')] },
+    { id: 'gamergirl-headset', set: 'onboarding24', name: 'Cat-ear headset', layers: [onb.svg('gamergirl-head-acc.svg')] },
+    { id: 'gamerguy-headset', set: 'onboarding24', name: 'Lime headset', layers: [onb.svg('gamerguy-head-acc.svg')] },
+    { id: 'genz-bucket-hat', set: 'onboarding24', name: 'Yellow bucket hat', layers: [onb.svg('genz-head-acc.svg')] },
+    { id: 'tracksuit-cap', set: 'onboarding24', name: 'Teal cap', layers: [onb.svg('tracksuit-head-acc.svg')] }
   ],
   rightHand: [                                                                                                // acc front
     { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
@@ -282,7 +333,13 @@ const TRAITS = {
     { id: 'nameplate', set: 'bhm23', name: 'Nameplate necklace', layers: [bhm.svg('accessory_back_004.svg')] },
     { id: 'gold-chain', set: 'bhm23', name: 'Gold chain', layers: [bhm.svg('accessory_back_006.svg')] },
     { id: 'gold-charm', set: 'bhm23', name: 'Gold charm necklace', layers: [bhm.svg('accessory_back_007.svg')] },
-    { id: 'snoo-medallion', set: 'bhm23', name: 'Snoo medallion', layers: [bhm.svg('accessory_back_011.svg')] }
+    { id: 'snoo-medallion', set: 'bhm23', name: 'Snoo medallion', layers: [bhm.svg('accessory_back_011.svg')] },
+    { id: 'altgrunge-phone', set: 'onboarding24', name: 'Phone', layers: [onb.svg('altgrunge-back-acc.svg')] },
+    { id: 'funky-juice', set: 'onboarding24', name: 'Green juice', layers: [onb.svg('funky-back-acc.svg')] },
+    { id: 'gamergirl-controller', set: 'onboarding24', name: 'Pink controller', layers: [onb.svg('gamergirl-back-acc.svg')] },
+    { id: 'gamerguy-joystick', set: 'onboarding24', name: 'Joystick', layers: [onb.svg('gamerguy-back-acc.svg')] },
+    { id: 'genz-bag', set: 'onboarding24', name: 'Smiley bag', layers: [onb.svg('genz-back-acc.svg')] },
+    { id: 'tracksuit-bottle', set: 'onboarding24', name: 'Yellow water bottle', layers: [onb.svg('tracksuit-back-acc.svg')] }
   ],
   backgrounds: [
     { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] },
