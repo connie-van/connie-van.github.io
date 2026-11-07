@@ -109,7 +109,7 @@ const SETS = {
   'bhm23': { name: 'BHM 23', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#FF4500' } },
   // Reddit work, not collectible: onboarding outfits (Alt grunge, Funky, Gamer girl, Gamer guy, Gen Z, Tracksuit). No backgrounds, so wearing either one clears the
   // background to None. Vector SVGs: lime shapes take the Skin color, yellow the Eyes color, blue the Hair color.
-  'onboarding24': { name: 'Onboarding 24', collectible: false, reddit: true, colors: { eyes: '#000000' }, clearBackground: true }
+  'onboarding24': { name: 'Onboarding 24', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#000000' }, clearBackground: true }
 };
 const ART = 'media/reddit-avatars/builder/';     // the artwork folder; each set's folder sits inside it
 // layer helpers for one set's folder:  bodega.layer('x.png')  /  bodega.svg('x.svg')
