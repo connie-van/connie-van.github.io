@@ -160,11 +160,11 @@ const TRAITS = {
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
     // onboarding outfits (no background: worn on transparency). None has a front accessory; Alt grunge has no hair.
     { id: 'altgrunge', set: 'onboarding24', name: 'Alt grunge', sets: { tops: 'altgrunge', bottoms: 'altgrunge', face: 'altgrunge', eyes: 'altgrunge-sunglasses', hats: 'altgrunge-hood', leftHand: 'altgrunge-phone' } },
-    { id: 'funky', set: 'onboarding24', name: 'Funky', sets: { tops: 'funky', bottoms: 'funky', face: 'funky', eyes: 'funky', hair: 'funky', hats: 'funky-visor', leftHand: 'funky-juice' } },
-    { id: 'gamergirl', set: 'onboarding24', name: 'Gamer girl', sets: { tops: 'gamergirl', bottoms: 'gamergirl', face: 'gamergirl', eyes: 'gamergirl', hair: 'gamergirl', hats: 'gamergirl-headset', leftHand: 'gamergirl-controller' } },
-    { id: 'gamerguy', set: 'onboarding24', name: 'Gamer guy', sets: { tops: 'gamerguy', bottoms: 'gamerguy', face: 'gamerguy', eyes: 'gamerguy', hair: 'gamerguy', hats: 'gamerguy-headset', leftHand: 'gamerguy-joystick' } },
-    { id: 'genz', set: 'onboarding24', name: 'Gen Z', sets: { tops: 'genz', bottoms: 'genz', face: 'genz', eyes: 'genz', hair: 'genz', hats: 'genz-bucket-hat', leftHand: 'genz-bag' } },
-    { id: 'tracksuit', set: 'onboarding24', name: 'Tracksuit', sets: { tops: 'tracksuit', bottoms: 'tracksuit', face: 'tracksuit', eyes: 'tracksuit', hair: 'tracksuit', hats: 'tracksuit-cap', leftHand: 'tracksuit-bottle' } },
+    { id: 'funky', set: 'onboarding24', name: 'Funky', colors: { hair: '#32312F' }, sets: { tops: 'funky', bottoms: 'funky', face: 'funky', eyes: 'funky', hair: 'funky', hats: 'funky-visor', leftHand: 'funky-juice' } },
+    { id: 'gamergirl', set: 'onboarding24', name: 'Gamer girl', colors: { hair: '#492F1D' }, sets: { tops: 'gamergirl', bottoms: 'gamergirl', face: 'gamergirl', eyes: 'gamergirl', hair: 'gamergirl', hats: 'gamergirl-headset', leftHand: 'gamergirl-controller' } },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Gamer guy', colors: { hair: '#775218' }, sets: { tops: 'gamerguy', bottoms: 'gamerguy', face: 'gamerguy', eyes: 'gamerguy', hair: 'gamerguy', hats: 'gamerguy-headset', leftHand: 'gamerguy-joystick' } },
+    { id: 'genz', set: 'onboarding24', name: 'Gen Z', colors: { hair: '#DCC66E' }, sets: { tops: 'genz', bottoms: 'genz', face: 'genz', eyes: 'genz', hair: 'genz', hats: 'genz-bucket-hat', leftHand: 'genz-bag' } },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Tracksuit', colors: { hair: '#BA5220' }, sets: { tops: 'tracksuit', bottoms: 'tracksuit', face: 'tracksuit', eyes: 'tracksuit', hair: 'tracksuit', hats: 'tracksuit-cap', leftHand: 'tracksuit-bottle' } },
     // the base Snoo, whole: head, eyes, body and legs; wearing it takes off hair, hat and accessories (it has no background, so the current one stays)
     { id: 'snoo', set: 'bhm23', name: 'Snoo', base: true, sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } }
   ],
@@ -231,11 +231,11 @@ const TRAITS = {
     { id: 'curls-headwrap', set: 'bhm23', name: 'Curls with headwrap', layers: [bhm.svg('hair_001.svg')] },
     { id: 'beaded-braids', set: 'bhm23', name: 'Beaded braids', layers: [bhm.svg('hair_back_002.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_002.svg')] },
     { id: 'knotted-updo', set: 'bhm23', name: 'Knotted updo', layers: [bhm.svg('hair_back_003.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_003.svg')] },
-    { id: 'funky', set: 'onboarding24', name: 'Wavy hair', layers: [onb.svg('funky-hair.svg')] },
-    { id: 'gamergirl', set: 'onboarding24', name: 'Long layers', layers: [onb.svg('gamergirl-hair.svg')] },
-    { id: 'gamerguy', set: 'onboarding24', name: 'Messy fringe', layers: [onb.svg('gamerguy-hair.svg')] },
-    { id: 'genz', set: 'onboarding24', name: 'Shag', layers: [onb.svg('genz-hair.svg')] },
-    { id: 'tracksuit', set: 'onboarding24', name: 'Short hair and beard', layers: [onb.svg('tracksuit-hair.svg')] }
+    { id: 'funky', set: 'onboarding24', name: 'Wavy hair', colors: { hair: '#32312F' }, layers: [onb.svg('funky-hair.svg')] },
+    { id: 'gamergirl', set: 'onboarding24', name: 'Long layers', colors: { hair: '#492F1D' }, layers: [onb.svg('gamergirl-hair.svg')] },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Messy fringe', colors: { hair: '#775218' }, layers: [onb.svg('gamerguy-hair.svg')] },
+    { id: 'genz', set: 'onboarding24', name: 'Shag', colors: { hair: '#DCC66E' }, layers: [onb.svg('genz-hair.svg')] },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Short hair and beard', colors: { hair: '#BA5220' }, layers: [onb.svg('tracksuit-hair.svg')] }
   ],
   face: [                                                                                                     // lower face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_lower_003.svg')] },
