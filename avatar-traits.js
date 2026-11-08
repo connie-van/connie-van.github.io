@@ -189,7 +189,7 @@ const TRAITS = {
     { id: 'altgrunge', set: 'onboarding24', name: 'Alt grunge', sets: { tops: 'altgrunge', bottoms: 'altgrunge', face: 'altgrunge', eyes: 'altgrunge-sunglasses', hats: 'altgrunge-hood', leftHand: 'altgrunge-phone' } },
     { id: 'funky', set: 'onboarding24', name: 'Funky', colors: { hair: '#32312F' }, sets: { tops: 'funky', bottoms: 'funky', face: 'funky', eyes: 'funky', hair: 'funky', hats: 'funky-visor', leftHand: 'funky-juice' } },
     { id: 'gamergirl', set: 'onboarding24', name: 'Gamer girl', colors: { hair: '#492F1D' }, sets: { tops: 'gamergirl', bottoms: 'gamergirl', face: 'gamergirl', eyes: 'gamergirl', hair: 'gamergirl', hats: 'gamergirl-headset', leftHand: 'gamergirl-controller' } },
-    { id: 'gamerguy', set: 'onboarding24', name: 'Gamer guy', colors: { hair: '#775218' }, sets: { tops: 'gamerguy', bottoms: 'gamerguy', face: 'gamerguy', eyes: 'gamerguy', hair: 'gamerguy', hats: 'gamerguy-headset', leftHand: 'gamerguy-joystick' } },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Gamer guy', colors: { hair: '#162F35' }, sets: { tops: 'gamerguy', bottoms: 'gamerguy', face: 'gamerguy', eyes: 'gamerguy', hair: 'gamerguy', hats: 'gamerguy-headset', leftHand: 'gamerguy-joystick' } },
     { id: 'genz', set: 'onboarding24', name: 'Gen Z', colors: { hair: '#E49234' }, sets: { tops: 'genz', bottoms: 'genz', face: 'genz', eyes: 'genz', hair: 'genz', hats: 'genz-bucket-hat', leftHand: 'genz-bag' } },
     { id: 'tracksuit', set: 'onboarding24', name: 'Tracksuit', colors: { hair: '#BA5220' }, sets: { tops: 'tracksuit', bottoms: 'tracksuit', face: 'tracksuit', eyes: 'tracksuit', hair: 'tracksuit', hats: 'tracksuit-cap', leftHand: 'tracksuit-bottle' } },
     // the base Snoo, whole: head, eyes, body and legs; wearing it takes off hair, hat and accessories (it has no background, so the current one stays)
@@ -274,7 +274,7 @@ const TRAITS = {
     { id: 'knotted-updo', set: 'bhm23', name: 'Knotted updo', layers: [bhm.svg('hair_back_003.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_003.svg')] },
     { id: 'funky', set: 'onboarding24', name: 'Wavy hair', colors: { hair: '#32312F' }, layers: [onb.svg('funky-hair.svg')], originalInMenu: false },
     { id: 'gamergirl', set: 'onboarding24', name: 'Long layers', colors: { hair: '#492F1D' }, layers: [onb.svg('gamergirl-hair.svg')], originalInMenu: false },
-    { id: 'gamerguy', set: 'onboarding24', name: 'Messy fringe', colors: { hair: '#775218' }, layers: [onb.svg('gamerguy-hair.svg')], originalInMenu: false },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Messy fringe', colors: { hair: '#162F35' }, layers: [onb.svg('gamerguy-hair.svg')], originalInMenu: false },
     { id: 'genz', set: 'onboarding24', name: 'Shag', colors: { hair: '#E49234' }, layers: [onb.svg('genz-hair.svg')], originalInMenu: false },
     { id: 'tracksuit', set: 'onboarding24', name: 'Short hair and beard', colors: { hair: '#BA5220' }, layers: [onb.svg('tracksuit-hair.svg')], originalInMenu: false }
   ],
@@ -455,7 +455,7 @@ const SAVED_SLOTS = 12;
 const MODE_STYLE = 'underline';
 // how round the avatar's background corners are in the main display, as a fraction of the card's width (0 = square, 0.05 = about 5%).
 // Only the main display: the background tiles in the B.G. tab stay square. Nothing is rounded when the background is None.
-const AVATAR_CORNER = 0.05;
+const AVATAR_CORNER = 0.09;   // matches the corners drawn into the onboarding23 backgrounds (about 50px on 552px)
 // the ground shadow under every character: always on, just in front of the background and behind every trait.
 // An ellipse in canvas units (the 380 x 600 canvas), measured from the Deadass composite. Set SHADOW = null to turn it off.
 // the holographic hover on collectible Outfits tiles (the tile itself stays still): the Venusaur-ex-style foil (chunky rainbow stripes and
@@ -465,7 +465,7 @@ const AVATAR_CORNER = 0.05;
 // dot = the size of the biggest squares, in screen pixels (smaller number = finer pixels).
 // tilt = degrees the card leans toward the cursor at its edge, lift = how much it grows (1 = not at all). Both kept very small.
 // Mouse/trackpad only: off on touch screens.
-const HOLO = { intensity: 0.0, pattern: 'vertical-balanced', dot: 2, tilt: 10, lift: 1.005 };
+const HOLO = { intensity: 0.5, pattern: 'vertical-balanced', dot: 4, tilt: 4, lift: 1.0 };
 const SHADOW = { cx: 190.5, cy: 547.5, rx: 81, ry: 41.5, color: '#000000', opacity: 0.30 };
 // where the character sits on the main display. The display is always 3:4 (the shape of the background art), the background fills it,
 // and the character (every trait, all sets) is drawn smaller inside it. Fractions of the display: left and top = where the character's
