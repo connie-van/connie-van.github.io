@@ -67,6 +67,7 @@ const HIDE_EMPTY_TABS = false;
 //                An outfit (or a trait) can carry its own  colors: { ... }  too: those override the set's, color by color, for that item only.
 //                Add  ?livecolors  to the page address to see the Outfits tiles in the colors you pick (handy for choosing originals).
 //   background:  the id of the set's paired background image. Picking the outfit switches to it. Leave it out if the set has none.
+//                An outfit can carry its own  background: '<id>'  too, for a set whose outfits don't share one.
 //   clearBackground: true  for a set with no background of its own whose outfits should be worn on transparency: picking one of its
 //                outfits sets the background to None (the visitor can change it afterwards). Without it, a set with no background
 //                leaves the current background as it is.
@@ -116,7 +117,7 @@ const SETS = {
   // background to None. Vector SVGs: lime shapes take the Skin color, yellow the Eyes color, blue the Hair color.
   'onboarding24': { name: 'Onboarding 24', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#000000' }, clearBackground: true },
   // Reddit work, not collectible: two full outfits (Bye bye awards and Downvote guy), both in the expressions folder.
-  // No background, so wearing either clears the background to None. Vector SVGs: lime shapes take the Skin color.
+  // Bye bye awards has no background, so wearing it clears the background to None; Downvote guy has its own. Vector SVGs: lime shapes take the Skin color.
   // The eyes in both are drawn in fixed colors (no eye-color marker), so they don't recolor.
   'expressions': { name: 'Expressions', collectible: false, reddit: true, colors: { body: '#FFFFFF' }, clearBackground: true }
 };
@@ -177,7 +178,7 @@ const TRAITS = {
     { id: 'tracksuit', set: 'onboarding24', name: 'Tracksuit', colors: { hair: '#BA5220' }, sets: { tops: 'tracksuit', bottoms: 'tracksuit', face: 'tracksuit', eyes: 'tracksuit', hair: 'tracksuit', hats: 'tracksuit-cap', leftHand: 'tracksuit-bottle' } },
     // no hair in either Expressions outfit; Downvote guy has no back accessory
     { id: 'bye-bye-awards', set: 'expressions', name: 'Bye bye awards', sets: { tops: 'bye-bye-awards', bottoms: 'bye-bye-awards', face: 'bye-bye-awards', eyes: 'bye-bye-awards', hats: 'bye-bye-awards-cat-hat', leftHand: 'bye-bye-awards-rocket', rightHand: 'bye-bye-awards-duck' } },
-    { id: 'downvote-guy', set: 'expressions', name: 'Downvote guy', sets: { tops: 'downvote-guy', bottoms: 'downvote-guy', face: 'downvote-guy', eyes: 'downvote-guy', hats: 'downvote-guy-cap', rightHand: 'downvote-guy-dog' } },
+    { id: 'downvote-guy', set: 'expressions', name: 'Downvote guy', background: 'downvote-guy', sets: { tops: 'downvote-guy', bottoms: 'downvote-guy', face: 'downvote-guy', eyes: 'downvote-guy', hats: 'downvote-guy-cap', rightHand: 'downvote-guy-dog' } },
     // the base Snoo, whole: head, eyes, body and legs; wearing it takes off hair, hat and accessories (it has no background, so the current one stays)
     { id: 'snoo', set: 'bhm23', name: 'Snoo', base: true, sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } }
   ],
@@ -388,7 +389,8 @@ const TRAITS = {
     { id: 'realms', set: 'guardian-of-the-realms', name: 'Realms', layers: [guard.layer('GUARDIANOFTHEREALMS-BG.png', { fit: 'cover' })] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', layers: [eye.layer('EYEOFTHEBEHOLDER-BG.png', { fit: 'cover' })], star: 'light' },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', layers: [stitch.layer('SNITCHESGETSTITCHES-BG.png', { fit: 'cover' })] },
-    { id: 'captcha', set: 'cp3crash', name: 'Captcha', layers: [captcha.layer('captcha-bg.png', { fit: 'cover' })] }
+    { id: 'captcha', set: 'cp3crash', name: 'Captcha', layers: [captcha.layer('captcha-bg.png', { fit: 'cover' })] },
+    { id: 'downvote-guy', set: 'expressions', name: 'Downvote guy', layers: [expr.layer('downvoteguy-bg.png', { fit: 'cover' })] }
   ]
 };
 

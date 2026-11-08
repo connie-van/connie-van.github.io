@@ -86,10 +86,13 @@
   const markChosen = k => { state.chosen[k] = true; root.classList.add('c-' + k); };
   const clearChosen = k => { state.chosen[k] = false; root.classList.remove('c-' + k); };
   // an item's original colors: its set's, with any  colors  on the item itself (an outfit or a trait) taking over per color
+  // an outfit's background: its own  background  if it has one, otherwise its set's
+  const bgOf = it => it.background || (SETS[it.set] && SETS[it.set].background) || null;
   const ogColors = it => Object.assign({}, (SETS[it.set] && SETS[it.set].colors) || {}, it.colors || {});
   function wearSet(it) {
     const set = SETS[it.set]; if (!set) return;
-    if (set.background && find('backgrounds', set.background)) state.sel.backgrounds = set.background;
+    const bgId = bgOf(it);
+    if (bgId && find('backgrounds', bgId)) state.sel.backgrounds = bgId;
     else if (set.clearBackground) { state.sel.backgrounds = null; state.bg.mode = 'none'; state.bg.stop = 0; }   // worn on transparency
     const og = ogColors(it);
     Object.keys(og).forEach(k => { const c = normHex(og[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); clearChosen(k); } });
@@ -261,8 +264,8 @@
       if (it) thumb = '<div class="thumb"><div class="avatar">' + layersInner({ backgrounds: id }, { bgOnly: true }) + '</div></div>';
     } else if (cat === 'outfits' && it) {
       // the whole look, as on the main display: the set's background with the character placed on it (3:4, like the B.G. tiles)
-      const set = SETS[it.set], look = Object.assign(outfitLook(it), { backgrounds: set && set.background ? set.background : null });
-      const sbg = set && set.background && find('backgrounds', set.background);
+      const set = SETS[it.set], look = Object.assign(outfitLook(it), { backgrounds: bgOf(it) });
+      const sbg = bgOf(it) && find('backgrounds', bgOf(it));
       const collect = !!(set && set.collectible);
       cls += ' bg fit' + (sbg && sbg.starLight ? ' lt' : '') + (collect ? ' collect' : '') + (sbg ? '' : ' nobg');
       thumb = '<div class="thumb"><div class="avatar">' + layersInner(look) + '</div></div>' + (collect ? '<span class="holo" aria-hidden="true"></span><span class="shine" aria-hidden="true"></span>' : '');
