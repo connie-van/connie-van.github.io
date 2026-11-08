@@ -96,6 +96,9 @@ const SETS = {
   'eye-of-the-beholder': { name: 'Eye of the Beholder', background: 'beholder', collectible: true },
   // full-color PNGs, nothing recolorable, no hat
   'snitches-get-stitches': { name: 'Snitches Get Stitches', background: 'stitches', collectible: true },
+  // full-color vector SVGs with no marker colors, so nothing on it recolors. The legs file also holds the little figure seen
+  // through the gaps in the puzzle head.
+  'cp3crash': { name: 'Captcha', background: 'captcha', collectible: true, reddit: true },
   // full-color PNGs, nothing recolorable; no back accessory
   'deadass': { name: 'Deadass', background: 'deadass', collectible: true },
   // plain full-color SVGs (used as images, nothing recolorable); no accessories
@@ -132,6 +135,7 @@ const boss = inSet('mr-bossman');         // set 001
 const guard = inSet('guardian-of-the-realms');
 const eye = inSet('eye-of-the-beholder');
 const stitch = inSet('snitches-get-stitches');
+const captcha = inSet('cp3crash');
 const dead = inSet('deadass');
 const pickle = inSet('pickle-guy');
 const gummy = inSet('gummy');
@@ -163,6 +167,7 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', sets: { tops: 'beholder', bottoms: 'beholder', face: 'beholder', eyes: 'beholder', leftHand: 'skull-flame-back', rightHand: 'skull-flame' } },
     // no hat: wearing it takes any hat off
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
+    { id: 'captcha', set: 'cp3crash', name: 'Captcha', sets: { tops: 'captcha', bottoms: 'captcha', face: 'captcha', eyes: 'captcha', hats: 'captcha-pieces', leftHand: 'captcha-sign', rightHand: 'captcha-shield' } },
     // onboarding outfits (no background: worn on transparency). None has a front accessory; Alt grunge has no hair.
     { id: 'altgrunge', set: 'onboarding24', name: 'Alt grunge', sets: { tops: 'altgrunge', bottoms: 'altgrunge', face: 'altgrunge', eyes: 'altgrunge-sunglasses', hats: 'altgrunge-hood', leftHand: 'altgrunge-phone' } },
     { id: 'funky', set: 'onboarding24', name: 'Funky', colors: { hair: '#32312F' }, sets: { tops: 'funky', bottoms: 'funky', face: 'funky', eyes: 'funky', hair: 'funky', hats: 'funky-visor', leftHand: 'funky-juice' } },
@@ -191,6 +196,7 @@ const TRAITS = {
     { id: 'guardian', set: 'guardian-of-the-realms', name: 'Green pumpkin', layers: [guard.layer('body_003_2x.png')] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie torso', layers: [eye.layer('body_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Patchwork torso', layers: [stitch.layer('body_001_2x.png')] },
+    { id: 'captcha', set: 'cp3crash', name: 'Puzzle body', layers: [captcha.svg('body_001_b7672d.svg')] },
     { id: 'deadass', set: 'deadass', name: 'Puffer jacket', layers: [dead.layer('body_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle top', layers: [pickle.layer('body_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy top', layers: [gummy.layer('body_003_2x.png')] },
@@ -217,6 +223,7 @@ const TRAITS = {
     { id: 'guardian', set: 'guardian-of-the-realms', name: 'Jack-o-lantern', layers: [guard.layer('body_bottom_003_2x.png')] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie legs', layers: [eye.layer('body_bottom_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Patchwork legs', layers: [stitch.layer('body_bottom_001_2x.png')] },
+    { id: 'captcha', set: 'cp3crash', name: 'Puzzle legs', layers: [captcha.svg('body_bottom_001_36b1db.svg')] },
     { id: 'deadass', set: 'deadass', name: 'Jeans and boots', layers: [dead.layer('body_bottom_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle bottom', layers: [pickle.layer('body_bottom_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy bottom', layers: [gummy.layer('body_bottom_003_2x.png')] },
@@ -259,6 +266,7 @@ const TRAITS = {
     { id: 'guardian', set: 'guardian-of-the-realms', name: 'Three-eyed cat', layers: [guard.layer('face_lower_003_2x.png')], hasEyes: true },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Zombie hand', layers: [eye.layer('face_lower_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Voodoo head', layers: [stitch.layer('face_lower_001_2x.png')] },
+    { id: 'captcha', set: 'cp3crash', name: 'Puzzle head', layers: [captcha.svg('face_lower_001_04ea8e.svg')] },
     { id: 'deadass', set: 'deadass', name: 'Skull', layers: [dead.layer('face_lower_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle head', layers: [pickle.layer('face_lower_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy head', layers: [gummy.layer('face_lower_003_2x.png')] },
@@ -281,6 +289,7 @@ const TRAITS = {
     { id: 'set-001', set: 'mr-bossman', name: 'Set 001', layers: [boss.layer('face_upper_001_2x.png')] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Stitched eye', layers: [eye.layer('face_upper_002_2x.png')] },
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Button eye', layers: [stitch.layer('face_upper_001_2x.png')] },
+    { id: 'captcha', set: 'cp3crash', name: 'Green eyes', layers: [captcha.svg('face_upper_001_a58a2b.svg')] },
     { id: 'deadass', set: 'deadass', name: 'Eye sockets', layers: [dead.layer('face_upper_001_2x.png')] },
     { id: 'pickle', set: 'pickle-guy', name: 'Pickle eyes', layers: [pickle.layer('face_upper_002.svg')] },
     { id: 'gummy', set: 'gummy', name: 'Gummy eyes', layers: [gummy.layer('face_upper_003_2x.png')] },
@@ -304,6 +313,7 @@ const TRAITS = {
     { id: 'bandage', set: 'mr-bossman', name: 'Bandage', layers: [boss.layer('head_accessory_001_2x.png')] },
     { id: 'ny-cap', set: 'deadass', name: 'NY cap', layers: [dead.layer('head_accessory_001_2x.png')] },
     { id: 'pickle-hat', set: 'pickle-guy', name: 'Pickle hat', layers: [pickle.layer('head_accessory_002.svg')] },
+    { id: 'captcha-pieces', set: 'cp3crash', name: 'Puzzle pieces', layers: [captcha.svg('head_accessory_001_3468b2.svg')] },
     { id: 'gold-earrings', set: 'bhm23', name: 'Gold earrings', layers: [bhm.svg('head_accessory_005.svg')] },
     { id: 'gold-studs', set: 'bhm23', name: 'Gold studs', layers: [bhm.svg('head_accessory_001.svg')] },
     { id: 'gold-hoops', set: 'bhm23', name: 'Gold hoops', layers: [bhm.svg('head_accessory_003.svg')] },
@@ -326,6 +336,7 @@ const TRAITS = {
     { id: 'ghosts', set: 'guardian-of-the-realms', name: 'Ghosts', layers: [guard.layer('accessory_003_2x.png')] },
     { id: 'skull-flame', set: 'eye-of-the-beholder', name: 'Skull flame', layers: [eye.layer('accessory_002_2x.png')] },
     { id: 'needle', set: 'snitches-get-stitches', name: 'Needle and thread', layers: [stitch.layer('accessory_001_2x.png')] },
+    { id: 'captcha-shield', set: 'cp3crash', name: 'Green shield', layers: [captcha.svg('accessory_001_8c155a.svg')] },
     { id: 'pizza-rat', set: 'deadass', name: 'Pizza rat', layers: [dead.layer('accessory_001_2x.png')] },
     { id: 'rainbow-heart', set: 'june23', name: 'Rainbow heart', layers: [june.svg('accessory_001.svg')] },
     { id: 'trans-heart', set: 'june23', name: 'Trans flag heart', layers: [june.svg('accessory_002.svg')] },
@@ -350,6 +361,7 @@ const TRAITS = {
     { id: 'sparkles', set: 'guardian-of-the-realms', name: 'Sparkles', layers: [guard.layer('accessory_back_003_2x.png')], tileBg: '#15121F', tileBgOpacity: 0.25 },
     { id: 'skull-flame-back', set: 'eye-of-the-beholder', name: 'Skull flame (back)', layers: [eye.layer('accessory_back_002_2x.png')] },
     { id: 'heart', set: 'snitches-get-stitches', name: 'Stitched heart', layers: [stitch.layer('accessory_back_001_2x.png')] },
+    { id: 'captcha-sign', set: 'cp3crash', name: 'Not a robot sign', layers: [captcha.svg('accessory_back_001_2c4aa3.svg')] },
     { id: 'nameplate', set: 'bhm23', name: 'Nameplate necklace', layers: [bhm.svg('accessory_back_004.svg')] },
     { id: 'gold-chain', set: 'bhm23', name: 'Gold chain', layers: [bhm.svg('accessory_back_006.svg')] },
     { id: 'gold-charm', set: 'bhm23', name: 'Gold charm necklace', layers: [bhm.svg('accessory_back_007.svg')] },
@@ -375,7 +387,8 @@ const TRAITS = {
     { id: 'rat', set: 'mr-bossman', name: 'Rat', layers: [boss.layer('rat-bg-2.png', { fit: 'cover' })] },
     { id: 'realms', set: 'guardian-of-the-realms', name: 'Realms', layers: [guard.layer('GUARDIANOFTHEREALMS-BG.png', { fit: 'cover' })] },
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', layers: [eye.layer('EYEOFTHEBEHOLDER-BG.png', { fit: 'cover' })], star: 'light' },
-    { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', layers: [stitch.layer('SNITCHESGETSTITCHES-BG.png', { fit: 'cover' })] }
+    { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', layers: [stitch.layer('SNITCHESGETSTITCHES-BG.png', { fit: 'cover' })] },
+    { id: 'captcha', set: 'cp3crash', name: 'Captcha', layers: [captcha.layer('captcha-bg.png', { fit: 'cover' })] }
   ]
 };
 
