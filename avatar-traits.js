@@ -173,6 +173,9 @@ const TRAITS = {
     { id: 'beholder', set: 'eye-of-the-beholder', name: 'Beholder', sets: { tops: 'beholder', bottoms: 'beholder', face: 'beholder', eyes: 'beholder', leftHand: 'skull-flame-back', rightHand: 'skull-flame' } },
     // no hat: wearing it takes any hat off
     { id: 'stitches', set: 'snitches-get-stitches', name: 'Stitches', sets: { tops: 'stitches', bottoms: 'stitches', face: 'stitches', eyes: 'stitches', leftHand: 'heart', rightHand: 'needle' } },
+    // no hair in either Expressions outfit; Downvote guy has no back accessory
+    { id: 'bye-bye-awards', set: 'expressions', name: 'Bye bye awards', background: 'bye-bye-awards', sets: { tops: 'bye-bye-awards', bottoms: 'bye-bye-awards', face: 'bye-bye-awards', eyes: 'bye-bye-awards', hats: 'bye-bye-awards-cat-hat', leftHand: 'bye-bye-awards-rocket', rightHand: 'bye-bye-awards-duck' } },
+    { id: 'downvote-guy', set: 'expressions', name: 'Downvote guy', background: 'downvote-guy', sets: { tops: 'downvote-guy', bottoms: 'downvote-guy', face: 'downvote-guy', eyes: 'downvote-guy', hats: 'downvote-guy-cap', rightHand: 'downvote-guy-dog' } },
     { id: 'captcha', set: 'cp3crash', name: 'Captcha', sets: { tops: 'captcha', bottoms: 'captcha', face: 'captcha', eyes: 'captcha', hats: 'captcha-pieces', leftHand: 'captcha-sign', rightHand: 'captcha-shield' } },
     // onboarding outfits (no background: worn on transparency). None has a front accessory; Alt grunge has no hair.
     { id: 'altgrunge', set: 'onboarding24', name: 'Alt grunge', sets: { tops: 'altgrunge', bottoms: 'altgrunge', face: 'altgrunge', eyes: 'altgrunge-sunglasses', hats: 'altgrunge-hood', leftHand: 'altgrunge-phone' } },
@@ -189,9 +192,6 @@ const TRAITS = {
     { id: 'fighter', set: 'onboarding23', name: 'Fighter', colors: { body: '#FFFFFF', eyes: '#FF3924' }, sets: { tops: 'fighter', bottoms: 'fighter', face: 'fighter', eyes: 'fighter', hats: 'fighter-headgear', leftHand: 'fighter-keyboard', rightHand: 'fighter-shield' } },
     // no hair and no hat
     { id: 'mage', set: 'onboarding23', name: 'Mage', colors: { body: '#C7E3FF', eyes: '#78B5FF' }, sets: { tops: 'mage', bottoms: 'mage', face: 'mage', eyes: 'mage', leftHand: 'mage-book', rightHand: 'mage-ray-gun' } },
-    // no hair in either Expressions outfit; Downvote guy has no back accessory
-    { id: 'bye-bye-awards', set: 'expressions', name: 'Bye bye awards', background: 'bye-bye-awards', sets: { tops: 'bye-bye-awards', bottoms: 'bye-bye-awards', face: 'bye-bye-awards', eyes: 'bye-bye-awards', hats: 'bye-bye-awards-cat-hat', leftHand: 'bye-bye-awards-rocket', rightHand: 'bye-bye-awards-duck' } },
-    { id: 'downvote-guy', set: 'expressions', name: 'Downvote guy', background: 'downvote-guy', sets: { tops: 'downvote-guy', bottoms: 'downvote-guy', face: 'downvote-guy', eyes: 'downvote-guy', hats: 'downvote-guy-cap', rightHand: 'downvote-guy-dog' } },
     // the base Snoo, whole: head, eyes, body and legs; wearing it takes off hair, hat and accessories (it has no background, so the current one stays)
     { id: 'snoo', set: 'bhm23', name: 'Snoo', base: true, sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } }
   ],
