@@ -750,6 +750,47 @@
     body.addEventListener('pointerleave', () => { if (cur) off(cur); cur = null; });
   }
 
+  // ?tune in the page address: a small panel of sliders for the HOLO settings, applied live, with the finished HOLO line to copy
+  // into avatar-traits.js. Only for tuning: visitors never see it, and nothing it changes is saved.
+  function tunePanel() {
+    const orig = Object.assign({}, HOLO);
+    const sliders = [['intensity', 'Holo strength', 0, 1, 0.05], ['dot', 'Square size', 2, 12, 1], ['tilt', 'Tilt', 0, 15, 0.5], ['lift', 'Lift', 1, 1.1, 0.005]];
+    const patterns = [['vertical-balanced', 'Vertical'], ['diagonal-balanced', 'Diagonal'], ['edges', 'Edges']];
+    const P = document.createElement('div'); P.id = 'tune';
+    P.innerHTML = '<div class="th"><span>Holo tuning</span><button type="button" id="tune-min" aria-label="Hide or show the sliders">\u2013</button></div>' +
+      '<div class="tbody">' +
+      sliders.map(r => '<label class="tr"><span>' + r[1] + '</span><input type="range" data-k="' + r[0] + '" min="' + r[2] + '" max="' + r[3] + '" step="' + r[4] + '"><output data-o="' + r[0] + '"></output></label>').join('') +
+      '<label class="tr"><span>Pattern</span><select data-k="pattern">' + patterns.map(p => '<option value="' + p[0] + '">' + p[1] + '</option>').join('') + '</select><span></span></label>' +
+      '<code id="tune-code"></code>' +
+      '<div class="tb"><button type="button" id="tune-copy">Copy</button><button type="button" id="tune-reset">Reset</button></div>' +
+      '<p class="tn">Hover the collectible Outfits tiles to see it. Copy, then paste over the HOLO line in avatar-traits.js.</p></div>';
+    document.body.appendChild(P);
+    const num = v => String(+(+v).toFixed(3));
+    const line = () => "const HOLO = { intensity: " + num(HOLO.intensity) + ", pattern: '" + HOLO.pattern + "', dot: " + num(HOLO.dot) + ", tilt: " + num(HOLO.tilt) + ", lift: " + num(HOLO.lift) + " };";
+    const remask = () => { const sample = document.querySelector('#body-left .tile.collect'); root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0, HOLO.dot)); };
+    const show = () => {
+      P.querySelectorAll('[data-k]').forEach(el => { el.value = HOLO[el.dataset.k]; });
+      P.querySelectorAll('output').forEach(o => { o.textContent = num(HOLO[o.dataset.o]); });
+      P.querySelector('#tune-code').textContent = line();
+    };
+    P.addEventListener('input', e => {
+      const k = e.target.dataset && e.target.dataset.k; if (!k) return;
+      HOLO[k] = k === 'pattern' ? e.target.value : parseFloat(e.target.value);
+      if (k === 'intensity') root.style.setProperty('--holo-i', HOLO.intensity);
+      if (k === 'dot' || k === 'pattern') remask();
+      show();
+    });
+    P.querySelector('#tune-copy').addEventListener('click', e => {
+      const b = e.currentTarget, done = () => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy'; }, 1200); };
+      if (navigator.clipboard) navigator.clipboard.writeText(line()).then(done, () => {}); 
+    });
+    P.querySelector('#tune-reset').addEventListener('click', () => {
+      Object.assign(HOLO, orig); root.style.setProperty('--holo-i', HOLO.intensity); remask(); show();
+    });
+    P.querySelector('#tune-min').addEventListener('click', e => { const m = P.classList.toggle('min'); e.currentTarget.textContent = m ? '+' : '\u2013'; });
+    show();
+  }
+
   function start() {
     // load every image once up front so picking a trait doesn't flash while it loads
     Object.keys(TRAITS).forEach(cat => TRAITS[cat].forEach(it => (it.layers || []).forEach(l => { if (l.src) new Image().src = l.src; })));
@@ -761,6 +802,7 @@
     applyColors();
     renderAll();
     holoInit();
+    if (/[?&]tune\b/.test(location.search)) tunePanel();
   }
   fitFrame();
   card.innerHTML = '<p class="empty" style="padding:16px">Loading\u2026</p>';
