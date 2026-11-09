@@ -281,18 +281,45 @@ window.addEventListener('resize', () => {
 });
 render();
 
+// ---------- the rounded, squeezed Cossette lettering ----------
+// Every rounded word is blurred, then its edge is cut sharp again, which rounds off the corners.
+//   blur    = how round the corners get (bigger = rounder and softer; scale it with the text size)
+//   sharp   = how crisp the cut edge is (lower = a soft, fuzzy edge; higher = a hard edge)
+//   thick   = moves the cut: above 0 the letters get bolder and blobbier, below 0 thinner (0 = their own weight)
+//   squeeze = how narrow the letters are drawn (1 = the font's own width)
+// name = "connie ✶ van" at the top, headings = the other squeezed headings, title = the big title on a project page (it shares the headings' squeeze).
+// Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68 }, title: { blur: 2, sharp: 4.5, thick: 0 } };
+function applyFx() {
+  const set = (id, o) => {
+    const f = document.getElementById(id); if (!f) return;
+    f.querySelector('feGaussianBlur').setAttribute('stdDeviation', o.blur);
+    const a = f.querySelector('feFuncA');
+    a.setAttribute('slope', o.sharp);
+    a.setAttribute('intercept', (0.5 - o.sharp * (0.5 - o.thick)).toFixed(3));   // the edge sits where the blur is (0.5 - thick) opaque
+  };
+  set('nameRound', FX.name); set('round-m', FX.headings); set('round-l', FX.title);
+  const nf = document.getElementById('nameRound'), pad = 60 + FX.name.blur * 3;   // room for the blur, so a big blur isn't clipped
+  if (nf) { nf.setAttribute('x', -pad); nf.setAttribute('y', -pad); nf.setAttribute('width', 1180 + 2 * pad); nf.setAttribute('height', 300 + 2 * pad); }
+  const tx = document.getElementById('nameText'); if (tx) tx.setAttribute('transform', 'scale(' + FX.name.squeeze + ' 1)');
+  document.documentElement.style.setProperty('--sq', FX.headings.squeeze);
+  if (window.fitName) window.fitName();
+}
+
 // The name hides while you scroll down and comes back when you scroll up.
 (function () {
   const nb = document.getElementById('namebar'), svg = document.getElementById('nameSvg'), tx = document.getElementById('nameText');
-  const SQ = 0.68, H = 256, LSB = 5.4, RSB = 9.9;
+  const H = 256, LSB = 5.4, RSB = 9.9;
   function fit() {
     try {
-      const w = tx.getBBox().width * SQ;
+      const SQ = FX.name.squeeze, w = tx.getBBox().width * SQ;
       if (!(w > 100)) return;
       const ink = w - (LSB + RSB) * SQ;
       svg.setAttribute('viewBox', (LSB * SQ).toFixed(1) + ' 0 ' + ink.toFixed(1) + ' ' + H);
     } catch (e) {}
   }
+  window.fitName = fit;
+  applyFx();
   if (document.fonts && document.fonts.load) document.fonts.load('700 100px "Cossette Titre"').then(fit);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   fit();
@@ -305,4 +332,46 @@ render();
     lastY = y; ticking = false;
   }
   addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+})();
+
+// ?tune in the address (before any #): sliders for FX, applied live, with the finished FX line to copy into app.js.
+// Only for tuning: visitors never see it, and nothing it changes is saved.
+(function () {
+  if (!/[?&]tune\b/.test(location.search)) return;
+  const orig = JSON.parse(JSON.stringify(FX));
+  const parts = [['name', 'Name'], ['headings', 'Headings'], ['title', 'Project title']];
+  const rows = [['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01]];
+  let part = 'name';
+  const P = el('div', null, '<div class="th"><span>Text FX</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
+    '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '</div>' +
+    rows.map(r => '<label class="tr" data-row="' + r[0] + '"><span>' + r[1] + '</span><input type="range" data-k="' + r[0] + '" min="' + r[2] + '" max="' + r[3] + '" step="' + r[4] + '"><output></output></label>').join('') +
+    '<p class="tn tnote"></p><code class="tcode"></code><div class="tb"><button type="button" class="tcopy">Copy</button><button type="button" class="treset">Reset</button></div>' +
+    '<p class="tn">Copy, then paste over the FX line in app.js.</p></div>');
+  P.id = 'fxtune';
+  document.body.appendChild(P);
+  const num = v => String(+(+v).toFixed(3));
+  const obj = o => '{ ' + Object.keys(o).map(k => k + ': ' + num(o[k])).join(', ') + ' }';
+  const line = () => 'const FX = { ' + parts.map(p => p[0] + ': ' + obj(FX[p[0]])).join(', ') + ' };';
+  const show = () => {
+    const o = FX[part];
+    P.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === part));
+    P.querySelectorAll('[data-row]').forEach(l => {
+      const k = l.dataset.row, has = k in o; l.hidden = !has; if (!has) return;
+      l.querySelector('input').value = o[k]; l.querySelector('output').textContent = num(o[k]);
+    });
+    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze.' : part === 'headings' ? 'The squeezed headings, e.g. the next and previous project links.' : '';
+    P.querySelector('.tcode').textContent = line();
+  };
+  P.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.p) { part = b.dataset.p; show(); }
+    else if (b.classList.contains('tcopy')) { if (navigator.clipboard) navigator.clipboard.writeText(line()).then(() => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy'; }, 1200); }, () => {}); }
+    else if (b.classList.contains('treset')) { Object.keys(orig).forEach(k => Object.assign(FX[k], orig[k])); applyFx(); show(); }
+    else if (b.classList.contains('tmin')) { const m = P.classList.toggle('min'); b.textContent = m ? '+' : '\u2013'; }
+  });
+  P.addEventListener('input', e => {
+    const k = e.target.dataset.k; if (!k) return;
+    FX[part][k] = parseFloat(e.target.value); applyFx(); show();
+  });
+  show();
 })();

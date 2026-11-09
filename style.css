@@ -13,7 +13,8 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Cossette Tit
 a{color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 /* Squashed headings: the box is laid out 1/--sq as wide, then squeezed back to its real width, so text wraps and layout stays honest. */
-.sqw{--sq:.68;display:block;filter:url(#round-m)}
+:root{--sq:.68}
+.sqw{display:block;filter:url(#round-m)}
 .sqw>span{display:block;width:calc(100%/var(--sq));transform:scaleX(var(--sq));transform-origin:0 0;font-family:'Cossette Titre','Noto Star',Impact,'Arial Narrow',sans-serif;font-weight:700}
 /* corner menu: a fixed overlay. The top-right cluster is repeated, rotated 180 degrees, in the bottom-left. */
 .menu{position:fixed;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:34px;pointer-events:none;font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;line-height:var(--cell)}
@@ -104,3 +105,19 @@ iframe.lbm{width:min(92vw,1000px);aspect-ratio:16/9;border:0;max-height:none}
 /* videos act like gifs: never show a play/pause button or any controls, and ignore clicks */
 video{pointer-events:none}
 video::-webkit-media-controls,video::-webkit-media-controls-enclosure,video::-webkit-media-controls-panel,video::-webkit-media-controls-overlay-play-button,video::-webkit-media-controls-start-playback-button,video::-webkit-media-controls-play-button{display:none!important;opacity:0!important;-webkit-appearance:none}
+
+/* ?tune text FX panel (tuning only, never shown to visitors) */
+#fxtune{position:fixed;right:16px;bottom:16px;z-index:10000;width:290px;background:var(--paper);color:var(--ink);border:1px solid var(--ink);padding:10px 12px;font:500 10.5px/1.4 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+#fxtune .th{display:flex;justify-content:space-between;align-items:center}
+#fxtune button{font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--ink);padding:3px 6px;cursor:pointer}
+#fxtune .tmin{width:22px;padding:0;line-height:20px}
+#fxtune.min .tbody{display:none}
+#fxtune .tparts{display:flex;gap:4px;margin:8px 0 4px}
+#fxtune .tparts button.on{background:var(--ink);color:var(--paper)}
+#fxtune .tr{display:grid;grid-template-columns:104px 1fr 40px;align-items:center;gap:8px;margin:7px 0}
+#fxtune .tr[hidden]{display:none}
+#fxtune .tr input{width:100%;accent-color:var(--ink)}
+#fxtune .tr output{text-align:right}
+#fxtune .tcode{display:block;margin:8px 0;text-transform:none;letter-spacing:0;word-break:break-all;font-size:10px}
+#fxtune .tb{display:flex;gap:6px}
+#fxtune .tn{margin:6px 0 0;text-transform:none;letter-spacing:0;opacity:.75}
