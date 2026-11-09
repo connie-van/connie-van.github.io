@@ -12,8 +12,8 @@
 //                    tint:'body' | 'eyes' | 'hair'  (fills the image's shape with that color)
 //
 //   A layer with  z: CATEGORY_Z.hairBack  sits behind the body (see the stacking order below).
-//   Every tile in a trait tab shows that item's set's ORIGINAL colors (see SETS) until the visitor picks a color of their own; Reset all and wearing an outfit
-//   bring the originals back. The avatar itself always follows the visitor's colors. An item can opt out with  originalInMenu: false.
+//   Every tile in a trait tab shows that item's set's ORIGINAL colors (see SETS) until the visitor picks a color of their own; from then on the tiles and the
+//   avatar follow the visitor's colors (wearing an outfit doesn't change a customized color) until Reset all brings the originals back. Outfits tiles always show their originals. The avatar itself always follows the visitor's colors. An item can opt out with  originalInMenu: false.
 //   Every item can also take  crop:[left, top, right, bottom]  (in CANVAS units) to choose by hand how its selection tile is zoomed.
 //   An item with  fullTile: true  shows ALL of its artwork in its tile, floating pieces included.
 //   A background with  star:'light'  or  star:'dark'  sets the selected star's color on its B.G. tile and its set's Outfits tile
@@ -116,6 +116,9 @@ const SETS = {
   // Reddit work, not collectible: onboarding outfits (Alt grunge, Funky, Gamer girl, Gamer guy, Gen Z, Tracksuit). No backgrounds, so wearing either one clears the
   // background to None. Vector SVGs: lime shapes take the Skin color, yellow the Eyes color, blue the Hair color.
   'onboarding24': { name: 'Onboarding 24', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#000000' }, clearBackground: true },
+  // Reddit work, not collectible: Valentine's Day 2023 outfits (Cupid and Sadboy). No backgrounds, so wearing either one clears the background to None.
+  // Vector SVGs: lime shapes take the Skin color, yellow the Eyes color (only the pupils; the eye whites stay white), blue the Hair color. Only Cupid has hair.
+  'vday23': { name: 'Valentine\'s Day 23', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#000000' }, clearBackground: true },
   // Reddit work, collectible: onboarding outfits from 2023 (Druid, Bard, Fighter, Mage). Each outfit has its own background.
   // Vector SVGs: lime shapes take the Skin color, yellow the Eyes color. Each outfit carries its own original colors (from Reddit's composite).
   // Bard's eyes are closed, drawn in fixed colors, so they don't recolor.
@@ -147,6 +150,7 @@ const gummy = inSet('gummy');
 const june = inSet('june23');
 const bhm = inSet('bhm23');
 const onb = inSet('onboarding24');
+const vday = inSet('vday23');
 const onb23 = inSet('onboarding23');
 const expr = inSet('expressions');
 
@@ -192,6 +196,9 @@ const TRAITS = {
     { id: 'gamerguy', set: 'onboarding24', name: 'Gamer guy', colors: { hair: '#162F35' }, sets: { tops: 'gamerguy', bottoms: 'gamerguy', face: 'gamerguy', eyes: 'gamerguy', hair: 'gamerguy', hats: 'gamerguy-headset', leftHand: 'gamerguy-joystick' } },
     { id: 'genz', set: 'onboarding24', name: 'Gen Z', colors: { hair: '#E49234' }, sets: { tops: 'genz', bottoms: 'genz', face: 'genz', eyes: 'genz', hair: 'genz', hats: 'genz-bucket-hat', leftHand: 'genz-bag' } },
     { id: 'tracksuit', set: 'onboarding24', name: 'Tracksuit', colors: { hair: '#BA5220' }, sets: { tops: 'tracksuit', bottoms: 'tracksuit', face: 'tracksuit', eyes: 'tracksuit', hair: 'tracksuit', hats: 'tracksuit-cap', leftHand: 'tracksuit-bottle' } },
+    // Valentine's Day 23 (no background: worn on transparency). Sadboy has no hair.
+    { id: 'cupid', set: 'vday23', name: 'Cupid', colors: { hair: '#C08D41' }, sets: { tops: 'cupid', bottoms: 'cupid', face: 'cupid', eyes: 'cupid', hair: 'cupid', hats: 'cupid-halo', leftHand: 'cupid-bow', rightHand: 'cupid-arrow' } },
+    { id: 'sadboy', set: 'vday23', name: 'Sadboy', sets: { tops: 'sadboy', bottoms: 'sadboy', face: 'sadboy', eyes: 'sadboy', hats: 'sadboy-chocolates', leftHand: 'sadboy-tissue-box', rightHand: 'sadboy-tissue' } },
     // the base Snoo, whole: head, eyes, body and legs; wearing it takes off hair, hat and accessories (it has no background, so the current one stays)
     { id: 'snoo', set: 'bhm23', name: 'Snoo', base: true, sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } }
   ],
@@ -228,6 +235,8 @@ const TRAITS = {
     { id: 'mage', set: 'onboarding23', name: 'Lab coat', colors: { body: '#C7E3FF', eyes: '#78B5FF' }, layers: [onb23.svg('body_004.svg')] },
     { id: 'bye-bye-awards', set: 'expressions', name: 'Gold hoodie', layers: [expr.svg('body_001_d8e1d5.svg')] },
     { id: 'downvote-guy', set: 'expressions', name: 'Jacket and hoodie', layers: [expr.svg('body_003_1.svg')] },
+    { id: 'cupid', set: 'vday23', name: 'Toga', layers: [vday.svg('cupid-top.svg')] },
+    { id: 'sadboy', set: 'vday23', name: 'XOXO tee', layers: [vday.svg('sadboy-top.svg')] },
     { id: 'snoo-body', set: 'bhm23', name: 'Snoo body', base: true, layers: [bhm.svg('body_013.svg')] }
   ],
   bottoms: [                                                                                                  // body bottom
@@ -257,6 +266,8 @@ const TRAITS = {
     { id: 'mage', set: 'onboarding23', name: 'Hover base', colors: { body: '#C7E3FF', eyes: '#78B5FF' }, layers: [onb23.svg('body_bottom_004.svg')] },
     { id: 'bye-bye-awards', set: 'expressions', name: 'Gift box', layers: [expr.svg('body_bottom_001_1.svg')] },
     { id: 'downvote-guy', set: 'expressions', name: 'Ripped jeans and sneakers', layers: [expr.svg('body_bottom_003.svg')] },
+    { id: 'cupid', set: 'vday23', name: 'Toga skirt', layers: [vday.svg('cupid-bottom.svg')] },
+    { id: 'sadboy', set: 'vday23', name: 'Heart boxers and slippers', layers: [vday.svg('sadboy-bottom.svg')] },
     { id: 'snoo-legs', set: 'bhm23', name: 'Snoo legs', base: true, layers: [bhm.svg('body_bottom_013.svg')] }
   ],
   hair: [
@@ -272,11 +283,12 @@ const TRAITS = {
     { id: 'curls-headwrap', set: 'bhm23', name: 'Curls with headwrap', layers: [bhm.svg('hair_001.svg')] },
     { id: 'beaded-braids', set: 'bhm23', name: 'Beaded braids', layers: [bhm.svg('hair_back_002.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_002.svg')] },
     { id: 'knotted-updo', set: 'bhm23', name: 'Knotted updo', layers: [bhm.svg('hair_back_003.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_003.svg')] },
-    { id: 'funky', set: 'onboarding24', name: 'Wavy hair', colors: { hair: '#32312F' }, layers: [onb.svg('funky-hair.svg')], originalInMenu: false },
-    { id: 'gamergirl', set: 'onboarding24', name: 'Long layers', colors: { hair: '#492F1D' }, layers: [onb.svg('gamergirl-hair.svg')], originalInMenu: false },
-    { id: 'gamerguy', set: 'onboarding24', name: 'Messy fringe', colors: { hair: '#162F35' }, layers: [onb.svg('gamerguy-hair.svg')], originalInMenu: false },
-    { id: 'genz', set: 'onboarding24', name: 'Shag', colors: { hair: '#E49234' }, layers: [onb.svg('genz-hair.svg')], originalInMenu: false },
-    { id: 'tracksuit', set: 'onboarding24', name: 'Short hair and beard', colors: { hair: '#BA5220' }, layers: [onb.svg('tracksuit-hair.svg')], originalInMenu: false }
+    { id: 'funky', set: 'onboarding24', name: 'Wavy hair', colors: { hair: '#32312F' }, layers: [onb.svg('funky-hair.svg')] },
+    { id: 'gamergirl', set: 'onboarding24', name: 'Long layers', colors: { hair: '#492F1D' }, layers: [onb.svg('gamergirl-hair.svg')] },
+    { id: 'gamerguy', set: 'onboarding24', name: 'Messy fringe', colors: { hair: '#162F35' }, layers: [onb.svg('gamerguy-hair.svg')] },
+    { id: 'genz', set: 'onboarding24', name: 'Shag', colors: { hair: '#E49234' }, layers: [onb.svg('genz-hair.svg')] },
+    { id: 'tracksuit', set: 'onboarding24', name: 'Short hair and beard', colors: { hair: '#BA5220' }, layers: [onb.svg('tracksuit-hair.svg')] },
+    { id: 'cupid', set: 'vday23', name: 'Curls with arrow', colors: { hair: '#C08D41' }, layers: [vday.svg('cupid-hair.svg')] }
   ],
   face: [                                                                                                     // lower face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_lower_003.svg')] },
@@ -304,6 +316,8 @@ const TRAITS = {
     { id: 'mage', set: 'onboarding23', name: 'Robot head', colors: { body: '#C7E3FF', eyes: '#78B5FF' }, layers: [onb23.svg('face_lower_004.svg')] },
     { id: 'bye-bye-awards', set: 'expressions', name: 'Crown head', layers: [expr.svg('face_lower_001_1.svg')] },
     { id: 'downvote-guy', set: 'expressions', name: 'Banana earring head', layers: [expr.svg('face_lower_003_1.svg')] },
+    { id: 'cupid', set: 'vday23', name: 'Bucktooth head', layers: [vday.svg('cupid-head.svg')] },
+    { id: 'sadboy', set: 'vday23', name: 'Frowning head', layers: [vday.svg('sadboy-head.svg')] },
     { id: 'snoo-head', set: 'bhm23', name: 'Snoo head', base: true, layers: [bhm.svg('face_lower_013.svg')] }
   ],
   eyes: [                                                                                                     // upper face
@@ -334,6 +348,8 @@ const TRAITS = {
     { id: 'mage', set: 'onboarding23', name: 'Round eyes', colors: { body: '#C7E3FF', eyes: '#78B5FF' }, layers: [onb23.svg('face_upper_004.svg')] },
     { id: 'bye-bye-awards', set: 'expressions', name: 'Blue eyes', layers: [expr.svg('face_upper_001_1.svg')] },
     { id: 'downvote-guy', set: 'expressions', name: 'Blue sunglasses', layers: [expr.svg('face_upper_003_1.svg')] },
+    { id: 'cupid', set: 'vday23', name: 'Blushing eyes', layers: [vday.svg('cupid-eyes.svg')] },
+    { id: 'sadboy', set: 'vday23', name: 'Teary eyes', layers: [vday.svg('sadboy-eyes.svg')] },
     { id: 'snoo-eyes', set: 'bhm23', name: 'Snoo eyes', base: true, layers: [bhm.svg('face_upper_013.svg')] }
   ],
   hats: [                                                                                                     // head accessory
@@ -357,7 +373,9 @@ const TRAITS = {
     { id: 'bard-banana', set: 'onboarding23', name: 'Banana costume', layers: [onb23.svg('head_accessory_002_1.svg')] },
     { id: 'fighter-headgear', set: 'onboarding23', name: 'Red headgear', layers: [onb23.svg('head_accessory_003_485e92.svg')] },
     { id: 'bye-bye-awards-cat-hat', set: 'expressions', name: 'Cat hat with pixel shades', layers: [expr.svg('head_accessory_001_016eca.svg')] },
-    { id: 'downvote-guy-cap', set: 'expressions', name: 'Black cap', layers: [expr.svg('head_accessory_003_1.svg')] }
+    { id: 'downvote-guy-cap', set: 'expressions', name: 'Black cap', layers: [expr.svg('head_accessory_003_1.svg')] },
+    { id: 'cupid-halo', set: 'vday23', name: 'Gold halo', layers: [vday.svg('cupid-hat.svg')] },
+    { id: 'sadboy-chocolates', set: 'vday23', name: 'Box of chocolates', layers: [vday.svg('sadboy-hat.svg')] }
   ],
   rightHand: [                                                                                                // acc front
     { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
@@ -385,7 +403,9 @@ const TRAITS = {
     { id: 'druid-stick', set: 'onboarding23', name: 'Banana stick', colors: { body: '#9ADB52', eyes: '#031619' }, layers: [onb23.svg('accessory_001_a560e7.svg')] },
     { id: 'bard-ukulele', set: 'onboarding23', name: 'Cat ukulele', colors: { body: '#FFFFFF' }, layers: [onb23.svg('accessory_002_1.svg')] },
     { id: 'fighter-shield', set: 'onboarding23', name: 'Upvote shield', layers: [onb23.svg('accessory_003_f49d4a.svg')] },
-    { id: 'mage-ray-gun', set: 'onboarding23', name: 'Ray gun', colors: { body: '#C7E3FF', eyes: '#78B5FF' }, layers: [onb23.svg('accessory_004_1.svg')] }
+    { id: 'mage-ray-gun', set: 'onboarding23', name: 'Ray gun', colors: { body: '#C7E3FF', eyes: '#78B5FF' }, layers: [onb23.svg('accessory_004_1.svg')] },
+    { id: 'cupid-arrow', set: 'vday23', name: 'Heart arrow', layers: [vday.svg('cupid-acc.svg')] },
+    { id: 'sadboy-tissue', set: 'vday23', name: 'Tissue', layers: [vday.svg('sadboy-acc.svg')] }
   ],
   leftHand: [                                                                                                 // acc back (between the top and the head)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
@@ -411,7 +431,9 @@ const TRAITS = {
     { id: 'tracksuit-bottle', set: 'onboarding24', name: 'Yellow water bottle', layers: [onb.svg('tracksuit-back-acc.svg')] },
     { id: 'fighter-keyboard', set: 'onboarding23', name: 'Keyboard sword', colors: { body: '#FFFFFF', eyes: '#FF3924' }, layers: [onb23.svg('accessory_back_003_1.svg')] },
     { id: 'mage-book', set: 'onboarding23', name: 'Glowing spellbook', layers: [onb23.svg('accessory_back_004_1.svg')] },
-    { id: 'bye-bye-awards-rocket', set: 'expressions', name: 'Rocket thumbs-up', layers: [expr.svg('accessory_back_001_1.svg')] }
+    { id: 'bye-bye-awards-rocket', set: 'expressions', name: 'Rocket thumbs-up', layers: [expr.svg('accessory_back_001_1.svg')] },
+    { id: 'cupid-bow', set: 'vday23', name: 'Gold bow', layers: [vday.svg('cupid-back-acc.svg')] },
+    { id: 'sadboy-tissue-box', set: 'vday23', name: 'Tissue box', layers: [vday.svg('sadboy-back-acc.svg')] }
   ],
   backgrounds: [
     { id: 'deadass', set: 'deadass', name: 'Deadass', layers: [dead.layer('deadass-bg.png', { fit: 'cover' })] },

@@ -80,8 +80,9 @@
   // the avatar's background (a picture, a solid color or a gradient) shows with rounded corners; with no background there is nothing to round
   const applyBg = () => { card.style.background = bgCss(); card.classList.toggle('rounded', bgMode() !== 'none'); };
 
-  // picking an outfit also brings its set's original colors and its paired background (when the set has one)
-  // "chosen" colors: trait tiles show their set's original colors until the visitor picks a color of their own
+  // picking an outfit also brings its set's original colors (except any color the visitor has customized) and its paired background (when the set has one)
+  // "chosen" colors: trait tiles show their set's original colors until the visitor picks a color of their own; from then on they follow the colors
+  // (wearing an outfit doesn't change that), until Reset all. Outfits tiles always show their originals.
   // (the <html> element gets a c-body / c-eyes / c-hair class, and the CSS does the rest)
   const markChosen = k => { state.chosen[k] = true; root.classList.add('c-' + k); };
   const clearChosen = k => { state.chosen[k] = false; root.classList.remove('c-' + k); };
@@ -95,7 +96,7 @@
     if (bgId && find('backgrounds', bgId)) state.sel.backgrounds = bgId;
     else if (set.clearBackground) { state.sel.backgrounds = null; state.bg.mode = 'none'; state.bg.stop = 0; }   // worn on transparency
     const og = ogColors(it);
-    Object.keys(og).forEach(k => { const c = normHex(og[k]); if (c) { state.colors[k] = c; root.style.setProperty('--' + k, c); clearChosen(k); } });
+    Object.keys(og).forEach(k => { const c = normHex(og[k]); if (c && !state.chosen[k]) { state.colors[k] = c; root.style.setProperty('--' + k, c); } });   // a color the visitor has customized stays theirs (only Reset all brings the originals back)
   }
   // the Outfits tab always shows a fit in its set's original colors, whatever the visitor has customized.
   // Every other trait tile does the same, until the visitor picks a color of their own (an item can opt out with  originalInMenu: false  in avatar-traits.js).
