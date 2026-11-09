@@ -116,6 +116,9 @@ const SETS = {
   // Reddit work, not collectible: onboarding outfits (Alt grunge, Funky, Gamer girl, Gamer guy, Gen Z, Tracksuit). No backgrounds, so wearing either one clears the
   // background to None. Vector SVGs: lime shapes take the Skin color, yellow the Eyes color, blue the Hair color.
   'onboarding24': { name: 'Onboarding 24', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#000000' }, clearBackground: true },
+  // Reddit work, not collectible: miscellaneous single outfits (Selfcaregirlie). No backgrounds, so wearing one clears the background to None.
+  // Vector SVGs: lime shapes take the Skin color. The eyes are cucumber slices in fixed colors, so they don't recolor; no hair.
+  'misc': { name: 'Misc', collectible: false, reddit: true, colors: { body: '#FFFFFF' }, clearBackground: true },
   // Reddit work, not collectible: Valentine's Day 2023 outfits (Cupid and Sadboy). No backgrounds, so wearing either one clears the background to None.
   // Vector SVGs: lime shapes take the Skin color, yellow the Eyes color (only the pupils; the eye whites stay white), blue the Hair color. Only Cupid has hair.
   'vday23': { name: 'Valentine\'s Day 23', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#000000' }, clearBackground: true },
@@ -151,6 +154,7 @@ const june = inSet('june23');
 const bhm = inSet('bhm23');
 const onb = inSet('onboarding24');
 const vday = inSet('vday23');
+const misc = inSet('misc');
 const onb23 = inSet('onboarding23');
 const expr = inSet('expressions');
 
@@ -196,6 +200,8 @@ const TRAITS = {
     { id: 'gamerguy', set: 'onboarding24', name: 'Gamer guy', colors: { hair: '#162F35' }, sets: { tops: 'gamerguy', bottoms: 'gamerguy', face: 'gamerguy', eyes: 'gamerguy', hair: 'gamerguy', hats: 'gamerguy-headset', leftHand: 'gamerguy-joystick' } },
     { id: 'genz', set: 'onboarding24', name: 'Gen Z', colors: { hair: '#E49234' }, sets: { tops: 'genz', bottoms: 'genz', face: 'genz', eyes: 'genz', hair: 'genz', hats: 'genz-bucket-hat', leftHand: 'genz-bag' } },
     { id: 'tracksuit', set: 'onboarding24', name: 'Tracksuit', colors: { hair: '#BA5220' }, sets: { tops: 'tracksuit', bottoms: 'tracksuit', face: 'tracksuit', eyes: 'tracksuit', hair: 'tracksuit', hats: 'tracksuit-cap', leftHand: 'tracksuit-bottle' } },
+    // no hair and no accessories
+    { id: 'selfcaregirlie', set: 'misc', name: 'Selfcaregirlie', sets: { tops: 'selfcaregirlie', bottoms: 'selfcaregirlie', face: 'selfcaregirlie', eyes: 'selfcaregirlie', hats: 'selfcaregirlie-towel' } },
     // Valentine's Day 23 (no background: worn on transparency). Sadboy has no hair.
     { id: 'cupid', set: 'vday23', name: 'Cupid', colors: { hair: '#C08D41' }, sets: { tops: 'cupid', bottoms: 'cupid', face: 'cupid', eyes: 'cupid', hair: 'cupid', hats: 'cupid-halo', leftHand: 'cupid-bow', rightHand: 'cupid-arrow' } },
     { id: 'sadboy', set: 'vday23', name: 'Sadboy', sets: { tops: 'sadboy', bottoms: 'sadboy', face: 'sadboy', eyes: 'sadboy', hats: 'sadboy-chocolates', leftHand: 'sadboy-tissue-box', rightHand: 'sadboy-tissue' } },
@@ -237,6 +243,7 @@ const TRAITS = {
     { id: 'downvote-guy', set: 'expressions', name: 'Jacket and hoodie', layers: [expr.svg('body_003_1.svg')] },
     { id: 'cupid', set: 'vday23', name: 'Toga', layers: [vday.svg('cupid-top.svg')] },
     { id: 'sadboy', set: 'vday23', name: 'XOXO tee', layers: [vday.svg('sadboy-top.svg')] },
+    { id: 'selfcaregirlie', set: 'misc', name: 'Robe', layers: [misc.svg('selfcaregirlie-top.svg')] },
     { id: 'snoo-body', set: 'bhm23', name: 'Snoo body', base: true, layers: [bhm.svg('body_013.svg')] }
   ],
   bottoms: [                                                                                                  // body bottom
@@ -268,6 +275,7 @@ const TRAITS = {
     { id: 'downvote-guy', set: 'expressions', name: 'Ripped jeans and sneakers', layers: [expr.svg('body_bottom_003.svg')] },
     { id: 'cupid', set: 'vday23', name: 'Toga skirt', layers: [vday.svg('cupid-bottom.svg')] },
     { id: 'sadboy', set: 'vday23', name: 'Heart boxers and slippers', layers: [vday.svg('sadboy-bottom.svg')] },
+    { id: 'selfcaregirlie', set: 'misc', name: 'Teddy bear slippers', layers: [misc.svg('selfcaregirlie-bottom.svg')] },
     { id: 'snoo-legs', set: 'bhm23', name: 'Snoo legs', base: true, layers: [bhm.svg('body_bottom_013.svg')] }
   ],
   hair: [
@@ -318,6 +326,7 @@ const TRAITS = {
     { id: 'downvote-guy', set: 'expressions', name: 'Banana earring head', layers: [expr.svg('face_lower_003_1.svg')] },
     { id: 'cupid', set: 'vday23', name: 'Bucktooth head', layers: [vday.svg('cupid-head.svg')] },
     { id: 'sadboy', set: 'vday23', name: 'Frowning head', layers: [vday.svg('sadboy-head.svg')] },
+    { id: 'selfcaregirlie', set: 'misc', name: 'Face mask head', layers: [misc.svg('selfcaregirlie-head.svg')] },
     { id: 'snoo-head', set: 'bhm23', name: 'Snoo head', base: true, layers: [bhm.svg('face_lower_013.svg')] }
   ],
   eyes: [                                                                                                     // upper face
@@ -350,6 +359,7 @@ const TRAITS = {
     { id: 'downvote-guy', set: 'expressions', name: 'Blue sunglasses', layers: [expr.svg('face_upper_003_1.svg')] },
     { id: 'cupid', set: 'vday23', name: 'Blushing eyes', layers: [vday.svg('cupid-eyes.svg')] },
     { id: 'sadboy', set: 'vday23', name: 'Teary eyes', layers: [vday.svg('sadboy-eyes.svg')] },
+    { id: 'selfcaregirlie', set: 'misc', name: 'Cucumber slices', layers: [misc.svg('selfcaregirlie-eyes.svg')] },
     { id: 'snoo-eyes', set: 'bhm23', name: 'Snoo eyes', base: true, layers: [bhm.svg('face_upper_013.svg')] }
   ],
   hats: [                                                                                                     // head accessory
@@ -375,7 +385,8 @@ const TRAITS = {
     { id: 'bye-bye-awards-cat-hat', set: 'expressions', name: 'Cat hat with pixel shades', layers: [expr.svg('head_accessory_001_016eca.svg')] },
     { id: 'downvote-guy-cap', set: 'expressions', name: 'Black cap', layers: [expr.svg('head_accessory_003_1.svg')] },
     { id: 'cupid-halo', set: 'vday23', name: 'Gold halo', layers: [vday.svg('cupid-hat.svg')] },
-    { id: 'sadboy-chocolates', set: 'vday23', name: 'Box of chocolates', layers: [vday.svg('sadboy-hat.svg')] }
+    { id: 'sadboy-chocolates', set: 'vday23', name: 'Box of chocolates', layers: [vday.svg('sadboy-hat.svg')] },
+    { id: 'selfcaregirlie-towel', set: 'misc', name: 'Hair towel', layers: [misc.svg('selfcaregirlie-hat.svg')] }
   ],
   rightHand: [                                                                                                // acc front
     { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
