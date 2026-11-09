@@ -292,9 +292,12 @@ render();
 //   font    = which of the site's typefaces it's set in (see FX_FONTS)
 //   size    = how big it is, times its normal size (1 = as designed)
 //   width   = (title only) how much of the row the project title takes, in %; the description box beside it gets the rest
-// name = "connie ✶ van" at the top, headings = the other squeezed headings, title = the big title on a project page (it shares the headings' squeeze).
+// name = "connie ✶ van" at the top, headings = the next / previous project titles at the bottom of a project page,
+// title = the big title on a project page (it shares the headings' squeeze), body = body copy (descriptions, credits, the About page),
+// labels = the small uppercase labels (credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions).
+//   leading = (body only) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30 }, body: { font: 'cossette', size: 1, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -303,27 +306,28 @@ const FX_FONTS = {
   'geist-mono': ['Geist Mono Medium', "'Geist Mono'", 500],
   'geist-mono-regular': ['Geist Mono Regular', "'Geist Mono'", 400]
 };
-// A font can also come from Google Fonts: font: 'google:Family Name:700' (family, then weight). It's loaded from Google when the page
-// opens. Fine for trying fonts out; for good, download the font into fonts/ and add it to FX_FONTS instead.
+// A font can also come from Google Fonts: font: 'google:Family Name:700' or 'google:Family Name:700:italic' (family, weight, style).
+// It's loaded from Google when the page opens. Fine for trying fonts out; for good, download the font into fonts/ and add it to FX_FONTS.
 const gfLoaded = {};
-function googleFont(family, w) {
-  const key = family + ':' + w; if (gfLoaded[key]) return; gfLoaded[key] = true;
+function googleFont(family, w, it) {
+  const key = family + ':' + w + ':' + it; if (gfLoaded[key]) return; gfLoaded[key] = true;
   const fam = encodeURIComponent(family).replace(/%20/g, '+');
   const add = (href, fail) => {
     const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href;
-    l.onload = () => { if (document.fonts && document.fonts.load) document.fonts.load(w + " 100px '" + family + "'").then(() => applyFx()); };
+    l.onload = () => { if (document.fonts && document.fonts.load) document.fonts.load((it ? 'italic ' : '') + w + " 100px '" + family + "'").then(() => applyFx()); };
     l.onerror = fail || null; document.head.appendChild(l);
   };
-  // if Google doesn't have that weight, fall back to the family's default weight
-  add('https://fonts.googleapis.com/css2?family=' + fam + ':wght@' + w + '&display=swap', () => add('https://fonts.googleapis.com/css2?family=' + fam + '&display=swap'));
+  // if Google doesn't have that weight and style, fall back to the family's default
+  add('https://fonts.googleapis.com/css2?family=' + fam + (it ? ':ital,wght@1,' : ':wght@') + w + '&display=swap', () => add('https://fonts.googleapis.com/css2?family=' + fam + '&display=swap'));
 }
+// [name for the panel, CSS family, weight, style]
 const fxFont = k => {
   if (typeof k === 'string' && k.indexOf('google:') === 0) {
-    const bits = k.slice(7).split(':'), fam = bits[0], w = parseInt(bits[1], 10) || 400;
-    googleFont(fam, w);
-    return [fam + ' (Google)', "'" + fam.replace(/'/g, '') + "'", w];
+    const bits = k.slice(7).split(':'), fam = bits[0], w = parseInt(bits[1], 10) || 400, it = bits[2] === 'italic';
+    googleFont(fam, w, it);
+    return [fam + ' ' + w + (it ? ' italic' : '') + ' (Google)', "'" + fam.replace(/'/g, '') + "'", w, it ? 'italic' : 'normal'];
   }
-  return FX_FONTS[k] || FX_FONTS['cossette-bold'];
+  return (FX_FONTS[k] || FX_FONTS['cossette-bold']).concat('normal');
 };
 function applyFx() {
   const set = (id, o) => {
@@ -333,19 +337,25 @@ function applyFx() {
     a.setAttribute('slope', o.sharp);
     a.setAttribute('intercept', (0.5 - o.sharp * (0.5 - o.thick)).toFixed(3));   // the edge sits where the blur is (0.5 - thick) opaque
   };
+  if (!FX.body) FX.body = { font: 'cossette', size: 1, leading: 1.4 };
+  if (!FX.labels) FX.labels = { font: 'geist-mono', size: 1 };
   set('nameRound', FX.name); set('round-m', FX.headings); set('round-l', FX.title);
   const nf = document.getElementById('nameRound'), pad = 60 + FX.name.blur * 3;   // room for the blur, so a big blur isn't clipped
   if (nf) { nf.setAttribute('x', -pad); nf.setAttribute('y', -pad); nf.setAttribute('width', 1180 + 2 * pad); nf.setAttribute('height', 300 + 2 * pad); }
   const tx = document.getElementById('nameText'), nf2 = fxFont(FX.name.font);
-  if (tx) { tx.setAttribute('transform', 'scale(' + FX.name.squeeze + ' 1)'); tx.style.fontFamily = nf2[1] + ",'Noto Star',Impact,sans-serif"; tx.style.fontWeight = nf2[2]; }
+  if (tx) { tx.setAttribute('transform', 'scale(' + FX.name.squeeze + ' 1)'); tx.style.fontFamily = nf2[1] + ",'Noto Star',Impact,sans-serif"; tx.style.fontWeight = nf2[2]; tx.style.fontStyle = nf2[3]; }
   const rs = document.documentElement.style, hf = fxFont(FX.headings.font), tf = fxFont(FX.title.font);
   rs.setProperty('--sq', FX.headings.squeeze);
   rs.setProperty('--name-w', (126 * FX.name.size).toFixed(1) + 'px');
-  rs.setProperty('--fx-h-font', hf[1]); rs.setProperty('--fx-h-weight', hf[2]); rs.setProperty('--fx-h-size', FX.headings.size);
-  rs.setProperty('--fx-t-font', tf[1]); rs.setProperty('--fx-t-weight', tf[2]); rs.setProperty('--fx-t-size', FX.title.size); rs.setProperty('--title-w', (FX.title.width || 30) + '%');
+  rs.setProperty('--fx-h-font', hf[1]); rs.setProperty('--fx-h-weight', hf[2]); rs.setProperty('--fx-h-style', hf[3]); rs.setProperty('--fx-h-size', FX.headings.size);
+  rs.setProperty('--fx-t-font', tf[1]); rs.setProperty('--fx-t-weight', tf[2]); rs.setProperty('--fx-t-style', tf[3]); rs.setProperty('--fx-t-size', FX.title.size); rs.setProperty('--title-w', (FX.title.width || 30) + '%');
+  const bf = fxFont(FX.body.font);
+  rs.setProperty('--fx-b-font', bf[1]); rs.setProperty('--fx-b-weight', bf[2]); rs.setProperty('--fx-b-style', bf[3]); rs.setProperty('--fx-b-size', FX.body.size); rs.setProperty('--fx-b-lh', FX.body.leading);
+  const lf = fxFont(FX.labels.font);
+  rs.setProperty('--fx-l-font', lf[1]); rs.setProperty('--fx-l-weight', lf[2]); rs.setProperty('--fx-l-style', lf[3]); rs.setProperty('--fx-l-size', FX.labels.size);
   if (window.fitName) window.fitName();
   // re-measure the name once its typeface has loaded
-  if (document.fonts && document.fonts.load) document.fonts.load(nf2[2] + ' 100px ' + nf2[1]).then(() => { if (window.fitName) window.fitName(); });
+  if (document.fonts && document.fonts.load) document.fonts.load((nf2[3] === 'italic' ? 'italic ' : '') + nf2[2] + ' 100px ' + nf2[1]).then(() => { if (window.fitName) window.fitName(); });
 }
 
 // The name hides while you scroll down and comes back when you scroll up.
@@ -381,14 +391,15 @@ function applyFx() {
 (function () {
   if (!/[?&]tune\b/.test(location.search)) return;
   const orig = JSON.parse(JSON.stringify(FX));
-  const parts = [['name', 'Name'], ['headings', 'Headings'], ['title', 'Project title']];
-  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1]];
+  const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels']];
+  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 1, 2, 0.01]];
   let part = 'name';
   const P = el('div', null, '<div class="th"><span>Text FX</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
     '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '</div>' +
     '<label class="tr" data-row="font"><span>Typeface</span><select data-k="font">' + Object.keys(FX_FONTS).map(k => '<option value="' + k + '">' + FX_FONTS[k][0] + '</option>').join('') + '</select><span></span></label>' +
-    '<div class="tr tgf" data-row="font"><span>Google font</span><span class="gfw"><input type="search" class="gfq" list="gf-list" placeholder="Search Google Fonts" autocomplete="off"><select class="gfwt"><option>400</option><option>700</option></select></span><button type="button" class="gfuse">Use</button></div>' +
-    '<datalist id="gf-list"></datalist><p class="tn gfmsg"></p>' +
+    '<div class="tgf"><span>Google font</span><div class="gfbox"><input type="text" class="gfq" placeholder="Search Google Fonts" autocomplete="off" spellcheck="false"><div class="gfres" hidden></div></div>' +
+    '<div class="gfrow"><select class="gfwt" aria-label="Weight and style"><option value="400">400</option><option value="700">700</option></select><button type="button" class="gfuse">Use</button></div></div>' +
+    '<p class="tn gfmsg"></p>' +
     rows.map(r => '<label class="tr" data-row="' + r[0] + '"><span>' + r[1] + '</span><input type="range" data-k="' + r[0] + '" min="' + r[2] + '" max="' + r[3] + '" step="' + r[4] + '"><output></output></label>').join('') +
     '<p class="tn tnote"></p><code class="tcode"></code><div class="tb"><button type="button" class="tcopy">Copy</button><button type="button" class="treset">Reset</button></div>' +
     '<p class="tn">Copy, then paste over the FX line in app.js.</p></div>');
@@ -398,36 +409,63 @@ function applyFx() {
   const obj = o => '{ ' + Object.keys(o).map(k => k + ': ' + (typeof o[k] === 'string' ? "'" + o[k] + "'" : num(o[k]))).join(', ') + ' }';
   const line = () => 'const FX = { ' + parts.map(p => p[0] + ': ' + obj(FX[p[0]])).join(', ') + ' };';
   // the Google Fonts list (with each family's weights) comes from Fontsource's free API; if it can't load, any exact family name still works
-  const gfWeights = {};
-  fetch('https://api.fontsource.org/v1/fonts?type=google').then(r => r.json()).then(list => {
-    P.querySelector('#gf-list').innerHTML = list.map(f => { gfWeights[f.family.toLowerCase()] = [f.family, f.weights || [400]]; return '<option value="' + esc(f.family) + '">'; }).join('');
-    P.querySelector('.gfmsg').textContent = list.length + ' Google Fonts. Type to search, pick a weight, then Use.';
-  }).catch(() => { P.querySelector('.gfmsg').textContent = 'Couldn\u2019t load the font list. Type a Google Fonts family name exactly, then Use.'; });
-  const gfq = P.querySelector('.gfq'), gfwt = P.querySelector('.gfwt');
+  // Each entry's weights and styles (normal / italic) come along too. Results are listed under the box (no browser datalist, which
+  // Safari and DuckDuckGo handle unevenly).
+  const gfFonts = [], gfBy = {};
+  const msg = t => { P.querySelector('.gfmsg').textContent = t; };
+  msg('Loading the Google Fonts list\u2026');
+  fetch('https://api.fontsource.org/v1/fonts?type=google').then(r => { if (!r.ok) throw r.status; return r.json(); }).then(list => {
+    list.forEach(f => { if (!f || !f.family) return; const e = { family: f.family, weights: (f.weights && f.weights.length ? f.weights : [400]).slice().sort((a, b) => a - b), italic: (f.styles || []).indexOf('italic') >= 0 }; gfFonts.push(e); gfBy[f.family.toLowerCase()] = e; });
+    gfFonts.sort((a, b) => a.family.localeCompare(b.family));
+    msg(gfFonts.length + ' Google Fonts. Type to search, pick one, choose a weight and style, then Use.');
+  }).catch(() => msg('Couldn\u2019t load the font list. Type a Google Fonts family name exactly, choose a weight, then Use.'));
+  const gfq = P.querySelector('.gfq'), gfwt = P.querySelector('.gfwt'), gfres = P.querySelector('.gfres');
+  // the weight + style menu for a family: "400", "400 italic", "700", ...
+  const fillStyles = e => {
+    const cur = gfwt.value, opts = [];
+    (e ? e.weights : [400, 700]).forEach(w => { opts.push([String(w), String(w)]); if (!e || e.italic) opts.push([w + ':italic', w + ' italic']); });
+    gfwt.innerHTML = opts.map(o => '<option value="' + o[0] + '">' + o[1] + '</option>').join('');
+    const vals = opts.map(o => o[0]);
+    gfwt.value = vals.indexOf(cur) >= 0 ? cur : (vals.indexOf('700') >= 0 ? '700' : vals.indexOf('400') >= 0 ? '400' : vals[0]);
+  };
+  const matches = q => {
+    q = q.trim().toLowerCase(); if (!q) return [];
+    const starts = [], has = [];
+    gfFonts.forEach(e => { const f = e.family.toLowerCase(); if (f.indexOf(q) === 0) starts.push(e); else if (f.indexOf(q) > 0) has.push(e); });
+    return starts.concat(has).slice(0, 40);
+  };
+  const pickFamily = e => { gfq.value = e.family; gfres.hidden = true; fillStyles(e); };
   gfq.addEventListener('input', () => {
-    const hit = gfWeights[gfq.value.trim().toLowerCase()]; if (!hit) return;
-    const cur = gfwt.value; gfwt.innerHTML = hit[1].map(w => '<option>' + w + '</option>').join('');
-    gfwt.value = hit[1].indexOf(+cur) >= 0 ? cur : (hit[1].indexOf(700) >= 0 ? 700 : hit[1][0]);
+    const list = matches(gfq.value);
+    gfres.innerHTML = list.map((e, i) => '<button type="button" data-i="' + i + '">' + esc(e.family) + '</button>').join('');
+    gfres.hidden = !list.length; gfres._list = list;
+    const exact = gfBy[gfq.value.trim().toLowerCase()]; if (exact) fillStyles(exact);
   });
+  gfres.addEventListener('mousedown', e => e.preventDefault());   // keep focus in the box while clicking a result
+  gfres.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pickFamily(gfres._list[+b.dataset.i]); e.stopPropagation(); });
+  gfq.addEventListener('blur', () => { setTimeout(() => { gfres.hidden = true; }, 150); });
   const useGoogle = () => {
     const raw = gfq.value.trim(); if (!raw) return;
-    const hit = gfWeights[raw.toLowerCase()], fam = hit ? hit[0] : raw;
+    let e = gfBy[raw.toLowerCase()];
+    if (!e && gfFonts.length) { const m = matches(raw); if (m.length) { e = m[0]; pickFamily(e); } }
+    const fam = e ? e.family : raw;
+    gfres.hidden = true;
     FX[part].font = 'google:' + fam + ':' + gfwt.value; applyFx(); show();
   };
-  gfq.addEventListener('keydown', e => { if (e.key === 'Enter') useGoogle(); });
+  gfq.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); useGoogle(); } else if (e.key === 'Escape') gfres.hidden = true; });
   const show = () => {
     const o = FX[part];
     const sel = P.querySelector('select[data-k="font"]');
     sel.querySelectorAll('option.gf').forEach(op => { if (op.value !== o.font) op.remove(); });
     if (o.font && !FX_FONTS[o.font] && !sel.querySelector('option[value="' + CSS.escape(o.font) + '"]')) {
-      const op = document.createElement('option'); op.className = 'gf'; op.value = o.font; op.textContent = fxFont(o.font)[0] + ' ' + fxFont(o.font)[2]; sel.appendChild(op);
+      const op = document.createElement('option'); op.className = 'gf'; op.value = o.font; op.textContent = fxFont(o.font)[0]; sel.appendChild(op);
     }
     P.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === part));
     P.querySelectorAll('label[data-row]').forEach(l => {
       const k = l.dataset.row, has = k in o; l.hidden = !has; if (!has) return;
       const inp = l.querySelector('input, select'); inp.value = o[k]; const out = l.querySelector('output'); if (out) out.textContent = num(o[k]);
     });
-    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. Width = the title\u2019s share of the row; the description gets the rest (stacked on phones).' : part === 'headings' ? 'The squeezed headings, e.g. the next and previous project links.' : '';
+    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. Width = the title\u2019s share of the row; the description gets the rest (stacked on phones).' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
     P.querySelector('.tcode').textContent = line();
   };
   P.addEventListener('click', e => {
