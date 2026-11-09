@@ -75,8 +75,8 @@ const HIDE_EMPTY_TABS = false;
 //   'personal' = my own creator-program sets; 'reddit' = a set with  reddit: true  (work I made for Reddit);
 //   'base' = an item with  base: true  (the base Snoo, made by Reddit). Empty sections are skipped. Change the labels here.
 const SECTIONS = [
-  { key: 'personal', label: 'Made 4 Reddit creator program' },
-  { key: 'reddit', label: 'Made 4 Reddit' },
+  { key: 'personal', label: 'Creator Program' },
+  { key: 'reddit', label: 'Made at Reddit' },
   { key: 'base', label: 'Snoo base \u00b7 by Reddit' }
 ];
 // COLLECTIBLE: a set with  collectible: true  is part of the collectible line. Its Outfits tile gets the holographic hover (HOLO below);
