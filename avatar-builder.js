@@ -703,7 +703,13 @@
   // The pixel halftone both layers are printed through: a grid of squares whose size depends on where they sit (HOLO.pattern).
   // Made once as an SVG and handed to the CSS as --holo-mask.
   const HOLO_MAX_FILL = 0.5;   // the biggest square is 50% of its cell, which always leaves a gap between neighbours
-  function holoMask(pattern, tileWidth, dot) {
+  // falloff: how quickly the squares shrink toward the emptiest spot (higher = a sharper drop, lower = a slower, more even fade).
+  // Squares too small to see aren't drawn smaller: they stay at the smallest visible size and get sparser instead (an ordered dither),
+  // so the pattern trickles away rather than stopping at a hard edge.
+  // cover (0 to 1): how many of those sparse squares are left right in the emptiest spot (0 = none, 1 = every cell has one).
+  const HOLO_DITHER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];   // 4 x 4 ordered-dither thresholds (out of 16)
+  function holoMask(pattern, tileWidth, dot, cover, falloff) {
+    cover = Math.max(0, Math.min(1, cover || 0)); falloff = falloff > 0 ? falloff : 2;
     // one grid cell (the largest a square gets) is about `dot` screen pixels, whatever size the tiles are
     const C = Math.max(12, Math.round((tileWidth || 120) / (dot || 4))), R = Math.round(C * 4 / 3);
     const W = 300, H = 400, cw = W / C, ch = H / R, f = n => n.toFixed(2);
@@ -714,8 +720,13 @@
         : pattern === 'edges' ? Math.min(1, Math.hypot((u - 0.5) * 1.5, (v - 0.5) * 1.1) * 1.55)   // big at the edges, small in the middle
         : Math.abs(v - 0.5) * 2;                                                                   // 'vertical-balanced': big at the top and bottom
       t = Math.max(0, Math.min(1, t));
-      const s = cw * t * t * HOLO_MAX_FILL;           // the square's side: never fills its cell, so the squares never join into a solid
-      if (s < 0.35) continue;
+      const big = cw * HOLO_MAX_FILL, least = Math.max(big * 0.5, W / (tileWidth || 120));   // the smallest square worth drawing (at least 1 screen pixel)
+      let s = big * Math.pow(t, falloff);         // the square's side: never fills its cell, so the squares never join into a solid
+      if (s < least) {                            // too small to see: draw it at the smallest size, but only in some cells
+        const p = cover + (1 - cover) * (s / least);
+        if ((HOLO_DITHER[(j % 4) * 4 + (i % 4)] + 0.5) / 16 >= p) continue;
+        s = least;
+      }
       out += '<rect x="' + f(i * cw + (cw - s) / 2) + '" y="' + f(j * ch + (ch - s) / 2) + '" width="' + f(s) + '" height="' + f(s) + '"/>';
     }
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" shape-rendering="crispEdges">' + out + '</svg>';
@@ -726,7 +737,7 @@
     if (typeof HOLO === 'undefined' || !window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     root.style.setProperty('--holo-i', HOLO.intensity);
     const sample = document.querySelector('#body-left .tile.collect');
-    root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0, HOLO.dot));
+    root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0, HOLO.dot, HOLO.cover, HOLO.falloff));
     const still = matchMedia('(prefers-reduced-motion: reduce)');
     let cur = null, frame = 0, last = null;
     const off = t => { t.classList.remove('hov'); t.style.removeProperty('transform'); };
@@ -754,8 +765,10 @@
   // ?tune in the page address: a small panel of sliders for the HOLO settings, applied live, with the finished HOLO line to copy
   // into avatar-traits.js. Only for tuning: visitors never see it, and nothing it changes is saved.
   function tunePanel() {
+    if (HOLO.cover == null) HOLO.cover = 0;
+    if (HOLO.falloff == null) HOLO.falloff = 2;
     const orig = Object.assign({}, HOLO);
-    const sliders = [['intensity', 'Holo strength', 0, 1, 0.05], ['dot', 'Square size', 2, 12, 1], ['tilt', 'Tilt', 0, 15, 0.5], ['lift', 'Lift', 1, 1.1, 0.005]];
+    const sliders = [['intensity', 'Holo strength', 0, 1, 0.05], ['dot', 'Square size', 2, 12, 1], ['cover', 'Fill to middle', 0, 1, 0.02], ['falloff', 'Falloff', 0.3, 4, 0.1], ['tilt', 'Tilt', 0, 15, 0.5], ['lift', 'Lift', 1, 1.1, 0.005]];
     const patterns = [['vertical-balanced', 'Vertical'], ['diagonal-balanced', 'Diagonal'], ['edges', 'Edges']];
     const P = document.createElement('div'); P.id = 'tune';
     P.innerHTML = '<div class="th"><span>Holo tuning</span><button type="button" id="tune-min" aria-label="Hide or show the sliders">\u2013</button></div>' +
@@ -767,8 +780,8 @@
       '<p class="tn">Hover the collectible Outfits tiles to see it. Copy, then paste over the HOLO line in avatar-traits.js.</p></div>';
     document.body.appendChild(P);
     const num = v => String(+(+v).toFixed(3));
-    const line = () => "const HOLO = { intensity: " + num(HOLO.intensity) + ", pattern: '" + HOLO.pattern + "', dot: " + num(HOLO.dot) + ", tilt: " + num(HOLO.tilt) + ", lift: " + num(HOLO.lift) + " };";
-    const remask = () => { const sample = document.querySelector('#body-left .tile.collect'); root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0, HOLO.dot)); };
+    const line = () => "const HOLO = { intensity: " + num(HOLO.intensity) + ", pattern: '" + HOLO.pattern + "', dot: " + num(HOLO.dot) + ", cover: " + num(HOLO.cover) + ", falloff: " + num(HOLO.falloff) + ", tilt: " + num(HOLO.tilt) + ", lift: " + num(HOLO.lift) + " };";
+    const remask = () => { const sample = document.querySelector('#body-left .tile.collect'); root.style.setProperty('--holo-mask', holoMask(HOLO.pattern, sample ? sample.getBoundingClientRect().width : 0, HOLO.dot, HOLO.cover, HOLO.falloff)); };
     const show = () => {
       P.querySelectorAll('[data-k]').forEach(el => { el.value = HOLO[el.dataset.k]; });
       P.querySelectorAll('output').forEach(o => { o.textContent = num(HOLO[o.dataset.o]); });
@@ -778,7 +791,7 @@
       const k = e.target.dataset && e.target.dataset.k; if (!k) return;
       HOLO[k] = k === 'pattern' ? e.target.value : parseFloat(e.target.value);
       if (k === 'intensity') root.style.setProperty('--holo-i', HOLO.intensity);
-      if (k === 'dot' || k === 'pattern') remask();
+      if (k === 'dot' || k === 'pattern' || k === 'cover' || k === 'falloff') remask();
       show();
     });
     P.querySelector('#tune-copy').addEventListener('click', e => {

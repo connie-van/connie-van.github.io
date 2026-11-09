@@ -496,9 +496,11 @@ const AVATAR_CORNER = 0.09;   // matches the corners drawn into the onboarding23
 // intensity 0 to 1 (how strong it is; the shine runs a little stronger than the foil).
 // pattern = where the big squares go: 'vertical-balanced' (top and bottom, small through the middle), 'diagonal-balanced', or 'edges'.
 // dot = the size of the biggest squares, in screen pixels (smaller number = finer pixels).
+// falloff = how quickly the squares shrink toward the emptiest part (lower = a slower, more even fade). Past the smallest visible size
+// they thin out instead of shrinking, so the pattern trickles away. cover = how many still sprinkle the emptiest part (0 = none, 1 = all).
 // tilt = degrees the card leans toward the cursor at its edge, lift = how much it grows (1 = not at all). Both kept very small.
 // Mouse/trackpad only: off on touch screens.
-const HOLO = { intensity: 0.5, pattern: 'vertical-balanced', dot: 4, tilt: 4, lift: 1.0 };
+const HOLO = { intensity: 0.5, pattern: 'vertical-balanced', dot: 4, cover: 0, falloff: 2, tilt: 4, lift: 1.0 };
 const SHADOW = { cx: 190.5, cy: 547.5, rx: 81, ry: 41.5, color: '#000000', opacity: 0.30 };
 // where the character sits on the main display. The display is always 3:4 (the shape of the background art), the background fills it,
 // and the character (every trait, all sets) is drawn smaller inside it. Fractions of the display: left and top = where the character's
