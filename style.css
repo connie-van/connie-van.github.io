@@ -4,6 +4,7 @@
 @font-face{font-family:'Geist Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/geist-mono-latin-500-normal.woff2') format('woff2')}
 @font-face{font-family:'Cossette Titre';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/cossette-titre-latin-400-normal.woff2') format('woff2')}
 @font-face{font-family:'Cossette Titre';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/cossette-titre-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Instrument Serif';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/instrument-serif-latin-400-normal.woff2') format('woff2')}
 @font-face{font-family:'Noto Star';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/noto-star-2736.woff2') format('woff2');unicode-range:U+2736}
 :root{--ink:#14110F;--mute:#6B645C;--paper:#FBF7F0;--gap:16px;--r:20px;--edge:10px;--cell:20px}
 *{box-sizing:border-box}
@@ -13,9 +14,10 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Cossette Tit
 a{color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 /* Squashed headings: the box is laid out 1/--sq as wide, then squeezed back to its real width, so text wraps and layout stays honest. */
-:root{--sq:.68}
+:root{--sq:.68;--name-w:126px;--fx-h-font:'Cossette Titre';--fx-h-weight:700;--fx-h-size:1;--fx-t-font:'Cossette Titre';--fx-t-weight:700;--fx-t-size:1}   /* set from FX in app.js */
 .sqw{display:block;filter:url(#round-m)}
-.sqw>span{display:block;width:calc(100%/var(--sq));transform:scaleX(var(--sq));transform-origin:0 0;font-family:'Cossette Titre','Noto Star',Impact,'Arial Narrow',sans-serif;font-weight:700}
+.sqw>span{display:block;width:calc(100%/var(--sq));transform:scaleX(var(--sq));transform-origin:0 0;font-family:var(--fx-h-font),'Noto Star',Impact,'Arial Narrow',sans-serif;font-weight:var(--fx-h-weight)}
+.intro h1.sqw>span{font-family:var(--fx-t-font),'Noto Star',Impact,'Arial Narrow',sans-serif;font-weight:var(--fx-t-weight)}
 /* corner menu: a fixed overlay. The top-right cluster is repeated, rotated 180 degrees, in the bottom-left. */
 .menu{position:fixed;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:34px;pointer-events:none;font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;line-height:var(--cell)}
 .menu-tr{top:var(--edge);right:var(--edge)}
@@ -40,7 +42,7 @@ a{color:inherit}
 .namebar{position:fixed;top:14px;left:50%;z-index:30;transform:translateX(-50%);transition:transform .4s cubic-bezier(.2,.7,.2,1)}
 .namebar.hide{transform:translate(-50%,-180%)}
 .brand{display:block;text-decoration:none}
-.brand svg{display:block;width:126px;height:auto;overflow:visible}
+.brand svg{display:block;width:var(--name-w);height:auto;overflow:visible}
 @media (prefers-reduced-motion:reduce){.namebar,.soc .w{transition:none}}
 #app{padding:76px clamp(36px,4vw,56px) 56px;max-width:1500px;margin:0 auto}
 .crumb{color:var(--mute);margin:0 0 16px;padding:0 8px;font-size:15px;font-weight:500}
@@ -61,7 +63,7 @@ a{color:inherit}
 .proj{max-width:none}
 .intro{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:24px 48px;padding:24px 8px 56px}
 .intro.below{padding:32px 8px 24px}
-.intro h1{flex:1 1 480px;max-width:740px;font-size:clamp(56px,9vw,128px);line-height:1;margin:0}
+.intro h1{flex:1 1 480px;max-width:740px;font-size:calc(clamp(56px,9vw,128px) * var(--fx-t-size));line-height:1;margin:0}
 .intro h1.sqw{filter:url(#round-l)}
 .side{flex:1 1 340px;max-width:580px;min-width:0}
 .blurb{font-size:19px;line-height:1.4;margin:0 0 32px}
@@ -80,8 +82,8 @@ a{color:inherit}
 .pn a{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;min-height:220px;padding:28px;border-radius:var(--r);text-decoration:none}
 .pn a.nx{align-items:flex-end;text-align:right}
 .pn small{font-size:13px;font-weight:500}
-.pn .t{font-size:clamp(30px,4vw,56px);line-height:1;align-self:stretch}
-.pn a.nx .t>span{margin-left:calc(100% - 100%/.68);transform-origin:100% 0;text-align:right}
+.pn .t{font-size:calc(clamp(30px,4vw,56px) * var(--fx-h-size));line-height:1;align-self:stretch}
+.pn a.nx .t>span{margin-left:calc(100% - 100%/var(--sq));transform-origin:100% 0;text-align:right}
 @media (max-width:700px){
   .gbox{grid-template-columns:repeat(2,1fr)}
   .prow{grid-template-columns:1fr}
@@ -109,6 +111,7 @@ video::-webkit-media-controls,video::-webkit-media-controls-enclosure,video::-we
 /* ?tune text FX panel (tuning only, never shown to visitors) */
 #fxtune{position:fixed;right:16px;bottom:16px;z-index:10000;width:290px;background:var(--paper);color:var(--ink);border:1px solid var(--ink);padding:10px 12px;font:500 10.5px/1.4 'Geist Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
 #fxtune .th{display:flex;justify-content:space-between;align-items:center}
+#fxtune select{font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--ink);padding:2px 4px;width:100%}
 #fxtune button{font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--ink);padding:3px 6px;cursor:pointer}
 #fxtune .tmin{width:22px;padding:0;line-height:20px}
 #fxtune.min .tbody{display:none}
@@ -116,6 +119,10 @@ video::-webkit-media-controls,video::-webkit-media-controls-enclosure,video::-we
 #fxtune .tparts button.on{background:var(--ink);color:var(--paper)}
 #fxtune .tr{display:grid;grid-template-columns:104px 1fr 40px;align-items:center;gap:8px;margin:7px 0}
 #fxtune .tr[hidden]{display:none}
+#fxtune .tgf{grid-template-columns:104px 1fr auto}
+#fxtune .gfw{display:flex;gap:4px;min-width:0}
+#fxtune .gfq{flex:1;min-width:0;font:inherit;letter-spacing:0;text-transform:none;color:var(--ink);background:var(--paper);border:1px solid var(--ink);padding:2px 4px}
+#fxtune .gfwt{width:auto}
 #fxtune .tr input{width:100%;accent-color:var(--ink)}
 #fxtune .tr output{text-align:right}
 #fxtune .tcode{display:block;margin:8px 0;text-transform:none;letter-spacing:0;word-break:break-all;font-size:10px}
