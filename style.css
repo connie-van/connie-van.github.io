@@ -61,12 +61,16 @@ a{color:inherit}
 
 /* project page */
 .proj{max-width:none}
-.intro{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:24px 48px;padding:24px 8px 56px}
+/* project title and description side by side: the title takes --title-w of the row (FX.title.width in app.js), the description the rest */
+.intro{display:grid;grid-template-columns:minmax(0,var(--title-w,30%)) minmax(0,1fr);align-items:start;gap:24px 48px;padding:24px 8px 56px}
+.intro.solo{grid-template-columns:1fr}
+@media (max-width:760px){.intro{grid-template-columns:1fr}}
 .intro.below{padding:32px 8px 24px}
-.intro h1{flex:1 1 480px;max-width:740px;font-size:calc(clamp(56px,9vw,128px) * var(--fx-t-size));line-height:1;margin:0}
+.intro h1{min-width:0;font-size:calc(clamp(56px,9vw,128px) * var(--fx-t-size));line-height:1;margin:0}
 .intro h1.sqw{filter:url(#round-l)}
-.side{flex:1 1 340px;max-width:580px;min-width:0}
+.side{min-width:0}
 .blurb{font-size:19px;line-height:1.4;margin:0 0 32px}
+.blurb.tph{border:1px dashed var(--mute);color:var(--mute);padding:16px;margin:0}
 .credits{display:flex;flex-wrap:wrap;gap:16px 32px;margin:0}
 .credits div{display:flex;flex-direction:column;gap:2px}
 .credits dt{font-size:12px;font-weight:500;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}

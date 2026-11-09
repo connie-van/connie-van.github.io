@@ -163,12 +163,14 @@ function project(slug) {
   const d = el('div', 'proj');
   const intro = el('div', 'intro', '<h1 class="sqw"><span>' + esc(p.title) + '</span></h1>');
   const hasCredits = p.credits && p.credits.length;
-  if (p.blurb || hasCredits) {
+  const tuning = /[?&]tune\b/.test(location.search);
+  if (p.blurb || hasCredits || tuning) {
     const side = el('div', 'side');
     if (p.blurb) side.appendChild(el('p', 'blurb', esc(p.blurb)));
+    else if (tuning) side.appendChild(el('p', 'blurb tph', 'Description box (only shown while tuning). Fill in this project\u2019s blurb in projects.js and it appears here.'));
     if (hasCredits) side.appendChild(el('dl', 'credits', p.credits.map(c => '<div><dt>' + esc(c.role) + '</dt><dd>' + esc(c.name) + '</dd></div>').join('')));
     intro.appendChild(side);
-  }
+  } else intro.classList.add('solo');   // no description: the title gets the whole row
   if (!p.titleBelow) d.appendChild(intro);          // titleBelow: true puts the title, blurb and credits after the media
   if (!p.media.length) {
     for (let i = 0; i < 3; i++) d.appendChild(el('div', 'm', '')).style.cssText = 'aspect-ratio:16/9;background:' + COLORS[(PROJECTS.indexOf(p) + i * 3) % COLORS.length];
@@ -289,9 +291,10 @@ render();
 //   squeeze = how narrow the letters are drawn (1 = the font's own width)
 //   font    = which of the site's typefaces it's set in (see FX_FONTS)
 //   size    = how big it is, times its normal size (1 = as designed)
+//   width   = (title only) how much of the row the project title takes, in %; the description box beside it gets the rest
 // name = "connie ✶ van" at the top, headings = the other squeezed headings, title = the big title on a project page (it shares the headings' squeeze).
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 2, sharp: 4.5, thick: 0, font: 'cossette-bold', size: 1 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -339,7 +342,7 @@ function applyFx() {
   rs.setProperty('--sq', FX.headings.squeeze);
   rs.setProperty('--name-w', (126 * FX.name.size).toFixed(1) + 'px');
   rs.setProperty('--fx-h-font', hf[1]); rs.setProperty('--fx-h-weight', hf[2]); rs.setProperty('--fx-h-size', FX.headings.size);
-  rs.setProperty('--fx-t-font', tf[1]); rs.setProperty('--fx-t-weight', tf[2]); rs.setProperty('--fx-t-size', FX.title.size);
+  rs.setProperty('--fx-t-font', tf[1]); rs.setProperty('--fx-t-weight', tf[2]); rs.setProperty('--fx-t-size', FX.title.size); rs.setProperty('--title-w', (FX.title.width || 30) + '%');
   if (window.fitName) window.fitName();
   // re-measure the name once its typeface has loaded
   if (document.fonts && document.fonts.load) document.fonts.load(nf2[2] + ' 100px ' + nf2[1]).then(() => { if (window.fitName) window.fitName(); });
@@ -379,7 +382,7 @@ function applyFx() {
   if (!/[?&]tune\b/.test(location.search)) return;
   const orig = JSON.parse(JSON.stringify(FX));
   const parts = [['name', 'Name'], ['headings', 'Headings'], ['title', 'Project title']];
-  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01]];
+  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1]];
   let part = 'name';
   const P = el('div', null, '<div class="th"><span>Text FX</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
     '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '</div>' +
@@ -424,7 +427,7 @@ function applyFx() {
       const k = l.dataset.row, has = k in o; l.hidden = !has; if (!has) return;
       const inp = l.querySelector('input, select'); inp.value = o[k]; const out = l.querySelector('output'); if (out) out.textContent = num(o[k]);
     });
-    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze.' : part === 'headings' ? 'The squeezed headings, e.g. the next and previous project links.' : '';
+    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. Width = the title\u2019s share of the row; the description gets the rest (stacked on phones).' : part === 'headings' ? 'The squeezed headings, e.g. the next and previous project links.' : '';
     P.querySelector('.tcode').textContent = line();
   };
   P.addEventListener('click', e => {
