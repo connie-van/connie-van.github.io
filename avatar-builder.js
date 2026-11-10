@@ -281,8 +281,8 @@
     return '<button class="' + cls + (on ? ' on' : '') + '"' + extra + ' data-id="' + (id || '') + '" aria-pressed="' + on + '" aria-label="' + esc(name) + '" title="' + esc(name) + '">' +
       thumb + (it ? '' : '<span class="nlabel">None</span>') + '</button>';
   }
-  // which section a trait belongs to: the base Snoo pieces (base: true), Reddit work (its set has reddit: true), or a personal set
-  const sectionOf = it => it.base ? 'base' : (SETS[it.set] && SETS[it.set].reddit ? 'reddit' : 'personal');
+  // which section a trait belongs to: the base Snoo pieces (base: true), unpublished avatars (unpublished: true), Reddit work (reddit: true), or a personal set
+  const sectionOf = it => { const st = SETS[it.set] || {}; return it.base ? 'base' : st.unpublished ? 'unpublished' : st.reddit ? 'reddit' : 'personal'; };
   function renderGrid(body, cat) {
     if (!TRAITS[cat].length) { body.innerHTML = '<p class="empty"><span class="star" aria-hidden="true">\u2736</span>Nothing in ' + esc(LABEL[cat]) + ' yet</p>'; return; }
     // tiles are grouped into SECTIONS (avatar-traits.js), each under a divider, in that order; the None tile opens the first one
