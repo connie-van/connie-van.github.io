@@ -291,13 +291,14 @@ render();
 //   squeeze = how narrow the letters are drawn (1 = the font's own width)
 //   font    = which of the site's typefaces it's set in (see FX_FONTS)
 //   size    = how big it is, times its normal size (1 = as designed)
+//   caps    = (title only) true = all capitals
 //   width   = (title only) how much of the row the project title takes, in %; the description box beside it gets the rest
 // name = "connie ✶ van" at the top, headings = the next / previous project titles at the bottom of a project page,
 // title = the big title on a project page (it shares the headings' squeeze), body = body copy (descriptions, credits, the About page),
 // labels = the small uppercase labels (credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions).
 //   leading = (body only) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30 }, body: { font: 'cossette', size: 1, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30, caps: false }, body: { font: 'cossette', size: 1, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -348,7 +349,7 @@ function applyFx() {
   rs.setProperty('--sq', FX.headings.squeeze);
   rs.setProperty('--name-w', (126 * FX.name.size).toFixed(1) + 'px');
   rs.setProperty('--fx-h-font', hf[1]); rs.setProperty('--fx-h-weight', hf[2]); rs.setProperty('--fx-h-style', hf[3]); rs.setProperty('--fx-h-size', FX.headings.size);
-  rs.setProperty('--fx-t-font', tf[1]); rs.setProperty('--fx-t-weight', tf[2]); rs.setProperty('--fx-t-style', tf[3]); rs.setProperty('--fx-t-size', FX.title.size); rs.setProperty('--title-w', (FX.title.width || 30) + '%');
+  rs.setProperty('--fx-t-font', tf[1]); rs.setProperty('--fx-t-weight', tf[2]); rs.setProperty('--fx-t-style', tf[3]); rs.setProperty('--fx-t-size', FX.title.size); rs.setProperty('--title-w', (FX.title.width || 30) + '%'); rs.setProperty('--fx-t-case', FX.title.caps ? 'uppercase' : 'none');
   const bf = fxFont(FX.body.font);
   rs.setProperty('--fx-b-font', bf[1]); rs.setProperty('--fx-b-weight', bf[2]); rs.setProperty('--fx-b-style', bf[3]); rs.setProperty('--fx-b-size', FX.body.size); rs.setProperty('--fx-b-lh', FX.body.leading);
   const lf = fxFont(FX.labels.font);
@@ -396,6 +397,7 @@ function applyFx() {
   let part = 'name';
   const P = el('div', null, '<div class="th"><span>Text FX</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
     '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '</div>' +
+    '<label class="tr tchk" data-row="caps"><span>All caps</span><input type="checkbox" data-k="caps"><span></span></label>' +
     '<label class="tr" data-row="font"><span>Typeface</span><select data-k="font">' + Object.keys(FX_FONTS).map(k => '<option value="' + k + '">' + FX_FONTS[k][0] + '</option>').join('') + '</select><span></span></label>' +
     '<div class="tgf"><span>Google font</span><div class="gfbox"><input type="text" class="gfq" placeholder="Search Google Fonts" autocomplete="off" spellcheck="false"><div class="gfres" hidden></div></div>' +
     '<div class="gfrow"><select class="gfwt" aria-label="Weight and style"><option value="400">400</option><option value="700">700</option></select><button type="button" class="gfuse">Use</button></div></div>' +
@@ -406,7 +408,7 @@ function applyFx() {
   P.id = 'fxtune';
   document.body.appendChild(P);
   const num = v => String(+(+v).toFixed(3));
-  const obj = o => '{ ' + Object.keys(o).map(k => k + ': ' + (typeof o[k] === 'string' ? "'" + o[k] + "'" : num(o[k]))).join(', ') + ' }';
+  const obj = o => '{ ' + Object.keys(o).map(k => k + ': ' + (typeof o[k] === 'string' ? "'" + o[k] + "'" : typeof o[k] === 'boolean' ? o[k] : num(o[k]))).join(', ') + ' }';
   const line = () => 'const FX = { ' + parts.map(p => p[0] + ': ' + obj(FX[p[0]])).join(', ') + ' };';
   // the Google Fonts list (with each family's weights) comes from Fontsource's free API; if it can't load, any exact family name still works
   // Each entry's weights and styles (normal / italic) come along too. Results are listed under the box (no browser datalist, which
@@ -463,7 +465,7 @@ function applyFx() {
     P.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === part));
     P.querySelectorAll('label[data-row]').forEach(l => {
       const k = l.dataset.row, has = k in o; l.hidden = !has; if (!has) return;
-      const inp = l.querySelector('input, select'); inp.value = o[k]; const out = l.querySelector('output'); if (out) out.textContent = num(o[k]);
+      const inp = l.querySelector('input, select'); if (inp.type === 'checkbox') inp.checked = !!o[k]; else inp.value = o[k]; const out = l.querySelector('output'); if (out) out.textContent = num(o[k]);
     });
     P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. Width = the title\u2019s share of the row; the description gets the rest (stacked on phones).' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
     P.querySelector('.tcode').textContent = line();
@@ -479,7 +481,7 @@ function applyFx() {
   P.addEventListener('input', onIn); P.addEventListener('change', onIn);
   function onIn(e) {
     const k = e.target.dataset && e.target.dataset.k; if (!k) return;
-    FX[part][k] = k === 'font' ? e.target.value : parseFloat(e.target.value); applyFx(); show();
+    FX[part][k] = k === 'font' ? e.target.value : e.target.type === 'checkbox' ? e.target.checked : parseFloat(e.target.value); applyFx(); show();
   }
   show();
 })();

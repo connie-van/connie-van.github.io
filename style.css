@@ -67,7 +67,7 @@ a{color:inherit}
 .intro.solo{grid-template-columns:1fr}
 @media (max-width:760px){.intro{grid-template-columns:1fr}}
 .intro.below{padding:32px 8px 24px}
-.intro h1{min-width:0;font-size:calc(clamp(56px,9vw,128px) * var(--fx-t-size));line-height:1;margin:0}
+.intro h1{min-width:0;text-transform:var(--fx-t-case,none);font-size:calc(clamp(56px,9vw,128px) * var(--fx-t-size));line-height:1;margin:0}
 .intro h1.sqw{filter:url(#round-l)}
 .side{min-width:0}
 .blurb{font-size:calc(19px * var(--fx-b-size,1));line-height:var(--fx-b-lh,1.4);margin:0 0 32px}
@@ -134,6 +134,7 @@ video::-webkit-media-controls,video::-webkit-media-controls-enclosure,video::-we
 #fxtune .gfrow{display:flex;gap:6px}
 #fxtune .gfrow select{flex:1}
 #fxtune .tr input{width:100%;accent-color:var(--ink)}
+#fxtune .tchk input{width:auto;justify-self:start}
 #fxtune .tr output{text-align:right}
 #fxtune .tcode{display:block;margin:8px 0;text-transform:none;letter-spacing:0;word-break:break-all;font-size:10px}
 #fxtune .tb{display:flex;gap:6px}
