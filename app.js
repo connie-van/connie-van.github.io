@@ -178,6 +178,7 @@ function project(slug) {
     p.media.forEach(m => d.appendChild(mediaBlock(m)));
   }
   if (p.titleBelow) { intro.classList.add('below'); d.appendChild(intro); }
+  if (p.after) p.after.forEach(m => d.appendChild(mediaBlock(m)));   // after: media shown below the title
   return d;
 }
 

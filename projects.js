@@ -7,6 +7,7 @@
 // single: true = image-only project. Opens as a floating lightbox over its grid (still has its own link)
 //         instead of a separate page. Needs a cover or one media item.
 // titleBelow: true = the title, blurb and credits sit below the media instead of above it
+// after:  media shown below the title, blurb and credits (same item types as media). Handy with titleBelow.
 // blurb:  short description shown beside the title on the project page
 // credits: [{ role:'Design', name:'Connie Van' }, ...] shown side by side under the blurb
 // media:  list shown on the project page, top to bottom. Types: img, video (loops, muted), embed (Vimeo/YouTube URL)
@@ -63,6 +64,11 @@ const PROJECTS = [
   // WORK (these seven used to live in a Reddit sub-page; they are regular Work projects now)
   { slug:'reddit-avatars', title:'Reddit: Avatars', cat:'work', r:'1:1', cover:'', blurb:'', titleBelow:true, media:[
     { t:'embed', src:'avatar-builder.html', height:'clamp(520px, 38.5vw, 660px)', alt:'Interactive avatar builder' }
+  ], after:[
+    { t:'img', src:'media/reddit-avatars/reddit-avatars-1.png', alt:'Sketches of fourteen Snoo avatar outfits' },
+    { t:'img', src:'media/reddit-avatars/reddit-onboarding-avatar-sketches-2024-v01.png', alt:'Onboarding avatar sketches, 2024, first round' },
+    { t:'img', src:'media/reddit-avatars/reddit-onboarding-avatar-sketches-2024-v03.png', alt:'Onboarding avatar sketches, 2024, third round' },
+    { t:'img', src:'media/reddit-avatars/reddit-expressions-sketch.png', alt:'Expressions avatar sketches with Reddit award icons' }
   ] },
   { slug:'reddit-avatars-gen-1', title:'Reddit Avatars Gen 1: The Genesis Series', cat:'work', r:'1:1', cover:'', blurb:'', media:[] },
   { slug:'reddit-avatars-gen-2', title:'Reddit Avatars Gen 2: Spooky Szn', cat:'work', r:'9:16', cover:'', blurb:'', media:[] },
