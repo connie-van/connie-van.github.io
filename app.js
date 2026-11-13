@@ -326,10 +326,11 @@ render();
 //   width   = (title only) how much of the row the project title takes, in %; the description box beside it gets the rest
 // name = "connie ✶ van" at the top, headings = the next / previous project titles at the bottom of a project page,
 // title = the big title on a project page (it shares the headings' squeeze), body = body copy (descriptions, credits, the About page),
+// images = the outline on project images with no transparency: outline = its thickness in px (0 = none)
 // labels = the small uppercase labels (credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions).
 //   leading = (body and title) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30, caps: false, leading: 1 }, body: { font: 'cossette', size: 1, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30, caps: false, leading: 1 }, body: { font: 'cossette', size: 1, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 1.5 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -371,6 +372,7 @@ function applyFx() {
   };
   if (!FX.body) FX.body = { font: 'cossette', size: 1, leading: 1.4 };
   if (!FX.labels) FX.labels = { font: 'geist-mono', size: 1 };
+  if (!FX.images) FX.images = { outline: 1.5 };
   set('nameRound', FX.name); set('round-m', FX.headings); set('round-l', FX.title);
   const nf = document.getElementById('nameRound'), pad = 60 + FX.name.blur * 3;   // room for the blur, so a big blur isn't clipped
   if (nf) { nf.setAttribute('x', -pad); nf.setAttribute('y', -pad); nf.setAttribute('width', 1180 + 2 * pad); nf.setAttribute('height', 300 + 2 * pad); }
@@ -385,6 +387,7 @@ function applyFx() {
   rs.setProperty('--fx-b-font', bf[1]); rs.setProperty('--fx-b-weight', bf[2]); rs.setProperty('--fx-b-style', bf[3]); rs.setProperty('--fx-b-size', FX.body.size); rs.setProperty('--fx-b-lh', FX.body.leading);
   const lf = fxFont(FX.labels.font);
   rs.setProperty('--fx-l-font', lf[1]); rs.setProperty('--fx-l-weight', lf[2]); rs.setProperty('--fx-l-style', lf[3]); rs.setProperty('--fx-l-size', FX.labels.size);
+  rs.setProperty('--img-outline', FX.images.outline + 'px');
   if (window.fitName) window.fitName();
   // re-measure the name once its typeface has loaded
   if (document.fonts && document.fonts.load) document.fonts.load((nf2[3] === 'italic' ? 'italic ' : '') + nf2[2] + ' 100px ' + nf2[1]).then(() => { if (window.fitName) window.fitName(); });
@@ -423,10 +426,10 @@ function applyFx() {
 (function () {
   if (!/[?&]tune\b/.test(location.search)) return;
   const orig = JSON.parse(JSON.stringify(FX));
-  const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels']];
+  const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels'], ['images', 'Images']];
   const GRID_RATIOS = [['flex', 'Flexible (each cover\u2019s own shape)'], ['1:1', '1:1'], ['4:5', '4:5'], ['3:4', '3:4'], ['5:7', '5:7'], ['2:3', '2:3'], ['9:16', '9:16'], ['4:3', '4:3'], ['16:9', '16:9']];
   const origGrid = Object.assign({}, GRID);
-  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01], ['cols', 'Columns', 1, 6, 1]];
+  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01], ['cols', 'Columns', 1, 6, 1], ['outline', 'Outline (px)', 0, 4, 0.25]];
   let part = 'name';
   const P = el('div', null, '<div class="th"><span>Tune</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
     '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '<button type="button" data-p="grid">Grid</button></div>' +
@@ -494,7 +497,7 @@ function applyFx() {
   gfq.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); useGoogle(); } else if (e.key === 'Escape') gfres.hidden = true; });
   const show = () => {
     const o = part === 'grid' ? GRID : FX[part];
-    P.querySelector('.tgf').hidden = part === 'grid'; P.querySelector('.gfmsg').hidden = part === 'grid';
+    const noFont = part === 'grid' || part === 'images'; P.querySelector('.tgf').hidden = noFont; P.querySelector('.gfmsg').hidden = noFont;
     P.querySelector('.tpaste').textContent = 'Copy, then paste over the ' + (part === 'grid' ? 'GRID' : 'FX') + ' line in app.js.';
     const sel = P.querySelector('select[data-k="font"]');
     sel.querySelectorAll('option.gf').forEach(op => { if (op.value !== o.font) op.remove(); });
@@ -506,7 +509,7 @@ function applyFx() {
       const k = l.dataset.row, has = k in o; l.hidden = !has; if (!has) return;
       const inp = l.querySelector('input, select'); if (inp.type === 'checkbox') inp.checked = !!o[k]; else inp.value = o[k]; const out = l.querySelector('output'); if (out) out.textContent = num(o[k]);
     });
-    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. Width = the title\u2019s share of the row; the description gets the rest (stacked on phones).' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
+    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. Width = the title\u2019s share of the row; the description gets the rest (stacked on phones).' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'images' ? 'The black outline on project images and videos with no transparency. 0 = no outline (the corners stay square).' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
     P.querySelector('.tcode').textContent = line();
   };
   P.addEventListener('click', e => {
