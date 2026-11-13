@@ -1,6 +1,6 @@
 // Add a project = add one entry below, then upload its media to /media/<slug>/
 // cat:    'work' | 'play'
-// r:      tile shape on the grid: '16:9' | '9:16' | '1:1'  (placeholders: match each to its cover)
+// r:      the tile's shape when the grid is set to flexible (GRID in app.js) and there's no cover yet: '16:9' | '9:16' | '1:1'
 // cover:  image, gif, mp4 or webm shown on the grid tile, e.g. 'media/demon-friends/cover.mp4'
 // feat:   true = also shown on the home page
 // hidden: true = not shown anywhere until you remove it (use for "maybe" projects)

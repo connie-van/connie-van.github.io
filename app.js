@@ -1,5 +1,12 @@
 const app = document.getElementById('app');
 const RATIO = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1 };
+// The project grids (home, Work, Play): equal-width columns.
+//   cols  = columns on a wide screen (phones get at most 2)
+//   ratio = every tile's shape, width:height, e.g. '3:4', '4:5', '5:7', '1:1'; or 'flex' = each tile takes its cover's own shape
+//           (a project with no cover uses its r shape from projects.js)
+// Add ?tune to the address (before any #) and pick Grid in the panel to try these live.
+const GRID = { cols: 3, ratio: '3:4' };
+const ratioOf = s => { const m = /^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)$/.exec(s || ''); return m ? m[1] / m[2] : 0; };
 const COLORS = ['#FF6B4A', '#FFD84D', '#7FE0B0', '#7CC4FF', '#C3A6FF', '#FF9EC4', '#C8F169', '#FFA43A', '#FFF1D6', '#8E9BFF'];
 const colorOf = p => COLORS[PROJECTS.indexOf(p) % COLORS.length];
 const bySlug = s => PROJECTS.find(p => p.slug === s);
@@ -65,33 +72,33 @@ function tile(p) {
   }
   a.insertAdjacentHTML('beforeend', '<span class="cap">' + esc(p.title) + '</span>');
   a.setAttribute('aria-label', p.title);
-  return { node: a, r: RATIO[p.r] };
+  return { node: a, r: RATIO[p.r] || 1 };
 }
 
-// Justified rows: every tile keeps its true ratio, each row fills the width.
+// Equal-width columns (GRID). A fixed ratio gives every tile the same shape, in reading order across the rows.
+// 'flex' stacks the tiles in columns (left to right, then down), each at its cover's own shape once that has loaded.
 function mosaic(items) {
-  const wrap = el('div');
-  const W = app.clientWidth;
-  const target = W > 1000 ? 4.6 : W > 640 ? 3.6 : 2.3;
-  let row = [], sum = 0;
-  const flush = last => {
-    if (!row.length) return;
-    const r = el('div', 'row');
-    const partial = last && sum < target * 0.7;
-    row.forEach(it => {
-      it.node.style.aspectRatio = it.r;
-      it.node.style.flex = partial ? it.r / target + ' 0 0' : it.r + ' 1 0';
-      r.appendChild(it.node);
-    });
-    wrap.appendChild(r);
-    row = []; sum = 0;
-  };
-  items.forEach(it => {
-    row.push(it); sum += it.r;
-    if (sum >= target) flush(false);
+  const W = app.clientWidth, cols = Math.max(1, Math.min(GRID.cols, W < 640 ? 2 : GRID.cols));
+  const fixed = ratioOf(GRID.ratio);
+  if (fixed) {
+    const g = el('div', 'grid');
+    g.style.gridTemplateColumns = 'repeat(' + cols + ', minmax(0, 1fr))';
+    items.forEach(it => { it.node.style.aspectRatio = fixed; g.appendChild(it.node); });
+    return g;
+  }
+  const g = el('div', 'grid flex'), colEls = [];
+  for (let i = 0; i < cols; i++) colEls.push(g.appendChild(el('div', 'gcol')));
+  items.forEach((it, i) => {
+    it.node.style.aspectRatio = it.r;                               // until the cover's own shape is known
+    const m = it.node.querySelector('img, video');
+    if (m) {
+      const fit = () => { const w = m.naturalWidth || m.videoWidth, h = m.naturalHeight || m.videoHeight; if (w && h) it.node.style.aspectRatio = w / h; };
+      if (m.tagName === 'IMG') { if (m.complete) fit(); else m.addEventListener('load', fit); }
+      else m.addEventListener('loadedmetadata', fit);
+    }
+    colEls[i % cols].appendChild(it.node);
   });
-  flush(true);
-  return wrap;
+  return g;
 }
 
 function crumbs(parts) {
@@ -394,10 +401,13 @@ function applyFx() {
   if (!/[?&]tune\b/.test(location.search)) return;
   const orig = JSON.parse(JSON.stringify(FX));
   const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels']];
-  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01]];
+  const GRID_RATIOS = [['flex', 'Flexible (each cover\u2019s own shape)'], ['1:1', '1:1'], ['4:5', '4:5'], ['3:4', '3:4'], ['5:7', '5:7'], ['2:3', '2:3'], ['9:16', '9:16'], ['4:3', '4:3'], ['16:9', '16:9']];
+  const origGrid = Object.assign({}, GRID);
+  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01], ['cols', 'Columns', 1, 6, 1]];
   let part = 'name';
-  const P = el('div', null, '<div class="th"><span>Text FX</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
-    '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '</div>' +
+  const P = el('div', null, '<div class="th"><span>Tune</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
+    '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '<button type="button" data-p="grid">Grid</button></div>' +
+    '<label class="tr" data-row="ratio"><span>Tile shape</span><select data-k="ratio">' + GRID_RATIOS.map(x => '<option value="' + x[0] + '">' + x[1] + '</option>').join('') + '</select><span></span></label>' +
     '<label class="tr tchk" data-row="caps"><span>All caps</span><input type="checkbox" data-k="caps"><span></span></label>' +
     '<label class="tr" data-row="font"><span>Typeface</span><select data-k="font">' + Object.keys(FX_FONTS).map(k => '<option value="' + k + '">' + FX_FONTS[k][0] + '</option>').join('') + '</select><span></span></label>' +
     '<div class="tgf"><span>Google font</span><div class="gfbox"><input type="text" class="gfq" placeholder="Search Google Fonts" autocomplete="off" spellcheck="false"><div class="gfres" hidden></div></div>' +
@@ -405,12 +415,15 @@ function applyFx() {
     '<p class="tn gfmsg"></p>' +
     rows.map(r => '<label class="tr" data-row="' + r[0] + '"><span>' + r[1] + '</span><input type="range" data-k="' + r[0] + '" min="' + r[2] + '" max="' + r[3] + '" step="' + r[4] + '"><output></output></label>').join('') +
     '<p class="tn tnote"></p><code class="tcode"></code><div class="tb"><button type="button" class="tcopy">Copy</button><button type="button" class="treset">Reset</button></div>' +
-    '<p class="tn">Copy, then paste over the FX line in app.js.</p></div>');
+    '<p class="tn tpaste"></p></div>');
   P.id = 'fxtune';
   document.body.appendChild(P);
   const num = v => String(+(+v).toFixed(3));
   const obj = o => '{ ' + Object.keys(o).map(k => k + ': ' + (typeof o[k] === 'string' ? "'" + o[k] + "'" : typeof o[k] === 'boolean' ? o[k] : num(o[k]))).join(', ') + ' }';
-  const line = () => 'const FX = { ' + parts.map(p => p[0] + ': ' + obj(FX[p[0]])).join(', ') + ' };';
+  const fxLine = () => 'const FX = { ' + parts.map(p => p[0] + ': ' + obj(FX[p[0]])).join(', ') + ' };';
+  const gridLine = () => "const GRID = { cols: " + GRID.cols + ", ratio: '" + GRID.ratio + "' };";
+  const line = () => part === 'grid' ? gridLine() : fxLine();
+  const regrid = () => { const h = (location.hash || '#/').replace(/^#\/?/, '').split('/')[0]; if (h === '' || SECTIONS[h]) { const y = scrollY; render(true); scrollTo(0, y); } };
   // the Google Fonts list (with each family's weights) comes from Fontsource's free API; if it can't load, any exact family name still works
   // Each entry's weights and styles (normal / italic) come along too. Results are listed under the box (no browser datalist, which
   // Safari and DuckDuckGo handle unevenly).
@@ -457,7 +470,9 @@ function applyFx() {
   };
   gfq.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); useGoogle(); } else if (e.key === 'Escape') gfres.hidden = true; });
   const show = () => {
-    const o = FX[part];
+    const o = part === 'grid' ? GRID : FX[part];
+    P.querySelector('.tgf').hidden = part === 'grid'; P.querySelector('.gfmsg').hidden = part === 'grid';
+    P.querySelector('.tpaste').textContent = 'Copy, then paste over the ' + (part === 'grid' ? 'GRID' : 'FX') + ' line in app.js.';
     const sel = P.querySelector('select[data-k="font"]');
     sel.querySelectorAll('option.gf').forEach(op => { if (op.value !== o.font) op.remove(); });
     if (o.font && !FX_FONTS[o.font] && !sel.querySelector('option[value="' + CSS.escape(o.font) + '"]')) {
@@ -476,12 +491,13 @@ function applyFx() {
     if (b.dataset.p) { part = b.dataset.p; show(); }
     else if (b.classList.contains('gfuse')) useGoogle();
     else if (b.classList.contains('tcopy')) { if (navigator.clipboard) navigator.clipboard.writeText(line()).then(() => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy'; }, 1200); }, () => {}); }
-    else if (b.classList.contains('treset')) { Object.keys(orig).forEach(k => Object.assign(FX[k], orig[k])); applyFx(); show(); }
+    else if (b.classList.contains('treset')) { if (part === 'grid') { Object.assign(GRID, origGrid); regrid(); } else { Object.keys(orig).forEach(k => Object.assign(FX[k], orig[k])); applyFx(); } show(); }
     else if (b.classList.contains('tmin')) { const m = P.classList.toggle('min'); b.textContent = m ? '+' : '\u2013'; }
   });
   P.addEventListener('input', onIn); P.addEventListener('change', onIn);
   function onIn(e) {
     const k = e.target.dataset && e.target.dataset.k; if (!k) return;
+    if (part === 'grid') { GRID[k] = k === 'ratio' ? e.target.value : parseInt(e.target.value, 10); regrid(); show(); return; }
     FX[part][k] = k === 'font' ? e.target.value : e.target.type === 'checkbox' ? e.target.checked : parseFloat(e.target.value); applyFx(); show();
   }
   show();
