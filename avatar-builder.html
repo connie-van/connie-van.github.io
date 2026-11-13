@@ -33,11 +33,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cu
 .tab[aria-selected="true"]{border-bottom-color:var(--paper);background:var(--paper);color:var(--ink)}
 .tab[aria-selected="true"]::before{content:"\2736";font-family:'Noto Star',sans-serif;font-size:12px;line-height:1}
 
-.body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:31px 8%;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
+.body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:24px 5%;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
 .body.colors{padding:24px}
 
 /* ---------- trait tiles ---------- */
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:30px;row-gap:20px;align-items:start}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:10px;row-gap:10px;align-items:start}
 .tile{position:relative;display:block;width:100%;aspect-ratio:1;border:1px solid var(--ink)}
 /* an outfit with no background (the Snoo) keeps a thin frame like the trait tiles, so it doesn't float */
 .tile.bg.nobg{border:1px solid var(--ink)}
@@ -197,8 +197,6 @@ html:not(.c-hair) .tile.og-hair{--hair:var(--og-hair)}
   .panel.left{border-right:0;border-bottom:1px solid var(--ink);order:2;height:330px}
   .panel.right{border-left:0;order:3;height:330px}
   .stage{order:1;height:470px;border-bottom:1px solid var(--ink)}
-  .grid{column-gap:16px}
-  .body{padding:24px 6%}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
