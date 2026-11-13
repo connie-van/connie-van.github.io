@@ -296,9 +296,9 @@ render();
 // name = "connie ✶ van" at the top, headings = the next / previous project titles at the bottom of a project page,
 // title = the big title on a project page (it shares the headings' squeeze), body = body copy (descriptions, credits, the About page),
 // labels = the small uppercase labels (credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions).
-//   leading = (body only) line height
+//   leading = (body and title) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30, caps: false }, body: { font: 'cossette', size: 1, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30, caps: false, leading: 1 }, body: { font: 'cossette', size: 1, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -349,7 +349,7 @@ function applyFx() {
   rs.setProperty('--sq', FX.headings.squeeze);
   rs.setProperty('--name-w', (126 * FX.name.size).toFixed(1) + 'px');
   rs.setProperty('--fx-h-font', hf[1]); rs.setProperty('--fx-h-weight', hf[2]); rs.setProperty('--fx-h-style', hf[3]); rs.setProperty('--fx-h-size', FX.headings.size);
-  rs.setProperty('--fx-t-font', tf[1]); rs.setProperty('--fx-t-weight', tf[2]); rs.setProperty('--fx-t-style', tf[3]); rs.setProperty('--fx-t-size', FX.title.size); rs.setProperty('--title-w', (FX.title.width || 30) + '%'); rs.setProperty('--fx-t-case', FX.title.caps ? 'uppercase' : 'none');
+  rs.setProperty('--fx-t-font', tf[1]); rs.setProperty('--fx-t-weight', tf[2]); rs.setProperty('--fx-t-style', tf[3]); rs.setProperty('--fx-t-size', FX.title.size); rs.setProperty('--title-w', (FX.title.width || 30) + '%'); rs.setProperty('--fx-t-case', FX.title.caps ? 'uppercase' : 'none'); rs.setProperty('--fx-t-lh', FX.title.leading || 1);
   const bf = fxFont(FX.body.font);
   rs.setProperty('--fx-b-font', bf[1]); rs.setProperty('--fx-b-weight', bf[2]); rs.setProperty('--fx-b-style', bf[3]); rs.setProperty('--fx-b-size', FX.body.size); rs.setProperty('--fx-b-lh', FX.body.leading);
   const lf = fxFont(FX.labels.font);
@@ -393,7 +393,7 @@ function applyFx() {
   if (!/[?&]tune\b/.test(location.search)) return;
   const orig = JSON.parse(JSON.stringify(FX));
   const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels']];
-  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 1, 2, 0.01]];
+  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01]];
   let part = 'name';
   const P = el('div', null, '<div class="th"><span>Text FX</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
     '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '</div>' +
