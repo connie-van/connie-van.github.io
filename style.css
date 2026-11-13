@@ -81,6 +81,8 @@ a{color:inherit}
 .credits dt{font-size:calc(12px * var(--fx-l-size,1));font-weight:var(--fx-l-weight,500);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .credits dd{margin:0;font-size:calc(18px * var(--fx-b-size,1))}
 .m{display:block;width:100%;border-radius:var(--r);margin:0 0 var(--gap);background:#EDE8E0}
+/* images and videos with no transparency: square corners and a black outline (frameIfOpaque in app.js) */
+.framed{border-radius:0 !important;outline:1.5px solid var(--ink);outline-offset:-1.5px;background:none !important}
 .proj iframe.m{aspect-ratio:16/9;border:0;border-radius:0;background:var(--paper)}
 .gbox{display:grid;grid-template-columns:repeat(var(--cols,5),1fr);gap:var(--gap);padding:clamp(16px,3vw,40px);border-radius:var(--r);margin:0 0 var(--gap)}
 .gbox.plain{padding:0}

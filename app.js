@@ -128,6 +128,27 @@ function about() {
   return el('div', 'about', '<p>' + SITE.name + ' is a ' + SITE.tagline + '.</p><p>' + links + '</p>');
 }
 
+// Images and videos without any transparency get square corners and a black outline (the 'framed' class).
+// Ones with transparency (cut-out stickers, characters) keep the rounded look. JPGs and MP4s can't be transparent;
+// anything else is checked once it has loaded by reading a small copy of it.
+function frameIfOpaque(n) {
+  const src = n.getAttribute('src') || '';
+  if (/\.(jpe?g|mp4)(\?|#|$)/i.test(src)) { n.classList.add('framed'); return; }
+  const test = () => {
+    try {
+      const w = n.naturalWidth || n.videoWidth, h = n.naturalHeight || n.videoHeight; if (!w || !h) return;
+      const k = Math.min(1, 96 / Math.max(w, h)), c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+      const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(n, 0, 0, c.width, c.height);
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      for (let i = 3; i < d.length; i += 4) if (d[i] < 250) return;   // found a see-through pixel: leave it as is
+      n.classList.add('framed');
+    } catch (e) {}
+  };
+  if (n.tagName === 'IMG') { if (n.complete && n.naturalWidth) test(); else n.addEventListener('load', test, { once: true }); }
+  else if (n.tagName === 'VIDEO') { if (n.readyState >= 2) test(); else n.addEventListener('loadeddata', test, { once: true }); }
+}
+
 function mediaBlock(m, cls) {
   if (m.t === 'grid' || m.t === 'row') {
     const w = el('div', m.t === 'grid' ? 'gbox' : 'prow');
@@ -147,6 +168,7 @@ function mediaBlock(m, cls) {
     if (m.alt) n.setAttribute('aria-label', m.alt);      // not a title: a title shows as a tooltip over the whole builder
   }
   else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; }
+  if (m.t !== 'embed') frameIfOpaque(n);
   return n;
 }
 
@@ -206,6 +228,7 @@ function mediaNode(m) {
   else if (m.t === 'embed') { n = el('iframe'); n.src = m.src; n.allowFullscreen = true; }
   else { n = el('img'); n.src = m.src; n.alt = ''; }
   n.className = 'lbm';
+  if (m.t !== 'embed') frameIfOpaque(n);
   return n;
 }
 
