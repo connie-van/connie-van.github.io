@@ -120,10 +120,13 @@ const SETS = {
   'onboarding24': { name: 'Onboarding 24', collectible: false, reddit: true, colors: { body: '#FFFFFF', eyes: '#000000' }, clearBackground: true },
   // Reddit work, not collectible: miscellaneous single outfits (Selfcaregirlie). No backgrounds, so wearing one clears the background to None.
   // Vector SVGs: lime shapes take the Skin color. The eyes are cucumber slices in fixed colors, so they don't recolor; no hair.
-  // Unpublished avatars (unpublished: true puts them in their own section). Full-color art: nothing recolors.
+  // Unpublished avatars (unpublished: true puts them in their own section). Cryptoadz, XCOPY and Nouns are full-color art: nothing recolors.
   'cryptoadz': { name: 'Cryptoadz', collectible: false, unpublished: true, background: 'cryptoadz' },
   'xcopy': { name: 'XCOPY', collectible: false, unpublished: true, clearBackground: true },   // no background
   'nouns': { name: 'Nouns', collectible: false, unpublished: true, clearBackground: true },   // no background; the glasses were drawn in the Eyes marker yellow, repainted to their original red (#F84B39) so nothing recolors
+  // these two keep the builder's color markers, so they recolor like the other sets; colors = what they show on page load
+  'stud': { name: 'Stud', collectible: false, unpublished: true, clearBackground: true, colors: { body: '#CAFF4A', eyes: '#FF4431' } },   // no background; skin + eyes editable (the eyes' red is painted into the art, from her color ref)
+  'car': { name: 'Car', collectible: false, unpublished: true, clearBackground: true, colors: { body: '#FFFFFF', eyes: '#EB543F', hair: '#EB543F' } },   // no background; the flame hair is its own trait (not in the outfit); skin white (editable), skin, eye rings + flame hair editable
   'misc': { name: 'Misc', collectible: false, reddit: true, colors: { body: '#FFFFFF' }, clearBackground: true },
   // Reddit work, not collectible: Valentine's Day 2023 outfits (Cupid and Sadboy). No backgrounds, so wearing either one clears the background to None.
   // Vector SVGs: lime shapes take the Skin color, yellow the Eyes color (only the pupils; the eye whites stay white), blue the Hair color. Only Cupid has hair.
@@ -216,7 +219,9 @@ const TRAITS = {
     { id: 'snoo', set: 'bhm23', name: 'Snoo', base: true, sets: { tops: 'snoo-body', bottoms: 'snoo-legs', face: 'snoo-head', eyes: 'snoo-eyes' } },
     { id: 'cryptoadz', set: 'cryptoadz', name: 'Cryptoadz', sets: { tops: 'cryptoadz', bottoms: 'cryptoadz', face: 'cryptoadz', eyes: 'cryptoadz', leftHand: 'cryptoadz' } },
     { id: 'nouns', set: 'nouns', name: 'Nouns', sets: { tops: 'nouns', bottoms: 'nouns', face: 'nouns', eyes: 'nouns', hats: 'nouns-glasses', leftHand: 'nouns-cloud', rightHand: 'nouns-cat' } },
-    { id: 'xcopy', set: 'xcopy', name: 'XCOPY', sets: { tops: 'xcopy', bottoms: 'xcopy', face: 'xcopy', eyes: 'xcopy', leftHand: 'xcopy-save-as', rightHand: 'xcopy-glitch' } }
+    { id: 'xcopy', set: 'xcopy', name: 'XCOPY', sets: { tops: 'xcopy', bottoms: 'xcopy', face: 'xcopy', eyes: 'xcopy', leftHand: 'xcopy-save-as', rightHand: 'xcopy-glitch' } },
+    { id: 'stud', set: 'stud', name: 'Stud', sets: { tops: 'stud', bottoms: 'stud', face: 'stud', eyes: 'stud' } },
+    { id: 'car', set: 'car', name: 'Car', sets: { tops: 'car', bottoms: 'car', face: 'car', eyes: 'car', hats: 'car-helmet', rightHand: 'car-fireball' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
@@ -257,7 +262,9 @@ const TRAITS = {
     { id: 'snoo-body', set: 'bhm23', name: 'Snoo body', base: true, layers: [bhm.svg('body_013.svg')] },
     { id: 'cryptoadz', set: 'cryptoadz', name: 'Blue toad and toad bubble', layers: [unpub.svg('cryptoadz-top.svg')] },
     { id: 'nouns', set: 'nouns', name: 'Rainbow check sweater', layers: [unpub.svg('nouns-top.svg')] },
-    { id: 'xcopy', set: 'xcopy', name: 'Purple hoodie', layers: [unpub.svg('xcopy-top.svg')] }
+    { id: 'xcopy', set: 'xcopy', name: 'Purple hoodie', layers: [unpub.svg('xcopy-top.svg')] },
+    { id: 'stud', set: 'stud', name: 'Spiked black tee', layers: [unpub.svg('stud-top.svg')] },
+    { id: 'car', set: 'car', name: 'Navy and gold armor', layers: [unpub.layer('car-top.png')] }
   ],
   bottoms: [                                                                                                  // body bottom
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.layer('body_bottom_003_3x_1.png')] },
@@ -292,7 +299,9 @@ const TRAITS = {
     { id: 'snoo-legs', set: 'bhm23', name: 'Snoo legs', base: true, layers: [bhm.svg('body_bottom_013.svg')] },
     { id: 'cryptoadz', set: 'cryptoadz', name: 'Swamp toad pile', layers: [unpub.svg('cryptoadz-bottom.svg')] },
     { id: 'nouns', set: 'nouns', name: 'Black pants', layers: [unpub.svg('nouns-bottom.svg')] },
-    { id: 'xcopy', set: 'xcopy', name: 'Navy pants', layers: [unpub.svg('xcopy-bottom.svg')] }
+    { id: 'xcopy', set: 'xcopy', name: 'Navy pants', layers: [unpub.svg('xcopy-bottom.svg')] },
+    { id: 'stud', set: 'stud', name: 'Spiked boots', layers: [unpub.svg('stud-bottom.svg')] },
+    { id: 'car', set: 'car', name: 'Navy and gold boots', layers: [unpub.layer('car-bottom.png')] }
   ],
   hair: [
     { id: 'buns-braids', set: 'bhm23', name: 'Space buns with braids', layers: [bhm.svg('hair_back_004.svg', { z: CATEGORY_Z.hairBack }), bhm.svg('hair_004.svg')] },
@@ -312,7 +321,8 @@ const TRAITS = {
     { id: 'gamerguy', set: 'onboarding24', name: 'Messy fringe', colors: { hair: '#162F35' }, layers: [onb.svg('gamerguy-hair.svg')] },
     { id: 'genz', set: 'onboarding24', name: 'Shag', colors: { hair: '#E49234' }, layers: [onb.svg('genz-hair.svg')] },
     { id: 'tracksuit', set: 'onboarding24', name: 'Short hair and beard', colors: { hair: '#BA5220' }, layers: [onb.svg('tracksuit-hair.svg')] },
-    { id: 'cupid', set: 'vday23', name: 'Curls with arrow', colors: { hair: '#C08D41' }, layers: [vday.svg('cupid-hair.svg')] }
+    { id: 'cupid', set: 'vday23', name: 'Curls with arrow', colors: { hair: '#C08D41' }, layers: [vday.svg('cupid-hair.svg')] },
+    { id: 'car-flames', set: 'car', name: 'Flame hair', layers: [unpub.svg('car-hair-back.svg', { z: CATEGORY_Z.hairBack }), unpub.svg('car-hair.svg')] }
   ],
   face: [                                                                                                     // lower face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_lower_003.svg')] },
@@ -346,7 +356,9 @@ const TRAITS = {
     { id: 'snoo-head', set: 'bhm23', name: 'Snoo head', base: true, layers: [bhm.svg('face_lower_013.svg')] },
     { id: 'cryptoadz', set: 'cryptoadz', name: 'Hairy pink head', layers: [unpub.svg('cryptoadz-head.svg')] },
     { id: 'nouns', set: 'nouns', name: 'Unicorn box head', layers: [unpub.svg('nouns-head.svg')] },
-    { id: 'xcopy', set: 'xcopy', name: 'Hooded green head', layers: [unpub.svg('xcopy-head.svg')] }
+    { id: 'xcopy', set: 'xcopy', name: 'Hooded green head', layers: [unpub.svg('xcopy-head.svg')] },
+    { id: 'stud', set: 'stud', name: 'Spiky grin head', layers: [unpub.svg('stud-head.svg')] },
+    { id: 'car', set: 'car', name: 'White cat head', layers: [unpub.svg('car-head.svg')] }
   ],
   eyes: [                                                                                                     // upper face
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-face_upper_003.svg')] },
@@ -382,7 +394,9 @@ const TRAITS = {
     { id: 'snoo-eyes', set: 'bhm23', name: 'Snoo eyes', base: true, layers: [bhm.svg('face_upper_013.svg')] },
     { id: 'cryptoadz', set: 'cryptoadz', name: 'Sleepy eyes and lips', layers: [unpub.svg('cryptoadz-eyes.svg')] },
     { id: 'nouns', set: 'nouns', name: 'Pixel eyes', layers: [unpub.svg('nouns-eyes.svg')] },
-    { id: 'xcopy', set: 'xcopy', name: 'Pink glasses', layers: [unpub.svg('xcopy-eyes.svg')] }
+    { id: 'xcopy', set: 'xcopy', name: 'Pink glasses', layers: [unpub.svg('xcopy-eyes.svg')] },
+    { id: 'stud', set: 'stud', name: 'Glowing slits', layers: [unpub.svg('stud-eyes.svg')] },
+    { id: 'car', set: 'car', name: 'Flame eyes', layers: [unpub.svg('car-eyes.svg')] }
   ],
   hats: [                                                                                                     // head accessory
     { id: 'set-003', set: 'bodegacatceo', name: 'Toast', layers: [bodega.layer('head_accessory_003_3x_1.png')] },
@@ -409,7 +423,8 @@ const TRAITS = {
     { id: 'cupid-halo', set: 'vday23', name: 'Gold halo', layers: [vday.svg('cupid-hat.svg')] },
     { id: 'sadboy-chocolates', set: 'vday23', name: 'Box of chocolates', layers: [vday.svg('sadboy-hat.svg')] },
     { id: 'selfcaregirlie-towel', set: 'misc', name: 'Hair towel', layers: [misc.svg('selfcaregirlie-hat.svg')] },
-    { id: 'nouns-glasses', set: 'nouns', name: 'Red noggles', layers: [unpub.svg('nouns-hat.svg')] }
+    { id: 'nouns-glasses', set: 'nouns', name: 'Red noggles', layers: [unpub.svg('nouns-hat.svg')] },
+    { id: 'car-helmet', set: 'car', name: 'Gold winged helmet', layers: [unpub.layer('car-hat.png')] }
   ],
   rightHand: [                                                                                                // acc front
     { id: 'pigeon', set: 'bodegacatceo', name: 'Pigeon', layers: [bodega.layer('1_r-acc_web.png')] },       // (1_r-acc, resized from 4000px)
@@ -441,7 +456,8 @@ const TRAITS = {
     { id: 'cupid-arrow', set: 'vday23', name: 'Heart arrow', layers: [vday.svg('cupid-acc.svg')] },
     { id: 'sadboy-tissue', set: 'vday23', name: 'Tissue', layers: [vday.svg('sadboy-acc.svg')] },
     { id: 'nouns-cat', set: 'nouns', name: 'Noggles cat', layers: [unpub.svg('nouns-acc.svg')] },
-    { id: 'xcopy-glitch', set: 'xcopy', name: 'Glitch pixels', layers: [unpub.svg('xcopy-acc.svg')] }
+    { id: 'xcopy-glitch', set: 'xcopy', name: 'Glitch pixels', layers: [unpub.svg('xcopy-acc.svg')] },
+    { id: 'car-fireball', set: 'car', name: 'Fireball', layers: [unpub.layer('car-acc.png')] }
   ],
   leftHand: [                                                                                                 // acc back (between the top and the head)
     { id: 'try-me', set: 'bodegacatceo', name: 'TRY ME', layers: [bodega.layer('accessory_back_003_4x_1.png')] },
