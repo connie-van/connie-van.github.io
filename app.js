@@ -5,7 +5,7 @@ const RATIO = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1 };
 //   ratio = every tile's shape, width:height, e.g. '3:4', '4:5', '5:7', '1:1'; or 'flex' = each tile takes its cover's own shape
 //           (a project with no cover uses its r shape from projects.js)
 // Add ?tune to the address (before any #) and pick Grid in the panel to try these live.
-const GRID = { cols: 3, ratio: '3:4' };
+const GRID = { cols: 3, ratio: '7:5' };
 const ratioOf = s => { const m = /^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)$/.exec(s || ''); return m ? m[1] / m[2] : 0; };
 const COLORS = ['#FF6B4A', '#FFD84D', '#7FE0B0', '#7CC4FF', '#C3A6FF', '#FF9EC4', '#C8F169', '#FFA43A', '#FFF1D6', '#8E9BFF'];
 const colorOf = p => COLORS[PROJECTS.indexOf(p) % COLORS.length];
