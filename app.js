@@ -129,7 +129,7 @@ function about() {
 }
 
 // Images and videos without any transparency get square corners and a black outline (the 'framed' class).
-// Ones with transparency (cut-out stickers, characters) keep the rounded look. JPGs and MP4s can't be transparent;
+// Ones with transparency (cut-out stickers, characters) get no outline (corners are square either way). JPGs and MP4s can't be transparent;
 // anything else is checked once it has loaded by reading a small copy of it.
 function frameIfOpaque(n) {
   const src = n.getAttribute('src') || '';
@@ -304,11 +304,25 @@ function render(force) {
   setMenu(key);
   window.scrollTo(0, 0);
   if (boxSec) openBox(p);
+  fitTitles();
 }
+
+// project titles stay on one line: one too long for the row is set just small enough to fit (on load, resize, font changes)
+function fitTitles() {
+  document.querySelectorAll('.intro h1').forEach(h => {
+    const s = h.firstElementChild; if (!s) return;
+    h.style.fontSize = '';
+    const r = document.createRange(); r.selectNodeContents(s);
+    const ink = r.getBoundingClientRect().width, room = h.clientWidth;
+    if (ink > room && room > 0) h.style.fontSize = (parseFloat(getComputedStyle(h).fontSize) * room / ink * 0.98) + 'px';
+  });
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTitles());
 
 let lastW = app.clientWidth, t;
 window.addEventListener('hashchange', () => render());
 window.addEventListener('resize', () => {
+  fitTitles();
   clearTimeout(t);
   t = setTimeout(() => { if (Math.abs(app.clientWidth - lastW) > 40) { lastW = app.clientWidth; const y = scrollY; render(true); scrollTo(0, y); } }, 150);
 });
@@ -323,14 +337,13 @@ render();
 //   font    = which of the site's typefaces it's set in (see FX_FONTS)
 //   size    = how big it is, times its normal size (1 = as designed)
 //   caps    = (title only) true = all capitals
-//   width   = (title only) how much of the row the project title takes, in %; the description box beside it gets the rest
 // name = "connie ✶ van" at the top, headings = the next / previous project titles at the bottom of a project page,
 // title = the big title on a project page (it shares the headings' squeeze), body = body copy (descriptions, credits, the About page),
 // images = the outline on project images with no transparency: outline = its thickness in px (0 = none)
 // labels = the small uppercase labels (credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions).
 //   leading = (body and title) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 38, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -393,6 +406,7 @@ function applyFx() {
   if (window.fitName) window.fitName();
   // re-measure the name once its typeface has loaded
   if (document.fonts && document.fonts.load) document.fonts.load((nf2[3] === 'italic' ? 'italic ' : '') + nf2[2] + ' 100px ' + nf2[1]).then(() => { if (window.fitName) window.fitName(); });
+  fitTitles();
 }
 
 // The name hides while you scroll down and comes back when you scroll up.
@@ -511,7 +525,7 @@ function applyFx() {
       const k = l.dataset.row, has = k in o; l.hidden = !has; if (!has) return;
       const inp = l.querySelector('input, select'); if (inp.type === 'checkbox') inp.checked = !!o[k]; else inp.value = o[k]; const out = l.querySelector('output'); if (out) out.textContent = num(o[k]);
     });
-    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. Width = the title\u2019s share of the row; the description gets the rest (stacked on phones).' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'images' ? 'The black outline on project images and videos with no transparency. 0 = no outline (the corners stay square).' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
+    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. It always sits on one line: a title too long for the row is set smaller to fit.' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'images' ? 'The black outline on project images and videos with no transparency. 0 = no outline (the corners stay square).' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
     P.querySelector('.tcode').textContent = line();
   };
   P.addEventListener('click', e => {

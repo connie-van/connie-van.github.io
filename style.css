@@ -68,10 +68,11 @@ a{color:inherit}
 
 /* project page */
 .proj{max-width:none}
-/* project title and description side by side: the title takes --title-w of the row (FX.title.width in app.js), the description the rest */
-.intro{display:grid;grid-template-columns:minmax(0,var(--title-w,30%)) minmax(0,1fr);align-items:start;gap:24px 48px;padding:24px 8px 56px}
-.intro.solo{grid-template-columns:1fr}
-@media (max-width:760px){.intro{grid-template-columns:1fr}}
+/* project title (one line, full width), then the description below it, both centered */
+.intro{display:flex;flex-direction:column;align-items:center;text-align:center;gap:24px;padding:24px 8px 56px}
+.intro h1{width:100%;white-space:nowrap}   /* one line, full width: app.js (fitTitles) shrinks the size when a title wouldn't fit */
+.intro .side{width:100%;max-width:640px}
+.intro .credits{justify-content:center}
 .intro.below{padding:32px 8px 24px}
 .intro h1{min-width:0;text-transform:var(--fx-t-case,none);font-size:calc(clamp(56px,9vw,128px) * var(--fx-t-size));line-height:var(--fx-t-lh,1);margin:0}
 .intro h1.sqw{filter:url(#round-l)}
@@ -82,11 +83,12 @@ a{color:inherit}
 .credits div{display:flex;flex-direction:column;gap:2px}
 .credits dt{font-size:calc(12px * var(--fx-l-size,1));font-weight:var(--fx-l-weight,500);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .credits dd{margin:0;font-size:calc(18px * var(--fx-b-size,1))}
-.m{display:block;width:100%;border-radius:var(--r);margin:0 0 var(--gap);background:#EDE8E0}
+/* images are never rounded (tiles, project media, image boxes, the lightbox); only the avatar builder's card keeps its round corners */
+.m{display:block;width:100%;border-radius:0;margin:0 0 var(--gap);background:#EDE8E0}
 /* images and videos with no transparency: square corners and a black outline (frameIfOpaque in app.js) */
 .framed{border-radius:0 !important;outline:var(--img-outline,1.5px) solid var(--ink);outline-offset:calc(-1 * var(--img-outline,1.5px));background:none !important}   /* thickness: FX.images in app.js */
 .proj iframe.m{aspect-ratio:16/9;border:0;border-radius:0;background:var(--paper)}
-.gbox{display:grid;grid-template-columns:repeat(var(--cols,5),1fr);gap:var(--gap);padding:clamp(16px,3vw,40px);border-radius:var(--r);margin:0 0 var(--gap)}
+.gbox{display:grid;grid-template-columns:repeat(var(--cols,5),1fr);gap:var(--gap);padding:clamp(16px,3vw,40px);border-radius:0;margin:0 0 var(--gap)}
 .gbox.plain{padding:0}
 .gi{display:block;width:100%;aspect-ratio:1;object-fit:contain}
 .prow{display:grid;grid-template-columns:repeat(var(--cols,2),1fr);gap:var(--gap);margin:0 0 var(--gap)}
@@ -112,7 +114,7 @@ a{color:inherit}
 
 .lb{position:fixed;inset:0;z-index:50;background:rgba(251,247,240,.95);display:flex;align-items:center;justify-content:center;overflow:auto;padding:56px 16px 24px}
 .lbin{max-width:min(92vw,1100px);max-height:100%;margin:auto;display:flex;flex-direction:column;gap:8px}
-.lbm{display:block;max-width:100%;max-height:78vh;width:auto;height:auto;margin:0 auto;border-radius:var(--r);object-fit:contain}
+.lbm{display:block;max-width:100%;max-height:78vh;width:auto;height:auto;margin:0 auto;border-radius:0;object-fit:contain}
 iframe.lbm{width:min(92vw,1000px);aspect-ratio:16/9;border:0;max-height:none}
 .lbcap{margin:4px 0 0;text-align:center;color:var(--mute);font-size:calc(15px * var(--fx-l-size,1))}
 .lbx{position:absolute;top:12px;right:16px;width:40px;height:40px;border:0;border-radius:50%;background:var(--ink);color:#fff;font:inherit;font-size:24px;line-height:1;cursor:pointer}
