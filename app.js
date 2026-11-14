@@ -112,13 +112,13 @@ function home() {
 
 function work() {
   const items = byCat('work').map(tile);
-  const w = el('div', null, crumbs([['Work']]));
+  const w = el('div', null, '');   // no page label (was: crumbs([['Work']]))
   w.appendChild(mosaic(items));
   return w;
 }
 
 function play() {
-  const w = el('div', null, crumbs([['Play']]));
+  const w = el('div', null, '');   // no page label (was: crumbs([['Play']]))
   w.appendChild(mosaic(byCat('play').map(tile)));
   return w;
 }
