@@ -330,7 +330,7 @@ render();
 // labels = the small uppercase labels (credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions).
 //   leading = (body and title) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 38, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 1.5 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 38, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -374,7 +374,7 @@ function applyFx() {
   };
   if (!FX.body) FX.body = { font: 'cossette', size: 1, leading: 1.4 };
   if (!FX.labels) FX.labels = { font: 'geist-mono', size: 1 };
-  if (!FX.images) FX.images = { outline: 1.5 };
+  if (!FX.images) FX.images = { outline: 0 };
   set('nameRound', FX.name); set('round-m', FX.headings); set('round-l', FX.title);
   const nf = document.getElementById('nameRound'), pad = 60 + FX.name.blur * 3;   // room for the blur, so a big blur isn't clipped
   if (nf) { nf.setAttribute('x', -pad); nf.setAttribute('y', -pad); nf.setAttribute('width', 1180 + 2 * pad); nf.setAttribute('height', 300 + 2 * pad); }
