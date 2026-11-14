@@ -126,7 +126,7 @@ const SETS = {
   'nouns': { name: 'Nouns', collectible: false, unpublished: true, clearBackground: true },   // no background; the glasses were drawn in the Eyes marker yellow, repainted to their original red (#F84B39) so nothing recolors
   // these two keep the builder's color markers, so they recolor like the other sets; colors = what they show on page load
   'stud': { name: 'Stud', collectible: false, unpublished: true, clearBackground: true, colors: { body: '#CAFF4A', eyes: '#FF4431' } },   // no background; skin + eyes editable (the eyes' red is painted into the art, from her color ref)
-  'car': { name: 'Car', collectible: false, unpublished: true, clearBackground: true, colors: { body: '#FFFFFF', eyes: '#EB543F', hair: '#EB543F' } },   // no background; the flame hair is its own trait (not in the outfit); skin white (editable), skin, eye rings + flame hair editable
+  'car': { name: 'Car', collectible: false, unpublished: true, clearBackground: true, colors: { body: '#FFFFFF', eyes: '#EB543F', hair: '#EB543F' } },   // no background; the flame hair and winged helmet are their own traits (not in the outfit); skin white (editable), skin, eye rings + flame hair editable
   'misc': { name: 'Misc', collectible: false, reddit: true, colors: { body: '#FFFFFF' }, clearBackground: true },
   // Reddit work, not collectible: Valentine's Day 2023 outfits (Cupid and Sadboy). No backgrounds, so wearing either one clears the background to None.
   // Vector SVGs: lime shapes take the Skin color, yellow the Eyes color (only the pupils; the eye whites stay white), blue the Hair color. Only Cupid has hair.
@@ -221,7 +221,7 @@ const TRAITS = {
     { id: 'nouns', set: 'nouns', name: 'Nouns', sets: { tops: 'nouns', bottoms: 'nouns', face: 'nouns', eyes: 'nouns', hats: 'nouns-glasses', leftHand: 'nouns-cloud', rightHand: 'nouns-cat' } },
     { id: 'xcopy', set: 'xcopy', name: 'XCOPY', sets: { tops: 'xcopy', bottoms: 'xcopy', face: 'xcopy', eyes: 'xcopy', leftHand: 'xcopy-save-as', rightHand: 'xcopy-glitch' } },
     { id: 'stud', set: 'stud', name: 'Stud', sets: { tops: 'stud', bottoms: 'stud', face: 'stud', eyes: 'stud' } },
-    { id: 'car', set: 'car', name: 'Car', sets: { tops: 'car', bottoms: 'car', face: 'car', eyes: 'car', hats: 'car-helmet', rightHand: 'car-fireball' } }
+    { id: 'car', set: 'car', name: 'Car', sets: { tops: 'car', bottoms: 'car', face: 'car', eyes: 'car', rightHand: 'car-fireball' } }
   ],
   tops: [                                                                                                     // body
     { id: 'set-003', set: 'bodegacatceo', name: 'Set 003', layers: [bodega.svg('combined-body_003.svg')] },
