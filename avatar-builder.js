@@ -112,8 +112,8 @@
       else { state.sel.backgrounds = null; state.bg.mode = 'none'; }          // None = transparent
       return;
     }
-    if (!id) { if (!isRequired(cat)) state.sel[cat] = null; return; }
-    state.sel[cat] = (state.sel[cat] === id && !isRequired(cat)) ? null : id;   // tap a selected optional trait again to take it off
+    if (!id) { state.sel[cat] = null; return; }                              // None: every category but Outfits can be emptied (shows what's underneath)
+    state.sel[cat] = state.sel[cat] === id ? null : id;                      // tap a selected trait again to take it off
   }
 
   // ---------- drawing ----------
@@ -292,7 +292,7 @@
       TRAITS[cat].forEach((it, i) => { if (sectionOf(it) === sec.key) items.push([it, i]); });
       if (!items.length) return;
       html += '<h3 class="sec' + (first ? ' first' : '') + '">' + esc(sec.label) + '</h3>';
-      if (first && cat !== 'outfits' && !isRequired(cat)) html += tile(cat, null, 0);   // optional traits get a None tile
+      if (first && cat !== 'outfits') html += tile(cat, null, 0);   // every category but Outfits gets a None tile
       items.forEach(x => { html += tile(cat, x[0], x[1]); });
       first = false;
     });
@@ -685,12 +685,22 @@
     })));
   }
 
-  // ---------- narrow screens: the panels stack, so the frame needs to be taller ----------
+  // ---------- frame height: follows the width, so the avatar card always fills the middle column ----------
+  // Wide: the card is 3:4 and as wide as the middle column, so the frame is as tall as that card plus the stage's padding and
+  // the Save/Shuffle row (never shorter than MIN_H, so the trait grids stay usable). Narrow (stacked panels): the stage's height
+  // follows the width the same way, plus the two trait panels below it.
+  const MIN_H = 380, STACK_PANELS = 2 * 330;
+  function frameHeight() {
+    const w = document.documentElement.clientWidth;
+    if (w <= 860) return null;                                   // stacked: the CSS sizes the stage from the width; the page height is read below
+    const stageW = w * 0.9 / 2.9;                                // columns are 1fr .9fr 1fr
+    return Math.max(MIN_H, Math.round((stageW - 32) * 4 / 3 + 50 + 2));   // 16px side padding, 25px top + 25px actions row, 2px border
+  }
   function fitFrame() {
     const f = window.frameElement; if (!f) return;
     try {
-      if (f.dataset.h0 === undefined) f.dataset.h0 = f.style.height || '';
-      f.style.height = window.innerWidth <= 860 ? '1140px' : f.dataset.h0;
+      const h = frameHeight();
+      f.style.height = (h || Math.ceil(document.querySelector('.app').getBoundingClientRect().height)) + 'px';
     } catch (e) { /* embedded somewhere we can't resize: that's fine */ }
   }
   window.addEventListener('resize', fitFrame);

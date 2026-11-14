@@ -196,7 +196,8 @@ html:not(.c-hair) .tile.og-hair{--hair:var(--og-hair)}
   .app{height:auto;grid-template-columns:1fr}
   .panel.left{border-right:0;border-bottom:1px solid var(--ink);order:2;height:330px}
   .panel.right{border-left:0;order:3;height:330px}
-  .stage{order:1;height:470px;border-bottom:1px solid var(--ink)}
+  .stage{order:1;height:auto;container-type:normal;border-bottom:1px solid var(--ink)}
+  .stage .card{width:min(100%,380px)}                                 /* stacked: the stage is as tall as the card it holds, no empty band */
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
