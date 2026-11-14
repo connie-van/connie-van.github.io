@@ -77,8 +77,8 @@ const HIDE_EMPTY_TABS = false;
 //   (the base Snoo, made by Reddit). Empty sections are skipped. Change the labels here.
 const SECTIONS = [
   { key: 'personal', label: 'Creator Program' },
-  { key: 'reddit', label: 'Made at Reddit' },
-  { key: 'unpublished', label: 'Unpublished avatars' },
+  { key: 'reddit', label: 'Official Reddit' },
+  { key: 'unpublished', label: 'Unpublished' },
   { key: 'base', label: 'Snoo base \u00b7 by Reddit' }
 ];
 // COLLECTIBLE: a set with  collectible: true  is part of the collectible line. Its Outfits tile gets the holographic hover (HOLO below);
