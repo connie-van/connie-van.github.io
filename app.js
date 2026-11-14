@@ -330,14 +330,16 @@ render();
 // labels = the small uppercase labels (credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions).
 //   leading = (body and title) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 30, caps: false, leading: 1 }, body: { font: 'cossette', size: 1, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, width: 38, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 1.5 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
   'cossette': ['Cossette Titre Regular', "'Cossette Titre'", 400],
   'instrument-serif': ['Instrument Serif', "'Instrument Serif'", 400],
   'geist-mono': ['Geist Mono Medium', "'Geist Mono'", 500],
-  'geist-mono-regular': ['Geist Mono Regular', "'Geist Mono'", 400]
+  'geist-mono-regular': ['Geist Mono Regular', "'Geist Mono'", 400],
+  'geist': ['Geist Regular', "'Geist'", 400],
+  'geist-medium': ['Geist Medium', "'Geist'", 500]
 };
 // A font can also come from Google Fonts: font: 'google:Family Name:700' or 'google:Family Name:700:italic' (family, weight, style).
 // It's loaded from Google when the page opens. Fine for trying fonts out; for good, download the font into fonts/ and add it to FX_FONTS.
@@ -427,7 +429,7 @@ function applyFx() {
   if (!/[?&]tune\b/.test(location.search)) return;
   const orig = JSON.parse(JSON.stringify(FX));
   const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels'], ['images', 'Images']];
-  const GRID_RATIOS = [['flex', 'Flexible (each cover\u2019s own shape)'], ['1:1', '1:1'], ['4:5', '4:5'], ['3:4', '3:4'], ['5:7', '5:7'], ['2:3', '2:3'], ['9:16', '9:16'], ['4:3', '4:3'], ['16:9', '16:9']];
+  const GRID_RATIOS = [['flex', 'Flexible (each cover\u2019s own shape)'], ['1:1', '1:1 square'], ['4:5', '4:5 tall'], ['5:4', '5:4 wide'], ['3:4', '3:4 tall'], ['4:3', '4:3 wide'], ['5:7', '5:7 tall'], ['7:5', '7:5 wide'], ['2:3', '2:3 tall'], ['3:2', '3:2 wide'], ['9:16', '9:16 tall'], ['16:9', '16:9 wide']];
   const origGrid = Object.assign({}, GRID);
   const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01], ['cols', 'Columns', 1, 6, 1], ['outline', 'Outline (px)', 0, 4, 0.25]];
   let part = 'name';
