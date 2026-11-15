@@ -390,7 +390,7 @@ render();
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
 // lightbox = clicking an image on a project page enlarges it over the page. fade = how much the page fades behind it (0 = not at all, 1 = hidden),
 //   outline = the black outline on the enlarged image (px, 0 = none).
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 }, lightbox: { fade: 0.9, outline: 0 } };
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 1, thick: 0, font: 'instrument-serif', size: 0.5, caps: false, leading: 1 }, headings: { blur: 0, sharp: 1, thick: 0, squeeze: 1, font: 'cossette-bold', size: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 }, lightbox: { fade: 0.9, outline: 0 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
