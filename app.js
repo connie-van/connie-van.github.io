@@ -167,7 +167,7 @@ function mediaBlock(m, cls) {
     if (m.height) { n.style.aspectRatio = 'auto'; n.style.height = m.height; }
     if (m.alt) n.setAttribute('aria-label', m.alt);      // not a title: a title shows as a tooltip over the whole builder
   }
-  else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; }
+  else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; if (m.still) n.dataset.still = m.still; }
   if (m.t !== 'embed') frameIfOpaque(n);
   return n;
 }
@@ -322,7 +322,15 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitT
 // ---------- image lightbox on project pages ----------
 // Clicking an image or GIF on a project page (not the avatar builder) enlarges it over the page, which fades behind it (FX.lightbox).
 let pxBox = null;
-function pxClose() { if (!pxBox) return; pxBox.el.remove(); pxBox = null; document.body.style.overflow = ''; }
+// while it's open the page behind holds still: animated images with a  still  frame (projects.js) show it, and looping videos pause
+function holdPage(on) {
+  document.querySelectorAll('#app img[data-still]').forEach(i => {
+    if (on) { i.dataset.anim = i.getAttribute('src'); i.src = i.dataset.still; }
+    else if (i.dataset.anim) { i.src = i.dataset.anim; delete i.dataset.anim; }
+  });
+  document.querySelectorAll('#app video').forEach(v => { if (on) { v.dataset.held = v.paused ? '' : '1'; v.pause(); } else if (v.dataset.held) { v.play().catch(() => {}); delete v.dataset.held; } });
+}
+function pxClose() { if (!pxBox) return; pxBox.el.remove(); pxBox = null; document.body.style.overflow = ''; holdPage(false); }
 function pxOpen(src, isVideo, alt) {
   pxClose();
   const wrap = el('div', 'lb px'); wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-label', alt || 'Image');
@@ -333,6 +341,7 @@ function pxOpen(src, isVideo, alt) {
   pxBox = { el: wrap, redraw: applyLb };
   applyLb();
   document.body.appendChild(wrap); document.body.style.overflow = 'hidden';
+  holdPage(true);
   x.focus();
 }
 function applyLb() { const r = document.documentElement.style; r.setProperty('--lb-outline', (FX.lightbox.outline || 0) + 'px'); r.setProperty('--lb-fade', FX.lightbox.fade == null ? 0.9 : FX.lightbox.fade); }

@@ -14,6 +14,7 @@
 //   { t:'img', src:'media/demon-friends/01.jpg', alt:'short description' }
 //   { t:'video', src:'media/demon-friends/loop.mp4', alt:'short description' }   (plays like a gif: autoplay, loop, muted, no controls)
 //   { t:'embed', src:'https://player.vimeo.com/video/123456' }
+//   still: 'path'   on an animated img: a single frame shown in its place while a lightbox is open, so the page behind holds still
 //   { t:'embed', src:'avatar-builder.html', height:'clamp(520px, 38.5vw, 660px)', alt:'...' }   a page of your own; height is optional (default 16:9)
 //   Layout blocks that hold several items:
 //   { t:'grid', cols:5, items:[ ...img/video items ] }   one colored box, items in a grid (2 per row on phones)
@@ -42,16 +43,16 @@ const PROJECTS = [
     ],
     media:[
       { t:'grid', cols:5, items:[
-      { t:'img', src:'media/gvc/Cool.webp', alt:'Cool sticker' },
-      { t:'img', src:'media/gvc/SobLaughing.webp', alt:'Sob laughing sticker' },
-      { t:'img', src:'media/gvc/Pwease.webp', alt:'Pwease sticker' },
-      { t:'img', src:'media/gvc/HeartEyes.webp', alt:'Heart eyes sticker' },
-      { t:'img', src:'media/gvc/WaveHello.webp', alt:'Wave hello sticker' },
-      { t:'img', src:'media/gvc/Hype.webp', alt:'Hype sticker' },
-      { t:'img', src:'media/gvc/Snickering.webp', alt:'Snickering sticker' },
-      { t:'img', src:'media/gvc/Stoked.webp', alt:'Stoked sticker' },
-      { t:'img', src:'media/gvc/Think.webp', alt:'Think sticker' },
-      { t:'img', src:'media/gvc/Mindblown.webp', alt:'Mindblown sticker' }
+      { t:'img', src:'media/gvc/Cool.webp', still:'media/gvc/Cool-still.webp', alt:'Cool sticker' },
+      { t:'img', src:'media/gvc/SobLaughing.webp', still:'media/gvc/SobLaughing-still.webp', alt:'Sob laughing sticker' },
+      { t:'img', src:'media/gvc/Pwease.webp', still:'media/gvc/Pwease-still.webp', alt:'Pwease sticker' },
+      { t:'img', src:'media/gvc/HeartEyes.webp', still:'media/gvc/HeartEyes-still.webp', alt:'Heart eyes sticker' },
+      { t:'img', src:'media/gvc/WaveHello.webp', still:'media/gvc/WaveHello-still.webp', alt:'Wave hello sticker' },
+      { t:'img', src:'media/gvc/Hype.webp', still:'media/gvc/Hype-still.webp', alt:'Hype sticker' },
+      { t:'img', src:'media/gvc/Snickering.webp', still:'media/gvc/Snickering-still.webp', alt:'Snickering sticker' },
+      { t:'img', src:'media/gvc/Stoked.webp', still:'media/gvc/Stoked-still.webp', alt:'Stoked sticker' },
+      { t:'img', src:'media/gvc/Think.webp', still:'media/gvc/Think-still.webp', alt:'Think sticker' },
+      { t:'img', src:'media/gvc/Mindblown.webp', still:'media/gvc/Mindblown-still.webp', alt:'Mindblown sticker' }
       ] },
       { t:'row', items:[
         { t:'img', src:'media/gvc/GVC-Telegram-Evergreen-Stickers-v02.png', alt:'Finished Telegram sticker set' },
