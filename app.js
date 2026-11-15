@@ -345,34 +345,59 @@ function pxOpen(src, isVideo, alt) {
   const x = el('button', 'lbx', '×'); x.setAttribute('aria-label', 'Close'); x.onclick = pxClose;
   wrap.append(cv, m, x);
   wrap.onclick = e => { if (e.target === wrap || e.target === cv) pxClose(); };
-  let drawn = '';
-  function draw(n, f) {
-    n = Math.max(1, Math.round(n)); const key = n + ':' + f.toFixed(3); if (key === drawn) return; drawn = key;
+  // three versions of the pixelated page: still (the background), and the trail's outer (in between) and inner (biggest) pixels
+  const L = () => FX.lightbox;
+  let layers = null;
+  function pixelate(n, f) {
+    n = Math.max(1, Math.round(n));
+    const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
     small.width = Math.max(1, Math.ceil(W / n)); small.height = Math.max(1, Math.ceil(H / n));
     sx.imageSmoothingEnabled = true; sx.drawImage(base, 0, 0, small.width, small.height);
-    cx.imageSmoothingEnabled = false; cx.drawImage(small, 0, 0, small.width * n, small.height * n);
-    if (f > 0) { cx.globalAlpha = Math.min(1, f); cx.fillStyle = paper; cx.fillRect(0, 0, W, H); cx.globalAlpha = 1; }
+    g.imageSmoothingEnabled = false; g.drawImage(small, 0, 0, small.width * n, small.height * n);
+    if (f > 0) { g.globalAlpha = Math.min(1, f); g.fillStyle = paper; g.fillRect(0, 0, W, H); }
+    return { c: c, n: n };
   }
-  // energy: cursor movement adds to it, it drains on its own; shown eases toward it
+  function build() {
+    const o = L();
+    layers = [pixelate(o.pixel, o.fade), pixelate((o.pixel + o.pixelMove) / 2, (o.fade + o.fadeMove) / 2), pixelate(o.pixelMove, o.fadeMove)];
+  }
+  // the trail: recent cursor points; each one's reach shrinks as it ages, so the trail tapers off behind the cursor
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let energy = 0, shown = 0, raf = 0, lx = null, ly = null;
-  const L = () => FX.lightbox;
-  const frame = () => {
-    raf = 0; energy *= 0.94; shown += (energy - shown) * 0.12;
-    const o = L(); draw(o.pixel + (o.pixelMove - o.pixel) * shown, o.fade + (o.fadeMove - o.fade) * shown);
-    if (energy > 0.002 || Math.abs(energy - shown) > 0.002) raf = requestAnimationFrame(frame);
-  };
+  let trail = [], raf = 0;
+  function frame() {
+    raf = 0;
+    const o = L(), now = performance.now(), life = Math.max(50, o.trailLength), R = o.trailSize;
+    trail = trail.filter(p => now - p.t < life);
+    cx.drawImage(layers[0].c, 0, 0);
+    // each layer's cells near the trail are copied over the background: inner cells from the biggest pixels, the ring around them from the in-between ones
+    [[1, 0.12], [2, 0.5]].forEach(([li, need]) => {
+      const n = layers[li].n, done = new Set();
+      trail.forEach(p => {
+        const r = R * (1 - (now - p.t) / life); if (r <= 0) return;
+        for (let gx = Math.floor((p.x - r) / n); gx <= Math.floor((p.x + r) / n); gx++) for (let gy = Math.floor((p.y - r) / n); gy <= Math.floor((p.y + r) / n); gy++) {
+          const k = gx + ',' + gy; if (done.has(k)) continue;
+          let best = 0;   // the strongest pull on this cell from any trail point
+          for (const q of trail) { const rq = R * (1 - (now - q.t) / life); if (rq <= 0) continue; const v = 1 - Math.hypot(gx * n + n / 2 - q.x, gy * n + n / 2 - q.y) / rq; if (v > best) best = v; }
+          if (best < need) continue;
+          done.add(k); cx.drawImage(layers[li].c, gx * n, gy * n, n, n, gx * n, gy * n, n, n);
+        }
+      });
+    });
+    if (trail.length) raf = requestAnimationFrame(frame);
+  }
   const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
-  const move = e => {
+  wrap.addEventListener('pointermove', e => {
     if (still) return;
-    if (lx !== null) energy = Math.min(1, energy + Math.hypot(e.clientX - lx, e.clientY - ly) / 500);
-    lx = e.clientX; ly = e.clientY; kick();
-  };
-  wrap.addEventListener('pointermove', move);
-  pxBox = { el: wrap, stop: () => { cancelAnimationFrame(raf); }, redraw: () => { drawn = ''; applyLbOutline(); kick(); frame(); } };
+    const last = trail[trail.length - 1];
+    if (!last || Math.hypot(e.clientX - last.x, e.clientY - last.y) > 6) trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    else last.t = performance.now();
+    if (trail.length > 60) trail.shift();
+    kick();
+  });
+  pxBox = { el: wrap, stop: () => { cancelAnimationFrame(raf); }, redraw: () => { build(); applyLbOutline(); frame(); } };
   applyLbOutline();
   document.body.appendChild(wrap); document.body.style.overflow = 'hidden';
-  draw(L().pixel, L().fade); x.focus();
+  build(); frame(); x.focus();
 }
 function applyLbOutline() { document.documentElement.style.setProperty('--lb-outline', (FX.lightbox.outline || 0) + 'px'); }
 document.addEventListener('click', e => {
@@ -407,9 +432,10 @@ render();
 //   leading = (body and title) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
 // lightbox = clicking an image on a project page enlarges it over a pixelated copy of the page.
-//   pixel / fade = the pixel size (px) and paper-colored fade (0 to 1) when the cursor is still; pixelMove / fadeMove = while the cursor moves
-//   (it eases between the two; set them equal for no movement). outline = the black outline on the enlarged image (px, 0 = none).
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 }, lightbox: { pixel: 12, pixelMove: 48, fade: 0.15, fadeMove: 0.35, outline: 0 } };
+//   pixel / fade = the background's pixel size (px) and paper-colored fade (0 to 1); pixelMove / fadeMove = the biggest pixels and fade in the
+//   cursor's trail (it steps through an in-between size at its edges). trailSize = how far the trail reaches from the cursor (px),
+//   trailLength = how long it lingers (ms). outline = the black outline on the enlarged image (px, 0 = none).
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 }, lightbox: { pixel: 12, pixelMove: 48, fade: 0.15, fadeMove: 0.35, trailSize: 90, trailLength: 600, outline: 0 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -454,7 +480,8 @@ function applyFx() {
   if (!FX.body) FX.body = { font: 'cossette', size: 1, leading: 1.4 };
   if (!FX.labels) FX.labels = { font: 'geist-mono', size: 1 };
   if (!FX.images) FX.images = { outline: 0 };
-  if (!FX.lightbox) FX.lightbox = { pixel: 12, pixelMove: 48, fade: 0.15, fadeMove: 0.35, outline: 0 };
+  if (!FX.lightbox) FX.lightbox = { pixel: 12, pixelMove: 48, fade: 0.15, fadeMove: 0.35, trailSize: 90, trailLength: 600, outline: 0 };
+  if (FX.lightbox.trailSize === undefined) Object.assign(FX.lightbox, { trailSize: 90, trailLength: 600 });
   set('nameRound', FX.name); set('round-m', FX.headings); set('round-l', FX.title);
   const nf = document.getElementById('nameRound'), pad = 60 + FX.name.blur * 3;   // room for the blur, so a big blur isn't clipped
   if (nf) { nf.setAttribute('x', -pad); nf.setAttribute('y', -pad); nf.setAttribute('width', 1180 + 2 * pad); nf.setAttribute('height', 300 + 2 * pad); }
@@ -513,7 +540,7 @@ function applyFx() {
   const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels'], ['images', 'Images'], ['lightbox', 'Lightbox']];
   const GRID_RATIOS = [['flex', 'Flexible (each cover\u2019s own shape)'], ['1:1', '1:1 square'], ['4:5', '4:5 tall'], ['5:4', '5:4 wide'], ['3:4', '3:4 tall'], ['4:3', '4:3 wide'], ['5:7', '5:7 tall'], ['7:5', '7:5 wide'], ['2:3', '2:3 tall'], ['3:2', '3:2 wide'], ['9:16', '9:16 tall'], ['16:9', '16:9 wide']];
   const origGrid = Object.assign({}, GRID);
-  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01], ['cols', 'Columns', 1, 6, 1], ['outline', 'Outline (px)', 0, 4, 0.25], ['pixel', 'Pixels, still (px)', 1, 80, 1], ['pixelMove', 'Pixels, moving (px)', 1, 120, 1], ['fade', 'Fade, still', 0, 1, 0.01], ['fadeMove', 'Fade, moving', 0, 1, 0.01]];
+  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01], ['cols', 'Columns', 1, 6, 1], ['outline', 'Outline (px)', 0, 4, 0.25], ['pixel', 'Pixels (px)', 1, 80, 1], ['pixelMove', 'Trail pixels (px)', 1, 120, 1], ['fade', 'Fade', 0, 1, 0.01], ['fadeMove', 'Trail fade', 0, 1, 0.01], ['trailSize', 'Trail size (px)', 10, 400, 5], ['trailLength', 'Trail length (ms)', 100, 3000, 50]];
   let part = 'name';
   const P = el('div', null, '<div class="th"><span>Tune</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
     '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '<button type="button" data-p="grid">Grid</button></div>' +
@@ -593,7 +620,7 @@ function applyFx() {
       const k = l.dataset.row, has = k in o; l.hidden = !has; if (!has) return;
       const inp = l.querySelector('input, select'); if (inp.type === 'checkbox') inp.checked = !!o[k]; else inp.value = o[k]; const out = l.querySelector('output'); if (out) out.textContent = num(o[k]);
     });
-    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. It always sits on one line: a title too long for the row is set smaller to fit.' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'images' ? 'The black outline on project images and videos with no transparency. 0 = no outline (the corners stay square).' : part === 'lightbox' ? 'Click an image on a project page to try it. Still = cursor resting, moving = while the cursor moves (it eases between them). Outline 0 = none.' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
+    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. It always sits on one line: a title too long for the row is set smaller to fit.' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'images' ? 'The black outline on project images and videos with no transparency. 0 = no outline (the corners stay square).' : part === 'lightbox' ? 'Click an image on a project page to try it. Pixels and fade = the background; trail = the bigger pixels that follow the cursor and taper off. Outline 0 = none.' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
     P.querySelector('.tcode').textContent = line();
   };
   P.addEventListener('click', e => {
