@@ -345,7 +345,7 @@ function pxOpen(src, isVideo, alt) {
   const x = el('button', 'lbx', '×'); x.setAttribute('aria-label', 'Close'); x.onclick = pxClose;
   wrap.append(cv, m, x);
   wrap.onclick = e => { if (e.target === wrap || e.target === cv) pxClose(); };
-  // three versions of the pixelated page: still (the background), and the trail's outer (in between) and inner (biggest) pixels
+  // pixelated versions of the page: the background, and a run of bigger sizes for the trail
   const L = () => FX.lightbox;
   let layers = null;
   function pixelate(n, f) {
@@ -359,7 +359,10 @@ function pxOpen(src, isVideo, alt) {
   }
   function build() {
     const o = L();
-    layers = [pixelate(o.pixel, o.fade), pixelate((o.pixel + o.pixelMove) / 2, (o.fade + o.fadeMove) / 2), pixelate(o.pixelMove, o.fadeMove)];
+    // the background, then STEPS sizes climbing evenly to the trail's biggest pixels (and fade), so the trail's edge is a gradient, not a hard jump
+    const S = Math.max(1, Math.min(10, Math.round(Math.abs(o.pixelMove - o.pixel) / 3)));
+    layers = [pixelate(o.pixel, o.fade)];
+    for (let i = 1; i <= S; i++) layers.push(pixelate(o.pixel + (o.pixelMove - o.pixel) * i / S, o.fade + (o.fadeMove - o.fade) * i / S));
   }
   // the trail: recent cursor points; each one's reach shrinks as it ages, so the trail tapers off behind the cursor
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -369,29 +372,29 @@ function pxOpen(src, isVideo, alt) {
     const o = L(), now = performance.now(), life = Math.max(50, o.trailLength), R = o.trailSize;
     trail = trail.filter(p => now - p.t < life);
     cx.drawImage(layers[0].c, 0, 0);
-    // each layer's cells near the trail are copied over the background: inner cells from the biggest pixels, the ring around them from the in-between ones
-    [[1, 0.12], [2, 0.5]].forEach(([li, need]) => {
-      const n = layers[li].n, done = new Set();
-      trail.forEach(p => {
-        const r = R * (1 - (now - p.t) / life); if (r <= 0) return;
-        for (let gx = Math.floor((p.x - r) / n); gx <= Math.floor((p.x + r) / n); gx++) for (let gy = Math.floor((p.y - r) / n); gy <= Math.floor((p.y + r) / n); gy++) {
-          const k = gx + ',' + gy; if (done.has(k)) continue;
-          let best = 0;   // the strongest pull on this cell from any trail point
-          for (const q of trail) { const rq = R * (1 - (now - q.t) / life); if (rq <= 0) continue; const v = 1 - Math.hypot(gx * n + n / 2 - q.x, gy * n + n / 2 - q.y) / rq; if (v > best) best = v; }
-          if (best < need) continue;
-          done.add(k); cx.drawImage(layers[li].c, gx * n, gy * n, n, n, gx * n, gy * n, n, n);
+    // how strongly the trail pulls on a spot: 1 at the cursor, falling off smoothly to 0 at the trail's edge (older points reach less far)
+    const pts = trail.map(p => ({ x: p.x, y: p.y, r: R * (1 - (now - p.t) / life) })).filter(p => p.r > 0);
+    const pull = (x, y) => { let best = 0; for (const q of pts) { const v = 1 - Math.hypot(x - q.x, y - q.y) / q.r; if (v > best) best = v; } return best; };
+    // each size takes the cells whose pull reaches its step, smallest first, so the pixels grow gradually toward the cursor
+    const S = layers.length - 1;
+    for (let li = 1; li <= S; li++) {
+      const n = layers[li].n, need = (li - 0.5) / S * 0.9 + 0.02, done = new Set();
+      pts.forEach(p => {
+        for (let gx = Math.floor((p.x - p.r) / n); gx <= Math.floor((p.x + p.r) / n); gx++) for (let gy = Math.floor((p.y - p.r) / n); gy <= Math.floor((p.y + p.r) / n); gy++) {
+          const k = gx * 100000 + gy; if (done.has(k)) continue; done.add(k);
+          if (pull(gx * n + n / 2, gy * n + n / 2) >= need) cx.drawImage(layers[li].c, gx * n, gy * n, n, n, gx * n, gy * n, n, n);
         }
       });
-    });
+    }
     if (trail.length) raf = requestAnimationFrame(frame);
   }
   const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
   wrap.addEventListener('pointermove', e => {
     if (still) return;
     const last = trail[trail.length - 1];
-    if (!last || Math.hypot(e.clientX - last.x, e.clientY - last.y) > 6) trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    if (!last || Math.hypot(e.clientX - last.x, e.clientY - last.y) > 10) trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
     else last.t = performance.now();
-    if (trail.length > 60) trail.shift();
+    if (trail.length > 40) trail.shift();
     kick();
   });
   pxBox = { el: wrap, stop: () => { cancelAnimationFrame(raf); }, redraw: () => { build(); applyLbOutline(); frame(); } };
@@ -433,7 +436,7 @@ render();
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
 // lightbox = clicking an image on a project page enlarges it over a pixelated copy of the page.
 //   pixel / fade = the background's pixel size (px) and paper-colored fade (0 to 1); pixelMove / fadeMove = the biggest pixels and fade in the
-//   cursor's trail (it steps through an in-between size at its edges). trailSize = how far the trail reaches from the cursor (px),
+//   cursor's trail (the pixels grow gradually from the background's size at the trail's edge to this at the cursor). trailSize = how far the trail reaches from the cursor (px),
 //   trailLength = how long it lingers (ms). outline = the black outline on the enlarged image (px, 0 = none).
 const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 }, lightbox: { pixel: 12, pixelMove: 48, fade: 0.15, fadeMove: 0.35, trailSize: 90, trailLength: 600, outline: 0 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
