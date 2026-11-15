@@ -167,7 +167,7 @@ function mediaBlock(m, cls) {
     if (m.height) { n.style.aspectRatio = 'auto'; n.style.height = m.height; }
     if (m.alt) n.setAttribute('aria-label', m.alt);      // not a title: a title shows as a tooltip over the whole builder
   }
-  else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; if (m.still) n.dataset.still = m.still; }
+  else { n = el('img', cls || 'm'); n.src = m.src; n.alt = m.alt || ''; n.loading = 'lazy'; }
   if (m.t !== 'embed') frameIfOpaque(n);
   return n;
 }
@@ -322,13 +322,25 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitT
 // ---------- image lightbox on project pages ----------
 // Clicking an image or GIF on a project page (not the avatar builder) enlarges it over the page, which fades behind it (FX.lightbox).
 let pxBox = null;
-// while it's open the page behind holds still: animated images with a  still  frame (projects.js) show it, and looping videos pause
+// while it's open the page behind holds still, on whatever frame it was showing: each animated image (GIF / WebP) on screen
+// is covered by a snapshot of its current frame, and looping videos pause. Closing takes the snapshots away and they carry on.
 function holdPage(on) {
-  document.querySelectorAll('#app img[data-still]').forEach(i => {
-    if (on) { i.dataset.anim = i.getAttribute('src'); i.src = i.dataset.still; }
-    else if (i.dataset.anim) { i.src = i.dataset.anim; delete i.dataset.anim; }
+  if (!on) {
+    document.querySelectorAll('#app canvas.held').forEach(c => { c.previousSibling.style.display = ''; c.remove(); });
+    document.querySelectorAll('#app video').forEach(v => { if (v.dataset.held) { v.play().catch(() => {}); delete v.dataset.held; } });
+    return;
+  }
+  document.querySelectorAll('#app img').forEach(i => {
+    if (!/\.(gif|webp)(\?|#|$)/i.test(i.currentSrc || i.src) || !i.naturalWidth) return;
+    const r = i.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight || !r.width) return;
+    try {
+      const c = document.createElement('canvas'); c.width = i.naturalWidth; c.height = i.naturalHeight;
+      c.getContext('2d').drawImage(i, 0, 0);
+      c.className = i.className + ' held'; c.setAttribute('aria-hidden', 'true');
+      i.after(c); i.style.display = 'none';
+    } catch (e) {}
   });
-  document.querySelectorAll('#app video').forEach(v => { if (on) { v.dataset.held = v.paused ? '' : '1'; v.pause(); } else if (v.dataset.held) { v.play().catch(() => {}); delete v.dataset.held; } });
+  document.querySelectorAll('#app video').forEach(v => { if (!v.paused) { v.dataset.held = '1'; v.pause(); } });
 }
 function pxClose() { if (!pxBox) return; pxBox.el.remove(); pxBox = null; document.body.style.overflow = ''; holdPage(false); }
 function pxOpen(src, isVideo, alt) {
