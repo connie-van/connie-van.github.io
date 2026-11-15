@@ -319,6 +319,69 @@ function fitTitles() {
 }
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTitles());
 
+// ---------- image lightbox on project pages ----------
+// Clicking an image or GIF on a project page (not the avatar builder) enlarges it over a pixelated copy of the page.
+// The page's images are drawn once, small, into a canvas; each frame scales that down to the pixel size and back up with hard edges,
+// so it costs almost nothing. Moving the cursor makes the pixels grow (FX.lightbox), easing back when it rests.
+let pxBox = null;
+function pxClose() { if (!pxBox) return; pxBox.stop(); pxBox.el.remove(); pxBox = null; document.body.style.overflow = ''; }
+function pxOpen(src, isVideo, alt) {
+  pxClose();
+  const W = innerWidth, H = innerHeight, paper = getComputedStyle(document.body).backgroundColor || '#FBF7F1';
+  // the scene: paper, plus every image / video / color block on screen, drawn at a quarter size
+  const K = 4, base = document.createElement('canvas'); base.width = Math.ceil(W / K); base.height = Math.ceil(H / K);
+  const bx = base.getContext('2d'); bx.fillStyle = paper; bx.fillRect(0, 0, base.width, base.height);
+  document.querySelectorAll('#app img, #app video, #app .m, #app .tile, #app .gbox').forEach(n => {
+    const r = n.getBoundingClientRect(); if (r.bottom < 0 || r.top > H || r.right < 0 || r.left > W || !r.width) return;
+    try {
+      if (n.tagName === 'IMG' || n.tagName === 'VIDEO') { if ((n.naturalWidth || n.videoWidth)) bx.drawImage(n, r.left / K, r.top / K, r.width / K, r.height / K); }
+      else { const bg = getComputedStyle(n).backgroundColor; if (bg && !/rgba\(0, 0, 0, 0\)|transparent/.test(bg)) { bx.fillStyle = bg; bx.fillRect(r.left / K, r.top / K, r.width / K, r.height / K); } }
+    } catch (e) {}
+  });
+  const wrap = el('div', 'lb px'); wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-label', alt || 'Image');
+  const cv = document.createElement('canvas'); cv.className = 'pxbg'; cv.width = W; cv.height = H;
+  const cx = cv.getContext('2d'), small = document.createElement('canvas'), sx = small.getContext('2d');
+  const m = isVideo ? gifVideo(src, 'lbm') : el('img', 'lbm'); if (!isVideo) { m.src = src; m.alt = alt || ''; }
+  const x = el('button', 'lbx', '×'); x.setAttribute('aria-label', 'Close'); x.onclick = pxClose;
+  wrap.append(cv, m, x);
+  wrap.onclick = e => { if (e.target === wrap || e.target === cv) pxClose(); };
+  let drawn = '';
+  function draw(n, f) {
+    n = Math.max(1, Math.round(n)); const key = n + ':' + f.toFixed(3); if (key === drawn) return; drawn = key;
+    small.width = Math.max(1, Math.ceil(W / n)); small.height = Math.max(1, Math.ceil(H / n));
+    sx.imageSmoothingEnabled = true; sx.drawImage(base, 0, 0, small.width, small.height);
+    cx.imageSmoothingEnabled = false; cx.drawImage(small, 0, 0, small.width * n, small.height * n);
+    if (f > 0) { cx.globalAlpha = Math.min(1, f); cx.fillStyle = paper; cx.fillRect(0, 0, W, H); cx.globalAlpha = 1; }
+  }
+  // energy: cursor movement adds to it, it drains on its own; shown eases toward it
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let energy = 0, shown = 0, raf = 0, lx = null, ly = null;
+  const L = () => FX.lightbox;
+  const frame = () => {
+    raf = 0; energy *= 0.94; shown += (energy - shown) * 0.12;
+    const o = L(); draw(o.pixel + (o.pixelMove - o.pixel) * shown, o.fade + (o.fadeMove - o.fade) * shown);
+    if (energy > 0.002 || Math.abs(energy - shown) > 0.002) raf = requestAnimationFrame(frame);
+  };
+  const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
+  const move = e => {
+    if (still) return;
+    if (lx !== null) energy = Math.min(1, energy + Math.hypot(e.clientX - lx, e.clientY - ly) / 500);
+    lx = e.clientX; ly = e.clientY; kick();
+  };
+  wrap.addEventListener('pointermove', move);
+  pxBox = { el: wrap, stop: () => { cancelAnimationFrame(raf); }, redraw: () => { drawn = ''; applyLbOutline(); kick(); frame(); } };
+  applyLbOutline();
+  document.body.appendChild(wrap); document.body.style.overflow = 'hidden';
+  draw(L().pixel, L().fade); x.focus();
+}
+function applyLbOutline() { document.documentElement.style.setProperty('--lb-outline', (FX.lightbox.outline || 0) + 'px'); }
+document.addEventListener('click', e => {
+  const n = e.target.closest('.proj img, .proj video'); if (!n || e.button !== 0) return;
+  pxOpen(n.currentSrc || n.getAttribute('src') || (n.querySelector('source') || {}).src, n.tagName === 'VIDEO', n.getAttribute('alt') || n.getAttribute('aria-label'));
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && pxBox) pxClose(); });
+window.addEventListener('hashchange', pxClose);
+
 let lastW = app.clientWidth, t;
 window.addEventListener('hashchange', () => render());
 window.addEventListener('resize', () => {
@@ -343,7 +406,10 @@ render();
 // labels = the small uppercase labels (credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions).
 //   leading = (body and title) line height
 // Add ?tune to the address, before any #, (connievan.com/?tune#/work) for sliders that change these live, with the line to copy back here.
-const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 } };
+// lightbox = clicking an image on a project page enlarges it over a pixelated copy of the page.
+//   pixel / fade = the pixel size (px) and paper-colored fade (0 to 1) when the cursor is still; pixelMove / fadeMove = while the cursor moves
+//   (it eases between the two; set them equal for no movement). outline = the black outline on the enlarged image (px, 0 = none).
+const FX = { name: { blur: 6, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, headings: { blur: 1.1, sharp: 4.5, thick: 0, squeeze: 0.68, font: 'cossette-bold', size: 1 }, title: { blur: 0, sharp: 4.5, thick: 0, font: 'instrument-serif', size: 1, caps: false, leading: 1 }, body: { font: 'geist', size: 0.83, leading: 1.4 }, labels: { font: 'geist-mono', size: 1 }, images: { outline: 0 }, lightbox: { pixel: 12, pixelMove: 48, fade: 0.15, fadeMove: 0.35, outline: 0 } };
 // the typefaces in fonts/: [the name shown in the ?tune panel, CSS family, weight]
 const FX_FONTS = {
   'cossette-bold': ['Cossette Titre Bold', "'Cossette Titre'", 700],
@@ -388,6 +454,7 @@ function applyFx() {
   if (!FX.body) FX.body = { font: 'cossette', size: 1, leading: 1.4 };
   if (!FX.labels) FX.labels = { font: 'geist-mono', size: 1 };
   if (!FX.images) FX.images = { outline: 0 };
+  if (!FX.lightbox) FX.lightbox = { pixel: 12, pixelMove: 48, fade: 0.15, fadeMove: 0.35, outline: 0 };
   set('nameRound', FX.name); set('round-m', FX.headings); set('round-l', FX.title);
   const nf = document.getElementById('nameRound'), pad = 60 + FX.name.blur * 3;   // room for the blur, so a big blur isn't clipped
   if (nf) { nf.setAttribute('x', -pad); nf.setAttribute('y', -pad); nf.setAttribute('width', 1180 + 2 * pad); nf.setAttribute('height', 300 + 2 * pad); }
@@ -407,6 +474,7 @@ function applyFx() {
   // re-measure the name once its typeface has loaded
   if (document.fonts && document.fonts.load) document.fonts.load((nf2[3] === 'italic' ? 'italic ' : '') + nf2[2] + ' 100px ' + nf2[1]).then(() => { if (window.fitName) window.fitName(); });
   fitTitles();
+  if (typeof pxBox !== 'undefined' && pxBox) pxBox.redraw();
 }
 
 // The name hides while you scroll down and comes back when you scroll up.
@@ -442,10 +510,10 @@ function applyFx() {
 (function () {
   if (!/[?&]tune\b/.test(location.search)) return;
   const orig = JSON.parse(JSON.stringify(FX));
-  const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels'], ['images', 'Images']];
+  const parts = [['name', 'Name'], ['title', 'Project title'], ['headings', 'Next / prev'], ['body', 'Body copy'], ['labels', 'Labels'], ['images', 'Images'], ['lightbox', 'Lightbox']];
   const GRID_RATIOS = [['flex', 'Flexible (each cover\u2019s own shape)'], ['1:1', '1:1 square'], ['4:5', '4:5 tall'], ['5:4', '5:4 wide'], ['3:4', '3:4 tall'], ['4:3', '4:3 wide'], ['5:7', '5:7 tall'], ['7:5', '7:5 wide'], ['2:3', '2:3 tall'], ['3:2', '3:2 wide'], ['9:16', '9:16 tall'], ['16:9', '16:9 wide']];
   const origGrid = Object.assign({}, GRID);
-  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01], ['cols', 'Columns', 1, 6, 1], ['outline', 'Outline (px)', 0, 4, 0.25]];
+  const rows = [['size', 'Size (\u00d7)', 0.5, 2, 0.01], ['blur', 'Roundness (blur)', 0, 20, 0.1], ['sharp', 'Edge sharpness', 1, 20, 0.1], ['thick', 'Thickness', -0.4, 0.4, 0.01], ['squeeze', 'Squeeze', 0.4, 1, 0.01], ['width', 'Title width (%)', 15, 85, 1], ['leading', 'Line height', 0.7, 2, 0.01], ['cols', 'Columns', 1, 6, 1], ['outline', 'Outline (px)', 0, 4, 0.25], ['pixel', 'Pixels, still (px)', 1, 80, 1], ['pixelMove', 'Pixels, moving (px)', 1, 120, 1], ['fade', 'Fade, still', 0, 1, 0.01], ['fadeMove', 'Fade, moving', 0, 1, 0.01]];
   let part = 'name';
   const P = el('div', null, '<div class="th"><span>Tune</span><button type="button" class="tmin" aria-label="Hide or show the sliders">\u2013</button></div>' +
     '<div class="tbody"><div class="tparts">' + parts.map(p => '<button type="button" data-p="' + p[0] + '">' + p[1] + '</button>').join('') + '<button type="button" data-p="grid">Grid</button></div>' +
@@ -513,7 +581,7 @@ function applyFx() {
   gfq.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); useGoogle(); } else if (e.key === 'Escape') gfres.hidden = true; });
   const show = () => {
     const o = part === 'grid' ? GRID : FX[part];
-    const noFont = part === 'grid' || part === 'images'; P.querySelector('.tgf').hidden = noFont; P.querySelector('.gfmsg').hidden = noFont;
+    const noFont = part === 'grid' || part === 'images' || part === 'lightbox'; P.querySelector('.tgf').hidden = noFont; P.querySelector('.gfmsg').hidden = noFont;
     P.querySelector('.tpaste').textContent = 'Copy, then paste over the ' + (part === 'grid' ? 'GRID' : 'FX') + ' line in app.js.';
     const sel = P.querySelector('select[data-k="font"]');
     sel.querySelectorAll('option.gf').forEach(op => { if (op.value !== o.font) op.remove(); });
@@ -525,7 +593,7 @@ function applyFx() {
       const k = l.dataset.row, has = k in o; l.hidden = !has; if (!has) return;
       const inp = l.querySelector('input, select'); if (inp.type === 'checkbox') inp.checked = !!o[k]; else inp.value = o[k]; const out = l.querySelector('output'); if (out) out.textContent = num(o[k]);
     });
-    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. It always sits on one line: a title too long for the row is set smaller to fit.' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'images' ? 'The black outline on project images and videos with no transparency. 0 = no outline (the corners stay square).' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
+    P.querySelector('.tnote').textContent = part === 'title' ? 'Shown on a project page. Its squeeze is the headings\u2019 squeeze. It always sits on one line: a title too long for the row is set smaller to fit.' : part === 'headings' ? 'The next and previous project titles at the bottom of a project page.' : part === 'body' ? 'Descriptions, credits and the About page. Sizes scale together.' : part === 'images' ? 'The black outline on project images and videos with no transparency. 0 = no outline (the corners stay square).' : part === 'lightbox' ? 'Click an image on a project page to try it. Still = cursor resting, moving = while the cursor moves (it eases between them). Outline 0 = none.' : part === 'labels' ? 'The small uppercase labels: credit roles, tile captions, the menu, the breadcrumb, Next / Previous, lightbox captions. Sizes scale together.' : '';
     P.querySelector('.tcode').textContent = line();
   };
   P.addEventListener('click', e => {
